@@ -1,0 +1,29 @@
+#!/bin/bash -e
+## Do a recursive pull
+## check for unclean folders
+## and unpushed changes, since this might cause trouble
+## if there are such changes, you have to do it by hand
+## e.g., merge the where there are local and remote changes
+
+## check for modified content and uncommited changes
+git is-clean
+
+## check for unpushed changes in submodules
+git submodule --quiet foreach --recursive git check-unpushed
+## git check-unpushed # no need to check in master
+
+## do the pull
+## git pull --recurse-submodules (does not work)
+git pull
+
+## if the pull fails because of local non-pushed commits, 
+## what to do? 
+
+## initialize submodules: cannot combine --init with --merge!!
+git submodule --quiet update --init --recursive
+## remove old submodule directories: 
+## this is more or less safe, since only ignored files might be deleted
+git submodule --quiet foreach git rm-orphaned-submodule-dirs
+git rm-orphaned-submodule-dirs
+## attach heads
+git submodule --quiet foreach --recursive git attach-head

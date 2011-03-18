@@ -1,0 +1,22 @@
+#!/bin/bash -e
+## Do a recursive checkout
+## this includes removing orphaned directories
+## and attaching heads.
+
+## check for modified content and uncommited changes
+if ! git diff --no-ext-diff --quiet --exit-code || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); then
+    echo "Error, there are unstaged changes or untracked files. Aborting."
+    exit 1
+fi 
+
+## do the checkout
+## git pull --recurse-submodules (does not work)
+git checkout "$@"
+## initialize submodules: cannot combine --init with --merge!!
+git submodule update --init --recursive
+## remove old submodule directories: 
+## this is more or less safe, since only ignored files might be deleted
+git submodule foreach git rm-orphaned-submodule-dirs
+git rm-orphaned-submodule-dirs
+## attach heads if possible
+git submodule foreach --recursive git attach-head

@@ -1,0 +1,35 @@
+#!/bin/bash -e
+## Conditional commit
+## commit only if there is something to commit
+## and warn if there are files that are neither added
+## nor ignored.
+
+a=0
+
+## ToDo: what about --all???
+while getopts ":a" opt; do
+    case $opt in
+	a)
+	    a=1
+	    #echo "-a was triggered!" >&2
+	    ;;
+	\?)
+	    # ignore this
+	    #echo "Invalid option: -$OPTARG" >&2
+	    ;;
+  esac
+done
+
+if [ $a -ne 1 ] && ! git diff --no-ext-diff --quiet --exit-code; then
+    echo "Warning, there are unstaged changes to tracked files in this directory."
+fi 
+   
+## check if -a or --all option is set
+ 
+## commit if dirty
+if ([ $a -eq 1 ] && ! git diff --no-ext-diff --quiet --exit-code) || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); 
+then
+    git commit "$@"
+else
+    echo "Directory clean, skipping"
+fi

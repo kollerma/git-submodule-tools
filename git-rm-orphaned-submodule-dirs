@@ -1,0 +1,37 @@
+#!/bin/bash -e
+## Remove orphaned submodule directories
+
+## do nothing if there is no .gitmodules file
+if [ ! -f .gitmodules ]; then
+    exit 0;
+fi
+
+## find submodule urls in .gitmodules:
+git config --get-regexp submodule.*url |
+while read line; do
+    #echo "$line"
+    key=`expr "$line" : '\(.*\.url\) '`
+    #echo "$key"
+    dir=`expr "$key" : 'submodule\.\(.*\)\.url'`
+    #echo "$dir"
+    if [[ -d "$dir" && $(git config -f .gitmodules --get "$key") == '' ]]; then
+	## TODO: confirm the removal??
+	# echo "$dir is an orphan"
+	# #get confirmation
+	# until [[ "$ans" == "n" || "$ans" == "y" ]]; do
+	#     if [[ "$ans" ]]; then
+	# 	echo "Please answer with y or n"
+	#     fi
+	#     echo "hello"
+	#     read asn # -p "Do you want to remove $dir (y/n)? " ans
+	#     echo "ans: $ans"
+	# done
+	# echo "ans: $ans"
+	# if [[ "$ans" == "y" ]]; then
+	#     echo "removing..."
+	rm -rf "$dir"
+	# fi
+    fi
+done
+
+git submodule sync

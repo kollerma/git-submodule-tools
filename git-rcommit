@@ -1,0 +1,23 @@
+#!/bin/bash -e
+## Recursive commit
+## accepts the same arguments as commit
+## but does a ccommit in each submodule as well
+
+## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
+CMD="git ccommit"
+
+for (( i = 1; i <= $# ; i++ )); do
+  eval ARG=\$$i
+  CMD="$CMD $(echo "$ARG" | awk '{gsub(".", "\\\\&");print}')"
+done
+
+## check arguments??
+
+## recursive commit
+## git submodule foreach 'git submodule foreach git add -u .'
+git submodule --quiet foreach "git submodule foreach \"$CMD\""
+## submodules
+## git submodule foreach git add -u .
+git submodule --quiet foreach "git ccommit \"$@\""
+## git add -u .
+git ccommit "$@"

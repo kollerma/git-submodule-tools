@@ -1,0 +1,23 @@
+#!/bin/bash -e
+## Do a recursive push
+## accepts the same argument as push
+
+# check for non remote tracking branches and fail
+# TODO: if not --all
+git submodule foreach --recursive "git check-branch"
+
+## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
+CMD="git push"
+
+for (( i = 1; i <= $# ; i++ )); do
+  eval ARG=\$$i
+  CMD="$CMD $(echo "$ARG" | awk '{gsub(".", "\\\\&");print}')"
+done
+
+## !!! check for uncommited changes
+## push second level repositories
+git submodule foreach "git submodule foreach \"$CMD\""
+## push first level repositories
+git submodule foreach git push "$@"
+## push super rep.
+git push "$@"

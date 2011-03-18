@@ -1,0 +1,21 @@
+#!/bin/bash -e
+## Attaches HEAD if commit and top of branch are identical anyway
+
+## TODO: do some error checking?
+
+## stop if HEAD is a ref already
+if [[ $(cat .git/HEAD | cut -c1-4) == "ref:" ]]; then
+    exit 0
+fi
+
+HEAD=`git rev-parse HEAD`
+branch=`git what-branch $HEAD 2> /dev/null || git what-branch --allbranches $HEAD`
+HEADofbranch=`git rev-parse $branch`
+
+if [ "$HEAD" == "$HEADofbranch" ]; then
+    git checkout --quiet ${branch##remotes/*/} > /dev/null
+fi
+
+## else rewind local branch and do the checkout ??
+## when not to do it?
+

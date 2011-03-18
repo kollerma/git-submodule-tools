@@ -1,0 +1,19 @@
+#!/bin/bash -e
+## Check if we're on a remote tracking branch
+
+activebranch=`git name-rev --name-only HEAD`
+
+## TODO: This assumes the same names and thus is not robust
+git branch --no-color -r 2> /dev/null |
+while read line; do
+    branch=`expr "$line" : 'origin/\([^ ]*\)'`
+    if [[ "$branch" == "$activebranch" ]]; then
+	exit 1
+    fi
+done && nontracking=0
+
+if [[ "$nontracking" ]]; then
+    ## if we're here: fail
+    echo "Error: branch \"$activebranch\" is not a remote tracking branch."
+    exit 1
+fi

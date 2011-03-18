@@ -1,0 +1,11 @@
+#!/bin/bash -e
+## check for modified content and uncommited changes
+
+if [[ "$1" ]]; then
+    cd "$1"
+fi
+
+if ! git diff --no-ext-diff --quiet --exit-code || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); then
+    echo "Error, there are unstaged changes or untracked files."
+    exit 1
+fi 

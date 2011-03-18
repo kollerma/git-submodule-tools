@@ -1,0 +1,18 @@
+#!/bin/bash -e
+## Check for unpushed commits in current branch
+
+## Switch to directory
+if [[ "$1" ]]; then
+    cd "$1"
+fi
+
+## can only check, if we are on a remote tracking branch
+git check-branch
+
+activebranch=`git name-rev --name-only HEAD`
+
+if [[ $(git log origin/$activebranch..$activebranch --oneline) != "" ]] ; then
+    echo "Error: unpushed commits"
+    exit 1
+fi
+

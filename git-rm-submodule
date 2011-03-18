@@ -1,0 +1,27 @@
+#!/bin/bash -e
+## Remove the submodule $1
+
+dir=$1
+
+## check if this is a valid submodule
+if [[ ! "$dir" || $(git config --get submodule.$dir.url) == "" ]]; then
+    echo "Error: this is not a submodule."
+    exit 1
+fi
+
+## check if submodule is clean
+git is-clean "$dir"
+## check for unpushed changes
+git check-unpushed "$dir"
+
+## seems we're safe, so start removing
+## remove config entries
+git config -f .gitmodules --remove-section submodule.$dir
+git config --remove-section submodule.$dir
+git rm --cached "$dir"
+rm -rf "$dir"
+## commit changes
+git add .gitmodules
+git commit -m "removed submodule $dir"
+
+## TODO: commit in super repositories of this one also??

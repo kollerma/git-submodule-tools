@@ -1,0 +1,15 @@
+#!/bin/bash -e
+## Recursive clone
+## clone into $2 directory
+## and attach heads.
+
+if [[ "$2" ]]; then
+    name="$2"
+else
+    name="$1"
+fi
+
+git clone --recursive "git@github.com:kollerma/$1.git" "$name"
+cd "$name"
+## attach heads
+git submodule --quiet foreach --recursive git attach-head

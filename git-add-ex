@@ -1,0 +1,12 @@
+#!/bin/bash -e
+## Add exercise as submodule
+## TODO: automatically generate name ex#
+
+if [[ "$2" ]]; then
+    name="$2"
+else
+    name="$1"
+fi
+
+git submodule add "git@github.com:kollerma/$1.git" "$name"
+## TODO: commit this in the super repositories
