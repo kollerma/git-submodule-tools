@@ -1,0 +1,45 @@
+#!/bin/bash -e
+## Check for updates, does a fetch dry-run and reports
+## the changes. This is just for convenience.
+## Argument -f really does the fetch (no dry-run)
+
+dryrun="--dry-run"
+
+while getopts ":f" opt; do
+    case $opt in
+	f)
+	    dryrun=""
+	    #echo "-p was triggered!" >&2
+	    ;;
+	\?)
+	    # ignore this
+	    #echo "Invalid option: -$OPTARG" >&2
+	    ;;
+  esac
+done
+
+## check the super repository
+if [[ $(git fetch $dryrun) != '' ]]; then
+    echo "There are updates available for \"./\"."
+fi
+
+## check the submodules
+while read line; do
+    ## Ok, just check line by line
+    ## This looks like...
+    ## Entering 'r-tutorial'
+    ## Entering 'serie1'
+    ## Entering 'serie1/aufgabe1'
+    ## Entering 'serie1/aufgabe2'
+    ## ...if there is nothing to fetch
+    if [[ "${line:0:10}" == "Entering '" ]]; then
+	lline=${line:10:$((${#line}-11))}
+	printed=0
+	##echo "$lline"
+    else
+	if [[ $printed -eq 0 ]]; then
+	    echo "There are updates available for $lline."
+	    printed=1
+	fi
+    fi	
+done < <(git submodule foreach --recursive git fetch $dryrun 2>&1)

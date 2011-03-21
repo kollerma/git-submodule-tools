@@ -1,0 +1,9 @@
+#!/bin/bash -e
+## check for modified content and uncommited changes
+
+if ! git diff --no-ext-diff --quiet --exit-code || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); then
+    echo "Error in $PWD:"
+    echo " There are unstaged changes or untracked files not in .gitignore."
+    echo " Try to run \"make clean"\"
+    exit 1
+fi 
