@@ -1,0 +1,35 @@
+#!/bin/bash -e
+## Show diff branch..origin/branch 
+## for this repository and all submodules
+
+## continue silently, if there are unstaged changes
+## we assume that such directories have already been merged.
+if git diff --no-ext-diff --quiet --exit-code; then
+    ## check if its a remote tracking branch and get it
+    while read line; do
+	if [[ "${line:0:1}" != "*" ]]; then
+	    continue
+	fi
+	##echo "$line"
+	branch=`expr "$line" : '\** *\([^ ]*\)'`
+	remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
+	remote=`expr "$remote" : '\([^:]*\)'`
+    done < <(git branch --no-color -vv 2> /dev/null)
+
+    if [[ "$nontracking" ]]; then
+	echo "Error in $PWD:"
+	echo " Not on a remote tracking branch."
+    else 
+	output=`git diff $branch..$remote --ignore-submodules --stat --no-ext-diff`
+
+	if [[ "$output" != "" ]]; then
+	    echo "Diff in $PWD:"
+	    echo "$output"
+	fi
+    fi
+fi
+
+## check for differences in submodules
+if [ -f .gitmodules ]; then
+    git submodule --quiet foreach git rdiff
+fi

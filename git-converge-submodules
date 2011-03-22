@@ -1,0 +1,73 @@
+#!/bin/bash -e
+## If local and remote have diverged, but actually
+## only the submodule pointers are different 
+## force a rebase to syncronise them again.
+
+if [ -f .gitmodules ]; then
+    ## Check if local and remote have diverged
+    ## in the submodules and rebase if necessary
+    ## check if its a remote tracking branch and get it
+    while read line; do
+	if [[ "${line:0:1}" != "*" ]]; then
+	    continue
+	fi
+	##echo "$line"
+	branch=`expr "$line" : '\** *\([^ ]*\)'`
+	remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
+	remote=`expr "$remote" : '\([^:]*\)'`
+    done < <(git branch --no-color -vv 2> /dev/null)
+    
+    if [[ ! "$nontracking" ]]; then
+	## get submodules
+	while read line; do
+	    sub="$sub ${line#submodule.*.path }"
+	done < <(git config -f .gitmodules --get-regexp "submodule\..*\.path")
+	## echo "$sub"
+	# output=`git diff $branch...$remote --stat --no-ext-diff $sub`
+	# if [[ "$output" ]]; then
+	#     echo "Converge started..."
+	#     echo "$output"
+	# fi
+	if ! git diff $branch...$remote --no-ext-diff --quiet --exit-code $sub; then
+	    ## there are differences, do a rebase
+            ## check for uncommmited changes first
+	    if ! git diff --no-ext-diff --quiet --exit-code; then
+		echo "Error in $PWD:"
+		echo " Uncommited changes, cannot converge branches"
+		exit 1
+	    fi
+	    echo "Converging local and remote..."
+	    ## check for differences other than in submodule pointers
+	    output=`git diff $branch...$remote --no-ext-diff --stat --ignore-submodules`
+	    if [[ "$output" != "" ]]; then
+		## ok, there may be just differences in .gitmodules
+		if [[ $(echo "$output" | sed -e '$ d' -e '/ .gitmodules/ d') == "" ]]; then
+		    ## so probably a submodule was removed in the remote
+		    ## and we made some changes to it
+		    ## check for unpushed changes in submodules
+		    git submodule --quiet foreach git check-unpushed
+		    ## make sure they're clean
+		    git submodule --quiet foreach git check-clean
+		    ## ok, so the submodule seems to be clean, pull...
+		    git pull -q 2>/dev/null >/dev/null || echo "Removing submodules dropped in remote..."
+		    ## then start removing submodules
+		    while read line; do
+			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" ]]; then
+			    ## this has to be removed
+			    rm -r "${line:3}/"
+			    git rm --ignore-unmatch --quiet "${line:3}"
+			fi
+		    done < <(git status --porcelain)
+		    git ccommit -qm 'Converged submodules'
+		else
+		    echo "Error in $PWD: (got cold feet)"
+		    echo " Differences between local and remote other than just submodules, cannot converge branches. Rebase by hand."
+		    exit 1
+		fi
+	    else
+		git pull
+	    fi
+	    echo "done."
+	fi  
+    fi
+fi

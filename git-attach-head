@@ -1,5 +1,7 @@
 #!/bin/bash -e
 ## Attaches HEAD if commit and top of branch are identical anyway
+## Fast forwards local branch if HEAD matches top of remote branch.
+## If argument -w is given: warn if HEAD cannot be attached
 
 ## TODO: do some error checking?
 
@@ -8,12 +10,39 @@ if [[ $(cat .git/HEAD | cut -c1-4) == "ref:" ]]; then
     exit 0
 fi
 
+## get arguments
+while getopts ":w" opt; do
+    case $opt in
+	w)
+	    w=1
+	    #echo "-f was triggered!" >&2
+	    ;;
+	\?)
+	    # ignore this
+	    #echo "Invalid option: -$OPTARG" >&2
+	    ;;
+  esac
+done
+
 HEAD=`git rev-parse HEAD`
-branch=`git what-branch $HEAD 2> /dev/null || git what-branch --allbranches $HEAD`
+branch=`git what-branch --quiet $HEAD 2> /dev/null || git what-branch --quiet --allbranches $HEAD 2> /dev/null || echo ""`
+if [[ "$branch" == "" ]]; then
+    exit 0;
+fi
 HEADofbranch=`git rev-parse $branch`
 
 if [ "$HEAD" == "$HEADofbranch" ]; then
-    git checkout --quiet ${branch##remotes/*/} > /dev/null
+    lbranch=${branch##remotes/*/}
+    git checkout --quiet "$lbranch" > /dev/null
+    if [ "$branch" != "$lbranch" ]; then
+	echo "Fast forwarding local branch"
+	git merge --quiet --ff-only $HEAD
+    fi
+else
+    if [[ "$w" ]]; then
+	echo "Warning in $PWD:"
+	echo " Cannot attach HEAD. There are probably unmerged updates available. Go (\"cd\") there and use \"git brach -v\" list available branches. Switch branches with \"git checkout <branchname>\"."
+    fi
 fi
 
 ## else rewind local branch and do the checkout ??

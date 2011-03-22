@@ -2,22 +2,30 @@
 ## Do a recursive push
 ## accepts the same argument as push
 
-# check for non remote tracking branches and fail
-# TODO: if not --all
-git submodule foreach --recursive "git check-branch"
+## check for non remote tracking branches and fail
+## TODO: if not --all
+git submodule --quiet foreach --recursive "git check-branch"
+## TODO: check for unpulled changes: fetch, then check
+# git fetch -q
+# git submodule --quiet foreach --recursive "git fetch -q"
+
 
 ## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
-CMD="git push"
+CMD="git cpush -q"
 
 for (( i = 1; i <= $# ; i++ )); do
   eval ARG=\$$i
   CMD="$CMD $(echo "$ARG" | awk '{gsub(".", "\\\\&");print}')"
 done
 
-## !!! check for uncommited changes
+## !!! check for uncommited changes ???
 ## push second level repositories
-git submodule foreach "git submodule foreach \"$CMD\""
+echo "Pushing second level submodules..."
+git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\""
+echo "done."
 ## push first level repositories
-git submodule foreach git push "$@"
+echo "Pushing first level submodules..."
+git submodule --quiet foreach git cpush -q "$@"
+echo "done."
 ## push super rep.
-git push "$@"
+git cpush -q "$@"

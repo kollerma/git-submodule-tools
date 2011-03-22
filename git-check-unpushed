@@ -1,18 +1,40 @@
 #!/bin/bash -e
-## Check for unpushed commits in current branch
+## Check for unpushed commits in remote tracking branches
+## if argument -p is given: does not exit with a failure
 
-## Switch to directory
-if [[ "$1" ]]; then
-    cd "$1"
+while getopts ":p" opt; do
+    case $opt in
+	p)
+	    p=1
+	    #echo "-p was triggered!" >&2
+	    ;;
+	\?)
+	    # ignore this
+	    #echo "Invalid option: -$OPTARG" >&2
+	    ;;
+  esac
+done
+
+## cycle all branches
+while read line; do
+    ##echo "$line"
+    branch=`expr "$line" : '\** *\([^ ]*\)'`
+    ##echo "$branch"
+    remote=`expr "$line" : '.*\[\(.*\)\]'` || continue
+    ##echo "$remote"
+    ## if we're ahead: branch will show it after ":" 
+    status=`expr "$remote" : '.*: ahead \(.*\)'` || continue
+    ##echo "$status"
+    unpushed="$unpushed Branch \"$branch\" is ahead $status commit(s).
+"
+done < <(git branch --no-color -vv 2> /dev/null)
+
+if [ "$unpushed" ]; then
+    if [[ $p -ne 1 ]]; then
+	echo "Error in $PWD:"
+	echo -n "$unpushed"
+	exit 1
+    fi
+    echo "In $PWD:"
+    echo -n "$unpushed"
 fi
-
-## can only check, if we are on a remote tracking branch
-git check-branch
-
-activebranch=`git name-rev --name-only HEAD`
-
-if [[ $(git log origin/$activebranch..$activebranch --oneline) != "" ]] ; then
-    echo "Error: unpushed commits"
-    exit 1
-fi
-

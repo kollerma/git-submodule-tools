@@ -1,9 +1,39 @@
 #!/bin/bash -e
 ## check for modified content and uncommited changes
 
-if ! git diff --no-ext-diff --quiet --exit-code || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); then
-    echo "Error in $PWD:"
-    echo " There are unstaged changes or untracked files not in .gitignore."
-    echo " Try to run \"make clean"\"
-    exit 1
+## Tests copied from bash completion support for core Git.
+## by Shawn O. Pearce <spearce@spearce.org>
+
+## Check unstaged changes
+if ! git diff --no-ext-diff --quiet --exit-code; then
+    ## not in submodules
+    if ! git diff --no-ext-diff --quiet --ignore-submodules --exit-code; then
+	output=" There are unstaged changes. Use \"git add <file>\" to add.
+"
+    fi
+    ## in submodules
+    ## get submodules
+    while read line; do
+	sub="$sub ${line#submodule.*.path }"
+    done < <(git config -f .gitmodules --get-regexp "submodule\..*\.path")
+    if ! git diff --no-ext-diff --quiet --exit-code $sub; then
+	output="$output There is modified content in submodules.
+"
+    fi
+fi
+
+if (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); then
+    output="$output There are uncommited files. Use \"git rcommit\" or \"git commit\" to commit.
+"
 fi 
+
+if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    output="$output There are untracked files not in .gitignore. Try \"make clean\" to remove temporary files.
+"
+fi
+
+if [[ "$output" ]]; then
+    echo "Error in $PWD:"
+    echo -n "$output"
+    exit 1
+fi

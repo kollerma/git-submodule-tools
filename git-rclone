@@ -6,10 +6,17 @@
 if [[ "$2" ]]; then
     name="$2"
 else
-    name="$1"
+    name=`basename "$1"`
+    name=${name%.git}
 fi
 
-git clone --recursive "git@github.com:kollerma/$1.git" "$name"
+echo "Cloning into $name..."
+git clone --recursive -q "$1" "$name" > /dev/null
+echo "done."
 cd "$name"
 ## attach heads
-git submodule --quiet foreach --recursive git attach-head
+if [ -f .gitmodules ]; then
+    echo "Attaching heads of submodules..."
+    git submodule --quiet foreach --recursive git attach-head -w
+    echo "done."
+fi

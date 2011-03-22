@@ -5,13 +5,18 @@
 ## nor ignored.
 
 a=0
+q=0
 
 ## ToDo: what about --all???
-while getopts ":a" opt; do
+while getopts ":aq" opt; do
     case $opt in
 	a)
 	    a=1
 	    #echo "-a was triggered!" >&2
+	    ;;
+	q)
+	    q=1
+	    #echo "-q was triggered!" >&2
 	    ;;
 	\?)
 	    # ignore this
@@ -21,15 +26,36 @@ while getopts ":a" opt; do
 done
 
 if [ $a -ne 1 ] && ! git diff --no-ext-diff --quiet --exit-code; then
-    echo "Warning, there are unstaged changes to tracked files in this directory."
+    echo "Warning in $PWD:"
+    echo " Unstaged changes to files under version control."
+    echo " To add, use option -a to stage or add files manually with git add <file>."
 fi 
    
 ## check if -a or --all option is set
+# echo "Hello $PWD $a"
+
+# if ([ $a -eq 1 ] && ! git diff --no-ext-diff --quiet --exit-code); then
+#     echo "yes, do it!"
  
 ## commit if dirty
 if ([ $a -eq 1 ] && ! git diff --no-ext-diff --quiet --exit-code) || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); 
 then
+    ## check for detached head
+    if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
+	echo "Error in $PWD:"
+	echo " Refused to commit in detached head state. Use \"git rcheckout <branchname>\" to attach HEAD. List branches with \"git branch -v\"."
+	exit 1
+    fi
+
+    echo "Commiting in $PWD..."
     git commit "$@"
+    
+    if [ -f .gitmodules ]; then
+	## Syncronize submodules if necessary
+	git converge-submodules
+    fi
 else
-    echo "Directory clean, skipping"
+    if [ $q -ne 1 ]; then
+	echo "Directory clean, skipping"
+    fi
 fi

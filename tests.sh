@@ -1,10 +1,21 @@
 #!/bin/bash
 
-## stop on error
-set -e
+####
+## config
+####
 
 ## set current directory as working directory
 wd=`pwd`
+
+####
+## setup
+####
+ 
+## stop on error
+set -e
+
+## switch to working dir
+cd "$wd"
 
 ## create master (bare) clones for submodules
 mkdir remote
@@ -59,6 +70,11 @@ rm -rf vorlesung
 git rclone $wd/remote/vorlesung.git vorlesung
 git rclone $wd/remote/vorlesung.git vorlesung2
 git rclone $wd/remote/vorlesung.git vorlesung3
+
+####
+## start tests
+####
+
 ## get some work done in vorlesung2
 (cd vorlesung2
     (cd r-tutorial
@@ -83,12 +99,170 @@ git rclone $wd/remote/vorlesung.git vorlesung3
     git tag state-1
     git push --tag
 )
+
 ## pull this in vorlesung
 (cd vorlesung
     git rpull
+    ## This should report that there are updates available
+    ## for serie2/aufgabe1 which points to the same rep. as
+    ## serie1/aufgabe2.
 )
 
+## clone vorlesung to vorlesung4
+git rclone $wd/remote/vorlesung.git vorlesung4
+## there is a detached head. do nothing...
+
+####
+## how to fix diverged branches
+####
+
 ## now work in vorlesung3 without pulling first
+## to force some conflicts
 (cd vorlesung3
-    ## and force a conflict like this...
+    ## check-for-updates should report updates but not fetch them
+    git check-for-updates
+    ## force a conflict
+    (cd r-tutorial
+	echo "some more content" >> tutorial.Rnw
+    )
+    (cd serie2/aufgabe1
+	echo "we work against each other" >> ex.Rnw
+    )
+    ## try to pull now, should fail
+    git rpull || echo "rpull failed, as required."
+    ## try to push, should not fail, since there are no new commits
+    git rpush || echo "rpush failed, this shouldn't happen!!"
+    ## commit
+    git rcommit -am "some message"
+    ## now there's a conflict, try to push again
+    git rpush || echo "rpush failed, as required."
+    ## so try a pull as the message says
+    ## and this should also report the differences
+    git rpull || echo "rpull failed, as required."
+    ## the way to go is to use check-for-updates -f
+    git check-for-updates -f
+    ## rpull and push should still fail
+    git rpull || echo "rpull failed, as required."
+    git rpush || echo "rpush failed, as required."
+    ## do git rdiff to find differences
+    git rdiff
+    ## merge all differences
+    (cd r-tutorial
+	git pull || echo "corrected version" > tutorial.Rnw
+    )
+    ## This can be fast forwarded
+    (cd serie1/aufgabe1
+	git pull
+    )
+    ## This can be fast forwarded
+    (cd serie1/aufgabe2
+	git pull
+    )
+    (cd serie2/aufgabe1
+	git pull || cat ex.Rnw | sed -e '7 d' -e '5 d' -e '3 d' > ex.Rnw
+    )
+    ## Now git rdiff should not show any changes
+    git rdiff
+    ## ok, commit then
+    git rcommit -am 'merged remote'
+    ## and push
+    git rpush
 )
+
+## Now pull this in vorlesung
+(cd vorlesung
+    git rpull
+    ## show differences
+    git rdiff
+)
+
+####
+## try tag switching
+###
+
+## Now pull this in vorlesung2
+(cd vorlesung2
+    git rpull
+    ## show differences
+    git rdiff
+    ## add tag and push it
+    git tag state-2
+    git push --tag
+    ## list tags
+    git tag
+    ## checkout 
+    git rcheckout state-1
+    git rcheckout state-0
+    ## try to do stuff
+    (cd r-tutorial
+	echo "testing..." >> tutorial.Rnw
+    )
+    git rcommit -am 'testing stuff' || echo "rcommit failed as it should have"
+    git rcheckout state-1 || echo "rcheckout failed as it should have"
+    ## revert
+    (cd r-tutorial
+	git reset --hard HEAD
+    )
+    git rcheckout state-2
+
+    ## remove some submodules and switch tags
+    (cd serie2
+	## try to remove dirty submodule
+	echo "test" > aufgabe2/hallo
+    	git rm-submodule aufgabe2 || echo "rm-submodule failed as it should have"
+	## clean it and try again
+	rm aufgabe2/hallo
+    	git rm-submodule aufgabe2	
+    )
+    ## have to commit this in super repository by hand
+    git rcommit -am 'removed submodule serie2/aufgabe2'
+    ## revert to state-2
+    git rcheckout state-2
+    [ -f serie2/aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not restored"; exit 1)
+    ## revert to newest state
+    git rcheckout master
+    ## now push this
+    git rpush
+)
+
+####
+## cause conflict -- stage2: when submodules were removed in remote
+####
+
+(cd vorlesung3
+    ## check for updates, but ignore them
+    git check-for-updates
+    (cd serie2/aufgabe2
+	echo "test" > hallo
+	git add hallo
+	git commit -m "playing with fire"
+    )
+    ## should open an editor
+    ## git rcommit -a
+    git rcommit -am "playing with fire!!"
+    ## now get updates
+    git rpull || echo "This fails as it should"
+    git rpush || echo "This pushes the second level, but then fails"
+    ## get updates
+    git check-for-updates
+    git check-for-updates -f
+    git rdiff
+
+    ## update serie1/aufgabe2
+    (cd serie1/aufgabe2
+	git pull
+    )
+)
+## make backup
+cp -r vorlesung3 vorlesung3a
+(cd vorlesung3
+    ## update serie2
+    (cd serie2
+    	git converge-submodules
+    )
+    git rcommit -am 'updated serie1 and serie2'
+    ## add tag and push
+    git tag state-3
+    ##git rpush --tags
+)
+

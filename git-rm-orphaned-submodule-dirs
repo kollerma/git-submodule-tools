@@ -34,4 +34,4 @@ while read line; do
     fi
 done
 
-git submodule sync
+git submodule sync > /dev/null

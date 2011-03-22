@@ -4,7 +4,7 @@
 ## but does a ccommit in each submodule as well
 
 ## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
-CMD="git ccommit"
+CMD="git ccommit -q"
 
 for (( i = 1; i <= $# ; i++ )); do
   eval ARG=\$$i
@@ -15,9 +15,9 @@ done
 
 ## recursive commit
 ## git submodule foreach 'git submodule foreach git add -u .'
-git submodule --quiet foreach "git submodule foreach \"$CMD\""
+git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\""
 ## submodules
 ## git submodule foreach git add -u .
-git submodule --quiet foreach "git ccommit \"$@\""
+git submodule --quiet foreach "git ccommit -q \"$@\""
 ## git add -u .
-git ccommit "$@"
+git ccommit -q "$@"

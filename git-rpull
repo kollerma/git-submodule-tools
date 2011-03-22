@@ -6,24 +6,35 @@
 ## e.g., merge the where there are local and remote changes
 
 ## check for modified content and uncommited changes
-git is-clean
+git check-clean
 
-## check for unpushed changes in submodules
-git submodule --quiet foreach --recursive git check-unpushed
+## check for unpushed commits in submodules
+if [ -f .gitmodules ]; then
+    unpushed=`git submodule --quiet foreach --recursive git check-unpushed -p`
+    if [[ "$unpushed" != "" ]]; then
+	echo "Error: Unpushed commits in submodules."
+	echo "$unpushed"
+	exit 1
+    fi
+fi
 ## git check-unpushed # no need to check in master
 
 ## do the pull
 ## git pull --recurse-submodules (does not work)
 git pull
 
-## if the pull fails because of local non-pushed commits, 
-## what to do? 
-
-## initialize submodules: cannot combine --init with --merge!!
-git submodule --quiet update --init --recursive
-## remove old submodule directories: 
-## this is more or less safe, since only ignored files might be deleted
-git submodule --quiet foreach git rm-orphaned-submodule-dirs
-git rm-orphaned-submodule-dirs
-## attach heads
-git submodule --quiet foreach --recursive git attach-head
+if [ -f .gitmodules ]; then
+    ## initialize submodules: cannot combine --init with --merge!!
+    git submodule --quiet update --init --recursive
+    ## remove old submodule directories: 
+    ## this is more or less safe, since only ignored files might be deleted
+    git submodule --quiet foreach git rm-orphaned-submodule-dirs
+    git rm-orphaned-submodule-dirs
+    ## attach heads
+    git submodule --quiet foreach --recursive git attach-head
+    ## fetch changes in submodules 
+    ## this is necessary since if the submodule commit did not change
+    ## in the super rep., then the submodule is not updated.
+    ## check-for-updates does this when using the -f switch
+    git check-for-updates -f
+fi

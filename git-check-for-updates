@@ -5,11 +5,12 @@
 
 dryrun="--dry-run"
 
+## get arguments
 while getopts ":f" opt; do
     case $opt in
 	f)
 	    dryrun=""
-	    #echo "-p was triggered!" >&2
+	    #echo "-f was triggered!" >&2
 	    ;;
 	\?)
 	    # ignore this
@@ -19,27 +20,42 @@ while getopts ":f" opt; do
 done
 
 ## check the super repository
-if [[ $(git fetch $dryrun) != '' ]]; then
-    echo "There are updates available for \"./\"."
+if [[ $(git fetch $dryrun 2>&1) != '' ]]; then
+    output="There are updates available for the current repository.
+"
 fi
 
 ## check the submodules
-while read line; do
-    ## Ok, just check line by line
-    ## This looks like...
-    ## Entering 'r-tutorial'
-    ## Entering 'serie1'
-    ## Entering 'serie1/aufgabe1'
-    ## Entering 'serie1/aufgabe2'
-    ## ...if there is nothing to fetch
-    if [[ "${line:0:10}" == "Entering '" ]]; then
-	lline=${line:10:$((${#line}-11))}
-	printed=0
-	##echo "$lline"
+if [ -f .gitmodules ]; then
+    while read line; do
+        ## Ok, just check line by line
+        ## This looks like...
+        ## Entering 'r-tutorial'
+        ## Entering 'serie1'
+        ## Entering 'serie1/aufgabe1'
+        ## Entering 'serie1/aufgabe2'
+        ## ...if there is nothing to fetch
+	if [[ "${line:0:10}" == "Entering '" ]]; then
+	    lline=${line:10:$((${#line}-11))}
+	    printed=0
+	    ##echo "$lline"
+	else
+	    if [[ $printed -eq 0 ]]; then
+		output="${output}There are updates available for $lline.
+"
+		printed=1
+	    fi
+	fi	
+    done < <(git submodule foreach --recursive git fetch $dryrun 2>&1)
+fi
+
+
+if [[ "$output" ]]; then
+    echo -n "$output"
+    if [[ "$dryrun" == "--dry-run" ]]; then
+	echo "Use git check-for-updates -f to fetch updates."
+	echo "Then go to the innermost submodules and use git pull to merge the updates."
     else
-	if [[ $printed -eq 0 ]]; then
-	    echo "There are updates available for $lline."
-	    printed=1
-	fi
-    fi	
-done < <(git submodule foreach --recursive git fetch $dryrun 2>&1)
+	echo "Fetched updates. Now use git rdiff to show the differing files. Then git pull in the correct folder to merge updates."
+    fi
+fi
