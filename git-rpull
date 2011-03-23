@@ -35,6 +35,6 @@ if [ -f .gitmodules ]; then
     ## fetch changes in submodules 
     ## this is necessary since if the submodule commit did not change
     ## in the super rep., then the submodule is not updated.
-    ## check-for-updates does this when using the -f switch
-    git check-for-updates -f
+    ## rfetch does this
+    git rfetch
 fi

@@ -1,23 +1,16 @@
 #!/bin/bash -e
-## Check for updates, does a fetch dry-run and reports
+## Check for updates, does a fetch (dry-run) and reports
 ## the changes. This is just for convenience.
-## Argument -f really does the fetch (no dry-run)
+## Argument --dry-run just runs fetch --dry-run
 
-dryrun="--dry-run"
-
-## get arguments
-while getopts ":f" opt; do
-    case $opt in
-	f)
-	    dryrun=""
-	    #echo "-f was triggered!" >&2
-	    ;;
-	\?)
-	    # ignore this
-	    #echo "Invalid option: -$OPTARG" >&2
-	    ;;
-  esac
-done
+if [[ "$1" ]]; then
+    if [[ "$1" == "--dry-run" ]]; then
+	dryrun="--dry-run"
+    else 
+	echo "Error: rfetch does only accept the argument --dry-run,
+    nothing else."
+    fi
+fi
 
 ## check the super repository
 if [[ $(git fetch $dryrun 2>&1) != '' ]]; then
@@ -53,9 +46,9 @@ fi
 if [[ "$output" ]]; then
     echo -n "$output"
     if [[ "$dryrun" == "--dry-run" ]]; then
-	echo "Use git check-for-updates -f to fetch updates."
+	echo "Use \"git rfetch\" to fetch updates."
 	echo "Then go to the innermost submodules and use git pull to merge the updates."
     else
-	echo "Fetched updates. Now use git rdiff to show the differing files. Then git pull in the correct folder to merge updates."
+	echo "Fetched updates. Now use \"git rdiff\" to show the differing files. Then \"git pull\" in the correct folder to merge updates."
     fi
 fi

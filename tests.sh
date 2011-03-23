@@ -119,8 +119,8 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 ## now work in vorlesung3 without pulling first
 ## to force some conflicts
 (cd vorlesung3
-    ## check-for-updates should report updates but not fetch them
-    git check-for-updates
+    ## rfetch --dry-run should report updates but not fetch them
+    git rfetch --dry-run
     ## force a conflict
     (cd r-tutorial
 	echo "some more content" >> tutorial.Rnw
@@ -139,8 +139,8 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     ## so try a pull as the message says
     ## and this should also report the differences
     git rpull || echo "rpull failed, as required."
-    ## the way to go is to use check-for-updates -f
-    git check-for-updates -f
+    ## the way to go is to use rfetch
+    git rfetch
     ## rpull and rpush should still fail
     git rpull || echo "rpull failed, as required."
     git rpush || echo "rpush failed, as required."
@@ -252,7 +252,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 
 (cd vorlesung3
     ## check for updates, but ignore them
-    git check-for-updates
+    git rfetch --dry-run
     (cd serie2/aufgabe2
 	## there are already unpulled changes...
 	git pull
@@ -264,8 +264,8 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     git rpull || echo "This fails as it should"
     git rpush || echo "This pushes the second level, but then fails"
     ## get updates
-    git check-for-updates
-    git check-for-updates -f
+    git rfetch --dry-run
+    git rfetch
     git rdiff
 )
 ## make backup first
@@ -303,7 +303,7 @@ cp -r vorlesung3a vorlesung3b
     ## removed serie2/aufgabe2 earlier
     ## now add another aufgabe2 and try to push
     ## check for updates, but ignore this
-    git check-for-updates
+    git rfetch --dry-run
     (cd serie2
 	git submodule add $wd/remote/aufgabe1.git aufgabe2
 	git commit -m 'added aufgabe1.git as aufgabe2'
@@ -311,7 +311,7 @@ cp -r vorlesung3a vorlesung3b
     git rcommit -am 'did some work in serie2'
     git rpush || echo "Ok, there was an error in serie2"
     ## ok, check for updates
-    git check-for-updates -f
+    git rfetch
     ## so try the usual solution:
     (cd serie2
 	git converge-submodules
@@ -332,7 +332,7 @@ cp -r vorlesung3a vorlesung3b
     ## removed serie2/aufgabe2 earlier
     ## now add another aufgabe2 and try to push
     ## check for updates, but ignore this
-    git check-for-updates
+    git rfetch --dry-run
     (cd serie2
 	git rm-submodule aufgabe2
 	git submodule add $wd/remote/aufgabe1.git aufgabe2
@@ -341,7 +341,7 @@ cp -r vorlesung3a vorlesung3b
     git rcommit -am 'did some work in serie2'
     git rpush || echo "Ok, there was an error in serie2"
     ## ok, check for updates
-    git check-for-updates -f
+    git rfetch
     ## so try the usual solution:
     (cd serie2
 	git converge-submodules

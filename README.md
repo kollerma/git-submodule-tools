@@ -14,7 +14,7 @@ This dependency is likely to be removed soon.
 How to use
 ----------
 
-### The standard (one-person-working) workflow is as follows:
+### The standard (one-person-working) work flow is as follows:
 
 * Clone the repository using `git rclone`.
 * Work and commit in the repository and its submodules as if there was
@@ -27,10 +27,11 @@ How to use
 * Create tags in the super repository using `git tag` as usual.
 * Switch to tags using `git rcheckout` in the super repository.
 
-The same can be done for branches - at least in theory. Note that there are
-no scripts that help with the creation of branches for all submodules or
+The same can be done for branches - at least in theory. The scripts were
+not developed with this case in mind. Note that there are no scripts that
+help with the creation or merging of branches for all submodules or
 something similar (on purpose, how would you do that?). The scripts will
-try to attach the HEAD to the correct branch if the submodules feature
+just try to attach the HEAD to the correct branch if the submodules feature
 different branches.
 
 ### Working together
@@ -41,8 +42,8 @@ repository.
 
 * Pull changes in super repository using `git rpull`. This will also update
   submodules, if necessary.
-* Check submodules for updates using `git check-for-updates` and fetch them
-  using `git check-for-updates -f`.
+* Check submodules for updates using `git rfetch --dry-run` and fetch them
+  using `git rfetch`.
 * Get a diff like master..origin for all submodules using `git rdiff`.
 * Then incorporate the updates with `git pull` in the submodules.
 * If the branches have diverged, e.g., when there are new local commits and
@@ -52,7 +53,7 @@ repository.
   the first level submodules. The super repository will resolve the
   conflict automatically when rcommitting.)
 
-See also `tests.sh` for an example workflow on how to recover from
+See also `tests.sh` for an example work flow on how to recover from
 conflicts. 
 
 Main scripts
@@ -64,7 +65,7 @@ functionality that should simplify the work with submodules.
 
 * `git-rclone`: clone repository and avoid detached head state ("attach
   heads").
-* `git-rpush`: push super- and subrepositories starting with the innermost
+* `git-rpush`: push super and sub repositories starting with the innermost
   submodules.
 * `git-rpull`: pull super repository and update submodules, initializes
   added and removes removes submodules. Attaches head if possible.
@@ -74,12 +75,12 @@ functionality that should simplify the work with submodules.
 * `git-rcommit`: runs the same commit command starting with the innermost
   submodules. This is thought to be used with -a so one can quickly create
   commits to update all pointers to submodules.
-* `git-check-for-updates`: quickly check for all submodules whether there
-  are updates available. Does a `git fetch --dry-run`. With option `-f`
-  really does the fetch. 
+* `git-rfetch`: does a `git fetch` for the super repository and all
+  submodules. Accepts the argument `--dry-run` to check for updates without
+  really downloading them.
 * `git-rdiff`: show the differences between local and remote rep. Thought
-  to help after a 'git check-for-updates -f`. Does show differences only
-  for regular files, not submodule pointers.
+  to help after a 'git rfetch`. Does show differences only for regular
+  files, not submodule pointers.
 * `git-converge-submodules`: to resolve a situation where local and
   remote branches have diverged, "if divergent force convergence". 
   Basically run a `git pull` (only if necessary). Does a little more if just
@@ -126,6 +127,7 @@ Known Problems
   breaks afterwards and has to be restarted.
 * The scripts were tested for git version 1.7.3.4 but not for any other
   version.
+* The scripts do not report errors to STDERR but just to STDOUT.
 
 Author
 ------

@@ -74,15 +74,14 @@ if [ -f .gitmodules ]; then
 		    ## pull, make checks later
 		    ## take their version, but create a backup of ours
 		    cp .gitmodules .gitmodules~
-		    git pull -q -s recursive -X theirs 2>/dev/null >/dev/null || echo "Removing submodules dropped in remote..."
+		    git pull -q -s recursive -X theirs >/dev/null 2>&1 || echo "Removing submodules dropped in remote..."
 		    ## then start removing submodules
 		    while read line; do
 			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" ]]; then
 			    ## this has to be removed
 			    lsub=${line:3}
 			    if [[ $q -ne 1 ]]; then
-				url=`git config -f .gitmodules~ --get submodule.$lsub.url` && echo "Removing submodule \"$lsub\"."
-				echo "Issue \"git submodule add $url $lsub\" to add again."
+				url=`git config -f .gitmodules~ --get submodule.$lsub.url` && echo "Removing submodule \"$lsub\"." && echo "Issue \"git submodule add $url $lsub\" to add again."
 			    fi
 			    rm -r "$lsub/"
 			    git rm --ignore-unmatch --quiet "$lsub" >/dev/null
