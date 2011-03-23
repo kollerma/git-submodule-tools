@@ -24,26 +24,46 @@ functionality that should simplify the work with submodules.
   submodules.
 * `git-rpull`: pull super repository and update submodules, initializes
   added and removes removes submodules. Attaches head if possible.
-* `git-rcheckout`: checkout super repository and update submodules, initializes
-  added and removes removes submodules. Attaches head if possible.
-* `git-rcommit`:
-* `git-rdiff`:
-* `git-rm-submodule`:
-* `git-check-for-unpdates`:
-* `git-converge-submodules`:
+* `git-rcheckout`: checkout super repository and update submodules,
+  initializes added and removes removes submodules. Attaches head if
+  possible. 
+* `git-rcommit`: runs the same commit command starting with the innermost
+  submodules. This is thought to be used with -a so one can quickly create
+  commits to update all pointers to submodules.
+* `git-check-for-unpdates`: quickly check for all submodules whether there
+  are updates available. Does a `git fetch --dry-run`. With option `-f`
+  really does the fetch. 
+* `git-rdiff`: show the differences between local and remote rep. Thought
+  to help after a 'git check-for-updates -f`. Does show differences only
+  for regular files, not submodule pointers.
+* `git-converge-submodules`: to resolve a situation where local and
+  remote branches have diverged, "if divergent force convergence". 
+  Basically run a `git pull` (only if necessary). Does a little more if just
+  submodule pointers are involved, like removing clean submodules.
+* `git-rm-submodule`: remove a submodule in git's config and in the working
+  copy.
 
 Helper Scripts
 --------------
 
 Some commands that are just thought to be used internally.
 
-* `git-attach-head`:
-* `git-ccomit`:
-* `git-check-branch`:
-* `git-check-clean`:
-* `git-check-unpushed`:
-* `git-cpush`:
-* `git-ccommit`:
+* `git-ccomit`: conditional commit. Only commit if there is something to
+  commit. Warns if there are unstaged changes to tracked files. Runs 
+  `git converge-submodules` afterwards to avoid diverged branches.
+* `git-cpush`: conditional push: only push if the local branch is ahead.
+* `git-rm-orphaned-submodule-dirs`: remove orphaned submodule directories.
+* `git-attach-head`: if a repository is in detached head state, but the
+  HEAD just points to a tip of a branch, check out this branch. If
+  necessary, the local branch is fast forwarded. Otherwise we stay in the
+  detached head state.
+* `git-check-branch`: checks if the current checked out branch is a remote
+  tracking branch. Fails if not or if rep. is in detached head state.
+* `git-check-clean`: checks if a repository is clean and if not reports in
+  what way: changes to submodules, staged or unstaged changes to tracked
+  files and untracked files.
+* `git-check-unpushed`: checks for any unpushed remote tracking branch.
+* `git-check-non-tracking`: checks if there are any non-tracking branches.
 
 Other Stuff
 -----------

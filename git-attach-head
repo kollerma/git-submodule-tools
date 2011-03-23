@@ -31,6 +31,9 @@ if [[ "$branch" == "" ]]; then
 fi
 HEADofbranch=`git rev-parse $branch`
 
+## echo "$branch"
+## echo `git name-rev --name-only $HEAD`
+
 if [ "$HEAD" == "$HEADofbranch" ]; then
     lbranch=${branch##remotes/*/}
     git checkout --quiet "$lbranch" > /dev/null

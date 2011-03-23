@@ -141,7 +141,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     git rpull || echo "rpull failed, as required."
     ## the way to go is to use check-for-updates -f
     git check-for-updates -f
-    ## rpull and push should still fail
+    ## rpull and rpush should still fail
     git rpull || echo "rpull failed, as required."
     git rpush || echo "rpush failed, as required."
     ## do git rdiff to find differences
@@ -174,10 +174,17 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     git rpull
     ## show differences
     git rdiff
+    ## update serie1/aufgabe2
+    (cd serie1/aufgabe2
+	git pull
+    )
+    ## commit and push this
+    git rcommit -am 'updated serie1/aufgabe2'
+    git rpush
 )
 
 ####
-## try tag switching
+## try tag switching and removing submodules
 ###
 
 ## Now pull this in vorlesung2
@@ -210,9 +217,21 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 	## try to remove dirty submodule
 	echo "test" > aufgabe2/hallo
     	git rm-submodule aufgabe2 || echo "rm-submodule failed as it should have"
-	## clean it and try again
-	rm aufgabe2/hallo
-    	git rm-submodule aufgabe2	
+	## try non tracking branch
+	(cd aufgabe2
+	    git checkout -b testbranch
+	    git add hallo
+	    git commit -m 'catch this!'
+	    git checkout master
+	)
+	git rm-submodule aufgabe2 || echo "rm-submodule caught non-tracking-branch"
+	## so merge it to master and push
+	(cd aufgabe2
+	    git merge testbranch
+	    git push
+	)
+	## now it should work
+    	git rm-submodule aufgabe2
     )
     ## have to commit this in super repository by hand
     git rcommit -am 'removed submodule serie2/aufgabe2'
@@ -221,21 +240,22 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     [ -f serie2/aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not restored"; exit 1)
     ## revert to newest state
     git rcheckout master
+    [ ! -f serie2/aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not removed"; exit 1)
     ## now push this
     git rpush
 )
 
 ####
-## cause conflict -- stage2: when submodules were removed in remote
+## cause conflict -- stage2: 
+##  when submodules with local new commits were removed in remote
 ####
 
 (cd vorlesung3
     ## check for updates, but ignore them
     git check-for-updates
     (cd serie2/aufgabe2
-	echo "test" > hallo
-	git add hallo
-	git commit -m "playing with fire"
+	## there are already unpulled changes...
+	git pull
     )
     ## should open an editor
     ## git rcommit -a
@@ -247,22 +267,89 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     git check-for-updates
     git check-for-updates -f
     git rdiff
-
-    ## update serie1/aufgabe2
-    (cd serie1/aufgabe2
-	git pull
-    )
 )
-## make backup
+## make backup first
 cp -r vorlesung3 vorlesung3a
+## continue...
 (cd vorlesung3
     ## update serie2
     (cd serie2
     	git converge-submodules
+	[ ! -f aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not removed"; exit 1)
     )
     git rcommit -am 'updated serie1 and serie2'
+    git rpush
     ## add tag and push
     git tag state-3
-    ##git rpush --tags
+    git push --tags
+)
+## now try this again in vorlesung3a
+## (slightly different scenario for converge-submodules)
+cp -r vorlesung3a vorlesung3b
+(cd vorlesung3a
+    (cd serie2
+    	git converge-submodules
+	[ ! -f aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not removed"; exit 1)
+    )
+    ## now commit
+    git rcommit -am 'updated serie1 and serie2'
 )
 
+####
+## cause conflict -- stage3: when submodules have been locally added
+####
+
+(cd vorlesung2
+    ## removed serie2/aufgabe2 earlier
+    ## now add another aufgabe2 and try to push
+    ## check for updates, but ignore this
+    git check-for-updates
+    (cd serie2
+	git submodule add $wd/remote/aufgabe1.git aufgabe2
+	git commit -m 'added aufgabe1.git as aufgabe2'
+    )
+    git rcommit -am 'did some work in serie2'
+    git rpush || echo "Ok, there was an error in serie2"
+    ## ok, check for updates
+    git check-for-updates -f
+    ## so try the usual solution:
+    (cd serie2
+	git converge-submodules
+	## ok, force it
+	## this essentially forces the submodule add we just made
+	git converge-submodules -f
+    )
+    git rcommit -am 'resolved conflict in serie2'
+    ## don't push, want to go even further...
+)
+
+####
+## cause conflict -- stage4: when submodules will be removed in remote 
+##                           but others already added in the same place
+####
+
+(cd vorlesung
+    ## removed serie2/aufgabe2 earlier
+    ## now add another aufgabe2 and try to push
+    ## check for updates, but ignore this
+    git check-for-updates
+    (cd serie2
+	git rm-submodule aufgabe2
+	git submodule add $wd/remote/aufgabe1.git aufgabe2
+	git commit -m 'added aufgabe1.git as aufgabe2'
+    )
+    git rcommit -am 'did some work in serie2'
+    git rpush || echo "Ok, there was an error in serie2"
+    ## ok, check for updates
+    git check-for-updates -f
+    ## so try the usual solution:
+    (cd serie2
+	git converge-submodules
+	## this will remove the submodule we just added
+	## but give the info we need to add it again.
+	## do so
+	git submodule add /scratch/kollerma/git-test/remote/aufgabe1.git aufgabe2
+    )
+    git rcommit -am 'resolved conflict in serie2'
+    git rpush
+)

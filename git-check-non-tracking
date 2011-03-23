@@ -1,0 +1,38 @@
+#!/bin/bash -e
+## Check for non-tracking branches not fully merged to HEAD.
+## if argument -p is given: does not exit with a failure
+
+while getopts ":p" opt; do
+    case $opt in
+	p)
+	    p=1
+	    #echo "-p was triggered!" >&2
+	    ;;
+	\?)
+	    # ignore this
+	    #echo "Invalid option: -$OPTARG" >&2
+	    ;;
+  esac
+done
+
+## cycle all branches
+while read line; do
+    ##echo "$line"
+    branch=`expr "$line" : '\** *\([^ ]*\)'`
+    ##echo "$branch"
+    remote=`expr "$line" : '.*\[\(.*\)\]'` && continue
+    ## check if 
+    nontracking="$nontracking $branch is not a remote tracking branch and is not fully merged to HEAD.
+"
+done < <(git branch -vv --no-color --no-merged 2> /dev/null)
+
+if [ "$nontracking" ]; then
+    if [[ $p -ne 1 ]]; then
+	echo "Error in $PWD:"
+	echo -n "$nontracking"
+	echo -n 
+	exit 1
+    fi
+    echo "In $PWD:"
+    echo -n "$nontracking"
+fi

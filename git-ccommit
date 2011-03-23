@@ -52,7 +52,7 @@ then
     
     if [ -f .gitmodules ]; then
 	## Syncronize submodules if necessary
-	git converge-submodules
+	git converge-submodules -q
     fi
 else
     if [ $q -ne 1 ]; then

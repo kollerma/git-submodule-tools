@@ -2,6 +2,25 @@
 ## If local and remote have diverged, but actually
 ## only the submodule pointers are different 
 ## force a rebase to syncronise them again.
+## -q for quiet operation
+## -f for forcing trying to converge
+
+while getopts ":fq" opt; do
+    case $opt in
+	q)
+	    q=1
+	    #echo "-q was triggered!" >&2
+	    ;;
+	f)
+	    force=1
+	    #echo "-f was triggered!" >&2
+	    ;;
+	\?)
+	    # ignore this
+	    #echo "Invalid option: -$OPTARG" >&2
+	    ;;
+  esac
+done 
 
 if [ -f .gitmodules ]; then
     ## Check if local and remote have diverged
@@ -28,7 +47,7 @@ if [ -f .gitmodules ]; then
 	#     echo "Converge started..."
 	#     echo "$output"
 	# fi
-	if ! git diff $branch...$remote --no-ext-diff --quiet --exit-code $sub; then
+	if [[ $force -eq 1 ]] || ! git diff $branch...$remote --no-ext-diff --quiet --exit-code $sub; then
 	    ## there are differences, do a rebase
             ## check for uncommmited changes first
 	    if ! git diff --no-ext-diff --quiet --exit-code; then
@@ -44,20 +63,32 @@ if [ -f .gitmodules ]; then
 		if [[ $(echo "$output" | sed -e '$ d' -e '/ .gitmodules/ d') == "" ]]; then
 		    ## so probably a submodule was removed in the remote
 		    ## and we made some changes to it
-		    ## check for unpushed changes in submodules
-		    git submodule --quiet foreach git check-unpushed
+		    ## the next section has some overlap with
+		    ## git-rm-submodule and git-rm-orphaned-submodules
 		    ## make sure they're clean
 		    git submodule --quiet foreach git check-clean
-		    ## ok, so the submodule seems to be clean, pull...
-		    git pull -q 2>/dev/null >/dev/null || echo "Removing submodules dropped in remote..."
+		    ## check for unpushed changes in submodules
+		    git submodule --quiet foreach git check-unpushed
+		    ## check for local non-tracking branches
+		    git submodule --quiet foreach git check-non-tracking
+		    ## pull, make checks later
+		    ## take their version, but create a backup of ours
+		    cp .gitmodules .gitmodules~
+		    git pull -q -s recursive -X theirs 2>/dev/null >/dev/null || echo "Removing submodules dropped in remote..."
 		    ## then start removing submodules
 		    while read line; do
 			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" ]]; then
 			    ## this has to be removed
-			    rm -r "${line:3}/"
-			    git rm --ignore-unmatch --quiet "${line:3}"
+			    lsub=${line:3}
+			    if [[ $q -ne 1 ]]; then
+				url=`git config -f .gitmodules~ --get submodule.$lsub.url` && echo "Removing submodule \"$lsub\"."
+				echo "Issue \"git submodule add $url $lsub\" to add again."
+			    fi
+			    rm -r "$lsub/"
+			    git rm --ignore-unmatch --quiet "$lsub" >/dev/null
 			fi
 		    done < <(git status --porcelain)
+		    rm .gitmodules~
 		    git ccommit -qm 'Converged submodules'
 		else
 		    echo "Error in $PWD: (got cold feet)"
@@ -68,6 +99,11 @@ if [ -f .gitmodules ]; then
 		git pull
 	    fi
 	    echo "done."
+	else 
+	    if [[ $q -ne 1 ]] && ! git diff $branch..$remote --no-ext-diff --quiet --exit-code $sub; then
+		echo "Notice in $PWD:"
+		echo " Not converging, use \"git converge-submodules -f\" if necessary"
+	    fi
 	fi  
     fi
 fi
