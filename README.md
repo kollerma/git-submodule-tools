@@ -8,8 +8,52 @@ something where active development happens. The scripts support two levels
 of submodules, but most scripts do not support more than that.
 
 At the moment the scripts depend on `git-what-branch` by Seth
-Robertson. https://github.com/SethRobertson/git-what-branch 
+Robertson. <https://github.com/SethRobertson/git-what-branch>.
 This dependency is likely to be removed soon.
+
+How to use
+----------
+
+### The standard (one-person-working) workflow is as follows:
+
+* Clone the repository using `git rclone`.
+* Work and commit in the repository and its submodules as if there was
+  nothing special about them.
+* Prepare repository to be published by using `git rcommit -am "msg"`.
+* Publish your work to central server using `git rpush`.
+
+### Using tags (and branches):
+
+* Create tags in the super repository using `git tag` as usual.
+* Switch to tags using `git rcheckout` in the super repository.
+
+The same can be done for branches - at least in theory. Note that there are
+no scripts that help with the creation of branches for all submodules or
+something similar (on purpose, how would you do that?). The scripts will
+try to attach the HEAD to the correct branch if the submodules feature
+different branches.
+
+### Working together
+
+Then there are a couple of scripts that help to recover from conflicts that
+will probably arise when working simultaneously at the same super
+repository. 
+
+* Pull changes in super repository using `git rpull`. This will also update
+  submodules, if necessary.
+* Check submodules for updates using `git check-for-updates` and fetch them
+  using `git check-for-updates -f`.
+* Get a diff like master..origin for all submodules using `git rdiff`.
+* Then incorporate the updates with `git pull` in the submodules.
+* If the branches have diverged, e.g., when there are new local commits and
+  in the central repository as well, use `git converge-submodules` to get
+  rid of submodule conflicts in super repositories. (Note that if there are
+  submodules on two levels, the command probably needs to be run only for
+  the first level submodules. The super repository will resolve the
+  conflict automatically when rcommitting.)
+
+See also `tests.sh` for an example workflow on how to recover from
+conflicts. 
 
 Main scripts
 ------------
@@ -30,7 +74,7 @@ functionality that should simplify the work with submodules.
 * `git-rcommit`: runs the same commit command starting with the innermost
   submodules. This is thought to be used with -a so one can quickly create
   commits to update all pointers to submodules.
-* `git-check-for-unpdates`: quickly check for all submodules whether there
+* `git-check-for-updates`: quickly check for all submodules whether there
   are updates available. Does a `git fetch --dry-run`. With option `-f`
   really does the fetch. 
 * `git-rdiff`: show the differences between local and remote rep. Thought
@@ -69,6 +113,17 @@ Other Stuff
 -----------
 
 The script `tests.sh` can be used to test the scripts.
+
+Known Problems
+--------------
+
+* Scripts should be called in the same directory as where the .git and
+  .gitmodules files lie. Otherwise the scripts might incorrectly assume
+  that there are not submodules.
+* Scripts are slow. 
+* There is no help.
+* The scripts were tested for git version 1.7.3.4 but not for any other
+  version.
 
 Author
 ------
