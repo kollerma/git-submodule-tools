@@ -122,10 +122,12 @@ Known Problems
   that there are not submodules.
 * Scripts are slow. 
 * There is no help.
+* When invoking `git rcommit` without giving the message, the shell somehow
+  breaks afterwards and has to be restarted.
 * The scripts were tested for git version 1.7.3.4 but not for any other
   version.
 
 Author
 ------
 
-Manuel Koller, koller@stat.ethz.ch. Use at your own risk, etc...
+Manuel Koller, koller@stat.math.ethz.ch. Use at your own risk, etc...
