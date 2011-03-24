@@ -6,6 +6,7 @@
 ## we assume that such directories have already been merged.
 if git diff --no-ext-diff --quiet --exit-code; then
     ## check if its a remote tracking branch and get it
+    tmp=`git branch --no-color -vv 2> /dev/null`
     while read line; do
 	if [[ "${line:0:1}" != "*" ]]; then
 	    continue
@@ -14,7 +15,7 @@ if git diff --no-ext-diff --quiet --exit-code; then
 	branch=`expr "$line" : '\** *\([^ ]*\)'`
 	remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
 	remote=`expr "$remote" : '\([^:]*\)'`
-    done < <(git branch --no-color -vv 2> /dev/null)
+    done <<< "$tmp"
 
     if [[ "$nontracking" ]]; then
 	echo "Error in $PWD:"

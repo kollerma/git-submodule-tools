@@ -16,6 +16,7 @@ while getopts ":p" opt; do
 done
 
 ## cycle all branches
+tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
     ##echo "$line"
     branch=`expr "$line" : '\** *\([^ ]*\)'`
@@ -27,7 +28,7 @@ while read line; do
     ##echo "$status"
     unpushed="$unpushed Branch \"$branch\" is ahead $status commit(s).
 "
-done < <(git branch --no-color -vv 2> /dev/null)
+done <<< "$tmp"
 
 if [ "$unpushed" ]; then
     if [[ $p -ne 1 ]]; then

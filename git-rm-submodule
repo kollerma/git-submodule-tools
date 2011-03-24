@@ -9,14 +9,15 @@ if [[ ! "$dir" || $(git config --get submodule.$dir.url) == "" ]]; then
     exit 1
 fi
 
-(cd "$dir"
-    ## check if submodule is clean
-    git check-clean
-    ## check for unpushed changes
-    git check-unpushed
-    ## check for local non-tracking-branches
-    git check-non-tracking
-)
+tdir=$PWD
+cd "$dir"
+## check if submodule is clean
+git check-clean
+## check for unpushed changes
+git check-unpushed
+## check for local non-tracking-branches
+git check-non-tracking
+cd "$tdir"
 
 ## seems we're safe, so start removing
 ## remove config entries

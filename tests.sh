@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ####
 ## config
@@ -129,26 +129,26 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 	echo "we work against each other" >> ex.Rnw
     )
     ## try to pull now, should fail
-    git rpull || echo "rpull failed, as required."
+    git rpull && exit 1 || echo "rpull failed, as required."
     ## try to push, should not fail, since there are no new commits
-    git rpush || echo "rpush failed, this shouldn't happen!!"
+    git rpush || (echo "rpush failed, this shouldn't happen!!"; exit 1)
     ## commit
     git rcommit -am "some message"
     ## now there's a conflict, try to push again
-    git rpush || echo "rpush failed, as required."
+    git rpush && exit 1 || echo "rpush failed, as required."
     ## so try a pull as the message says
     ## and this should also report the differences
-    git rpull || echo "rpull failed, as required."
+    git rpull && exit 1 || echo "rpull failed, as required."
     ## the way to go is to use rfetch
     git rfetch
     ## rpull and rpush should still fail
-    git rpull || echo "rpull failed, as required."
-    git rpush || echo "rpush failed, as required."
+    git rpull && exit 1 || echo "rpull failed, as required."
+    git rpush && exit 1 || echo "rpush failed, as required."
     ## do git rdiff to find differences
     git rdiff
     ## merge all differences
     (cd r-tutorial
-	git pull || echo "corrected version" > tutorial.Rnw
+	git pull && exit 1 || echo "corrected version" > tutorial.Rnw
     )
     ## This can be fast forwarded
     (cd serie1/aufgabe1
@@ -159,7 +159,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 	git pull
     )
     (cd serie2/aufgabe1
-	git pull || cat ex.Rnw | sed -e '7 d' -e '5 d' -e '3 d' > ex.Rnw
+	git pull && exit 1 || cat ex.Rnw | sed -e '7 d' -e '5 d' -e '3 d' > ex.Rnw
     )
     ## Now git rdiff should not show any changes
     git rdiff
@@ -204,8 +204,8 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     (cd r-tutorial
 	echo "testing..." >> tutorial.Rnw
     )
-    git rcommit -am 'testing stuff' || echo "rcommit failed as it should have"
-    git rcheckout state-1 || echo "rcheckout failed as it should have"
+    git rcommit -am 'testing stuff' && exit 1 || echo "rcommit failed as it should have"
+    git rcheckout state-1 && exit 1 || echo "rcheckout failed as it should have"
     ## revert
     (cd r-tutorial
 	git reset --hard HEAD
@@ -216,7 +216,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     (cd serie2
 	## try to remove dirty submodule
 	echo "test" > aufgabe2/hallo
-    	git rm-submodule aufgabe2 || echo "rm-submodule failed as it should have"
+    	git rm-submodule aufgabe2 && exit 1 || echo "rm-submodule failed as it should have"
 	## try non tracking branch
 	(cd aufgabe2
 	    git checkout -b testbranch
@@ -224,7 +224,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 	    git commit -m 'catch this!'
 	    git checkout master
 	)
-	git rm-submodule aufgabe2 || echo "rm-submodule caught non-tracking-branch"
+	git rm-submodule aufgabe2 && exit 1 || echo "rm-submodule caught non-tracking-branch"
 	## so merge it to master and push
 	(cd aufgabe2
 	    git merge testbranch
@@ -261,8 +261,8 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     ## git rcommit -a
     git rcommit -am "playing with fire!!"
     ## now get updates
-    git rpull || echo "This fails as it should"
-    git rpush || echo "This pushes the second level, but then fails"
+    git rpull && exit 1 || echo "This fails as it should"
+    git rpush && exit 1 || echo "This pushes the second level, but then fails"
     ## get updates
     git rfetch --dry-run
     git rfetch
@@ -309,7 +309,7 @@ cp -r vorlesung3a vorlesung3b
 	git commit -m 'added aufgabe1.git as aufgabe2'
     )
     git rcommit -am 'did some work in serie2'
-    git rpush || echo "Ok, there was an error in serie2"
+    git rpush && exit 1 || echo "Ok, there was an error in serie2"
     ## ok, check for updates
     git rfetch
     ## so try the usual solution:
@@ -339,7 +339,7 @@ cp -r vorlesung3a vorlesung3b
 	git commit -m 'added aufgabe1.git as aufgabe2'
     )
     git rcommit -am 'did some work in serie2'
-    git rpush || echo "Ok, there was an error in serie2"
+    git rpush && exit 1 || echo "Ok, there was an error in serie2"
     ## ok, check for updates
     git rfetch
     ## so try the usual solution:

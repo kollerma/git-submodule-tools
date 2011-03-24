@@ -26,6 +26,7 @@ if [ -f .gitmodules ]; then
     ## Check if local and remote have diverged
     ## in the submodules and rebase if necessary
     ## check if its a remote tracking branch and get it
+    tmp=`git branch --no-color -vv 2> /dev/null`
     while read line; do
 	if [[ "${line:0:1}" != "*" ]]; then
 	    continue
@@ -34,13 +35,14 @@ if [ -f .gitmodules ]; then
 	branch=`expr "$line" : '\** *\([^ ]*\)'`
 	remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
 	remote=`expr "$remote" : '\([^:]*\)'`
-    done < <(git branch --no-color -vv 2> /dev/null)
+    done <<< "$tmp"
     
     if [[ ! "$nontracking" ]]; then
 	## get submodules
+	tmp=`git config -f .gitmodules --get-regexp "submodule\..*\.path"`
 	while read line; do
 	    sub="$sub ${line#submodule.*.path }"
-	done < <(git config -f .gitmodules --get-regexp "submodule\..*\.path")
+	done <<< "$tmp"
 	## echo "$sub"
 	# output=`git diff $branch...$remote --stat --no-ext-diff $sub`
 	# if [[ "$output" ]]; then
@@ -76,6 +78,7 @@ if [ -f .gitmodules ]; then
 		    cp .gitmodules .gitmodules~
 		    git pull -q -s recursive -X theirs >/dev/null 2>&1 || echo "Removing submodules dropped in remote..."
 		    ## then start removing submodules
+		    tmp=`git status --porcelain`
 		    while read line; do
 			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" ]]; then
 			    ## this has to be removed
@@ -86,7 +89,7 @@ if [ -f .gitmodules ]; then
 			    rm -r "$lsub/"
 			    git rm --ignore-unmatch --quiet "$lsub" >/dev/null
 			fi
-		    done < <(git status --porcelain)
+		    done <<< "$tmp"
 		    rm .gitmodules~
 		    git ccommit -qm 'Converged submodules'
 		else

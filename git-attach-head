@@ -27,7 +27,8 @@ done
 HEAD=`git rev-parse HEAD`
 branch=`git what-branch --quiet $HEAD 2> /dev/null || git what-branch --quiet --allbranches $HEAD 2> /dev/null || echo ""`
 if [[ "$branch" == "" ]]; then
-    exit 0;
+    echo "Error: git-what-branch failed or is missing."
+    exit 1;
 fi
 HEADofbranch=`git rev-parse $branch`
 

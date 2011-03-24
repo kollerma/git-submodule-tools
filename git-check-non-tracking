@@ -16,6 +16,7 @@ while getopts ":p" opt; do
 done
 
 ## cycle all branches
+tmp=`git branch -vv --no-color --no-merged 2> /dev/null`
 while read line; do
     ##echo "$line"
     branch=`expr "$line" : '\** *\([^ ]*\)'`
@@ -24,13 +25,12 @@ while read line; do
     ## check if 
     nontracking="$nontracking $branch is not a remote tracking branch and is not fully merged to HEAD.
 "
-done < <(git branch -vv --no-color --no-merged 2> /dev/null)
+done <<< "$tmp"
 
 if [ "$nontracking" ]; then
     if [[ $p -ne 1 ]]; then
 	echo "Error in $PWD:"
 	echo -n "$nontracking"
-	echo -n 
 	exit 1
     fi
     echo "In $PWD:"

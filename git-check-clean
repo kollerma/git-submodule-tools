@@ -13,9 +13,10 @@ if ! git diff --no-ext-diff --quiet --exit-code; then
     fi
     ## in submodules
     ## get submodules
+    tmp=`git config -f .gitmodules --get-regexp "submodule\..*\.path"`
     while read line; do
 	sub="$sub ${line#submodule.*.path }"
-    done < <(git config -f .gitmodules --get-regexp "submodule\..*\.path")
+    done <<< "$tmp"
     if ! git diff --no-ext-diff --quiet --exit-code $sub; then
 	output="$output There is modified content in submodules.
 "

@@ -2,6 +2,7 @@
 ## Do a conditional push: only push, if remotes are behind
 ## otherwise accept the same arguments as push
 
+tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
     if [[ "${line:0:1}" != "*" ]]; then
 	continue
@@ -15,7 +16,7 @@ while read line; do
     status=`expr "$remote" : '.*: ahead \(.*\)'` || continue
     ##echo "$status"
     unpushed=" Branch \"$branch\" is ahead by $status commit(s)."
-done < <(git branch --no-color -vv 2> /dev/null)
+done <<< "$tmp"
 
 if [ "$unpushed" ]; then
     echo "Pushing $PWD:"

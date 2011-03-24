@@ -1,23 +1,27 @@
 #!/bin/bash -e
 ## Check if we're on a remote tracking branch
 
+if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
+    ## detached head cannot be remote tracking branch...
+    echo "Error in $PWD:"
+    echo " Detached head. Use git attach-head or git pull to update submodule."
+    exit 1
+fi
+
+tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
     if [[ "${line:0:1}" != "*" ]]; then
 	continue
     fi
-    ##echo "$line"
+    #echo "$line"
     remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
-done < <(git branch --no-color -vv 2> /dev/null)
+done <<< "$tmp"
 
 activebranch=`git name-rev --name-only HEAD`
 
 if [[ "$nontracking" ]]; then
     ## if we're here: fail
     echo "Error in $PWD:"
-    if [[ "$activebranch" =~ "~" ]]; then
-	echo " Detached head. Use git attach-head or git pull to update submodule."
-    else
-	echo " Branch \"$activebranch\" is not a remote tracking branch."
-    fi
+    echo " Branch \"$activebranch\" is not a remote tracking branch."
     exit 1
 fi

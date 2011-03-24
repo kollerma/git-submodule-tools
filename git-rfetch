@@ -20,6 +20,7 @@ fi
 
 ## check the submodules
 if [ -f .gitmodules ]; then
+    tmp=`git submodule foreach --recursive git fetch $dryrun 2>&1`
     while read line; do
         ## Ok, just check line by line
         ## This looks like...
@@ -39,7 +40,7 @@ if [ -f .gitmodules ]; then
 		printed=1
 	    fi
 	fi	
-    done < <(git submodule foreach --recursive git fetch $dryrun 2>&1)
+    done <<< "$tmp"
 fi
 
 
