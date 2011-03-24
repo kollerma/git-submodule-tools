@@ -129,7 +129,8 @@ Known Problems
   version.
 * The scripts do not report errors to STDERR but just to STDOUT.
 
-Author
-------
+Copyright/License
+-----------------
 
-Manuel Koller, koller@stat.math.ethz.ch. Use at your own risk, etc...
+License: GPL v2 Copyright (c) 2011 Manuel Koller
+
