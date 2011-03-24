@@ -19,10 +19,10 @@ cd "$wd"
 
 ## create master (bare) clones for submodules
 mkdir remote
-git clone --bare git@github.com:kollerma/r-tutorial.git remote/r-tutorial.git
-git clone --bare git@github.com:kollerma/aufgabe1.git remote/aufgabe1.git
-git clone --bare git@github.com:kollerma/aufgabe2.git remote/aufgabe2.git
-git clone --bare git@github.com:kollerma/aufgabe3.git remote/aufgabe3.git
+git clone --bare http://github.com/kollerma/r-tutorial.git remote/r-tutorial.git
+git clone --bare http://github.com/kollerma/aufgabe1.git remote/aufgabe1.git
+git clone --bare http://github.com/kollerma/aufgabe2.git remote/aufgabe2.git
+git clone --bare http://github.com/kollerma/aufgabe3.git remote/aufgabe3.git
 
 ## clone aufgabe2
 git rclone remote/aufgabe2.git
