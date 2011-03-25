@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ####
 ## config
@@ -131,7 +131,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     ## try to pull now, should fail
     git rpull && exit 1 || echo "rpull failed, as required."
     ## try to push, should not fail, since there are no new commits
-    git rpush || (echo "rpush failed, this shouldn't happen!!"; exit 1)
+    git rpush || { echo "rpush failed, this shouldn't happen!!"; exit 1; }
     ## commit
     git rcommit -am "some message"
     ## now there's a conflict, try to push again
@@ -237,10 +237,10 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     git rcommit -am 'removed submodule serie2/aufgabe2'
     ## revert to state-2
     git rcheckout state-2
-    [ -f serie2/aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not restored"; exit 1)
+    [ -f serie2/aufgabe2/ex.Rnw ] || { echo "Error: serie2/aufgabe2 not restored"; exit 1; }
     ## revert to newest state
     git rcheckout master
-    [ ! -f serie2/aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not removed"; exit 1)
+    [ ! -f serie2/aufgabe2/ex.Rnw ] || { echo "Error: serie2/aufgabe2 not removed"; exit 1; }
     ## now push this
     git rpush
 )
@@ -275,7 +275,7 @@ cp -r vorlesung3 vorlesung3a
     ## update serie2
     (cd serie2
     	git converge-submodules
-	[ ! -f aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not removed"; exit 1)
+	[ ! -f aufgabe2/ex.Rnw ] || { echo "Error: serie2/aufgabe2 not removed"; exit 1; }
     )
     git rcommit -am 'updated serie1 and serie2'
     git rpush
@@ -289,7 +289,7 @@ cp -r vorlesung3a vorlesung3b
 (cd vorlesung3a
     (cd serie2
     	git converge-submodules
-	[ ! -f aufgabe2/ex.Rnw ] || (echo "Error: serie2/aufgabe2 not removed"; exit 1)
+	[ ! -f aufgabe2/ex.Rnw ] || { echo "Error: serie2/aufgabe2 not removed"; exit 1; }
     )
     ## now commit
     git rcommit -am 'updated serie1 and serie2'
