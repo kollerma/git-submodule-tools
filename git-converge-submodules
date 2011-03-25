@@ -34,6 +34,10 @@ if [ -f .gitmodules ]; then
 	##echo "$line"
 	branch=`expr "$line" : '\** *\([^ ]*\)'`
 	remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
+	if [[ `expr "$remote" : '.*:.*\(behind\)'` == 0 ]]; then
+	    ## if we're not behind, there's no need to converge...
+	    exit 0
+	fi
 	remote=`expr "$remote" : '\([^:]*\)'`
     done <<< "$tmp"
     
@@ -50,7 +54,7 @@ if [ -f .gitmodules ]; then
 	#     echo "$output"
 	# fi
 	if [[ $force -eq 1 ]] || ! git diff $branch...$remote --no-ext-diff --quiet --exit-code $sub; then
-	    ## there are differences, do a rebase
+	    ## there are differences, do a merge
             ## check for uncommmited changes first
 	    if ! git diff --no-ext-diff --quiet --exit-code; then
 		echo "Error in $PWD:"
@@ -76,7 +80,7 @@ if [ -f .gitmodules ]; then
 		    ## pull, make checks later
 		    ## take their version, but create a backup of ours
 		    cp .gitmodules .gitmodules~
-		    git pull -q -s recursive -X theirs >/dev/null 2>&1 || echo "Removing submodules dropped in remote..."
+		    git merge -q -s recursive -X theirs $remote >/dev/null 2>&1 || echo "Removing submodules dropped in remote..."
 		    ## then start removing submodules
 		    tmp=`git status --porcelain`
 		    while read line; do
