@@ -18,9 +18,10 @@ while read line; do
 	## WARNING: we assume the directory is clean and does not contain
 	## unpushed commits.
 	## Check if the directory does not contain non-tracking branches
-	(cd "$dir"
-	    git check-non-tracking
-	)
+	tdir=$PWD
+	cd "$dir"
+	git check-non-tracking || exit 1
+	cd "$tdir"
 	## TODO: confirm the removal??
 	# echo "$dir is an orphan"
 	# #get confirmation
