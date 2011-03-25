@@ -17,15 +17,16 @@ done
 
 ## cycle all branches
 tmp=`git branch -vv --no-color --no-merged 2> /dev/null`
-while read line; do
-    ##echo "$line"
-    branch=`expr "$line" : '\** *\([^ ]*\)'`
-    ##echo "$branch"
-    remote=`expr "$line" : '.*\[\(.*\)\]'` && continue
-    ## check if 
-    nontracking="$nontracking $branch is not a remote tracking branch and is not fully merged to HEAD.
+if [[ "$tmp" ]]; then
+    while read line; do
+	##echo "$line"
+	branch=`expr "$line" : '\** *\([^ ]*\)'`
+	##echo "$branch"
+	remote=`expr "$line" : '.*\[\(.*\)\]'` && continue
+	nontracking="$nontracking $branch is not a remote tracking branch and is not fully merged to HEAD.
 "
-done <<< "$tmp"
+    done <<< "$tmp"
+fi
 
 if [ "$nontracking" ]; then
     if [[ $p -ne 1 ]]; then
