@@ -80,7 +80,7 @@ if [ -f .gitmodules ]; then
 		    ## then start removing submodules
 		    tmp=`git status --porcelain`
 		    while read line; do
-			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" ]]; then
+			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" && "${line:3}" != ".gitmodules~" ]]; then
 			    ## this has to be removed
 			    lsub=${line:3}
 			    if [[ $q -ne 1 ]]; then
@@ -98,7 +98,7 @@ if [ -f .gitmodules ]; then
 		    exit 1
 		fi
 	    else
-		git pull
+		git merge $remote
 	    fi
 	    echo "done."
 	else 
