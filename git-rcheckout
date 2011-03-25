@@ -4,17 +4,17 @@
 ## and attaching heads.
 
 ## check for modified content and uncommited changes
-git check-clean
+git check-clean || exit 1
 
 ## do the checkout
 ## git pull --recurse-submodules (does not work)
-git checkout --quiet "$@"
+git checkout --quiet "$@" || exit 1
 ## initialize submodules: cannot combine --init with --merge!!
-git submodule --quiet update --init --recursive 2>/dev/null >/dev/null
+git submodule --quiet update --init --recursive 2>/dev/null >/dev/null || exit 1
 ## remove old submodule directories: 
 ## this is more or less safe, since only ignored files might be deleted
-git submodule --quiet foreach git rm-orphaned-submodule-dirs
-git rm-orphaned-submodule-dirs
+git submodule --quiet foreach git rm-orphaned-submodule-dirs || exit 1
+git rm-orphaned-submodule-dirs || exit 1
 ## attach heads if possible
 git submodule --quiet foreach --recursive git attach-head
 git attach-head

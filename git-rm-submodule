@@ -12,11 +12,11 @@ fi
 tdir=$PWD
 cd "$dir"
 ## check if submodule is clean
-git check-clean
+git check-clean || exit 1
 ## check for unpushed changes
-git check-unpushed
+git check-unpushed || exit 1
 ## check for local non-tracking-branches
-git check-non-tracking
+git check-non-tracking || exit 1
 cd "$tdir"
 
 ## seems we're safe, so start removing

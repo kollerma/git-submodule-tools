@@ -15,9 +15,9 @@ done
 
 ## recursive commit
 ## git submodule foreach 'git submodule foreach git add -u .'
-git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\""
+git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\"" || exit 1
 ## submodules
 ## git submodule foreach git add -u .
-git submodule --quiet foreach "git ccommit -q \"$@\""
+git submodule --quiet foreach "git ccommit -q \"$@\"" || exit 1
 ## git add -u .
 git ccommit -q "$@"

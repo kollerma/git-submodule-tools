@@ -68,11 +68,11 @@ if [ -f .gitmodules ]; then
 		    ## the next section has some overlap with
 		    ## git-rm-submodule and git-rm-orphaned-submodules
 		    ## make sure they're clean
-		    git submodule --quiet foreach git check-clean
+		    git submodule --quiet foreach git check-clean || exit 1
 		    ## check for unpushed changes in submodules
-		    git submodule --quiet foreach git check-unpushed
+		    git submodule --quiet foreach git check-unpushed || exit 1
 		    ## check for local non-tracking branches
-		    git submodule --quiet foreach git check-non-tracking
+		    git submodule --quiet foreach git check-non-tracking || exit 1
 		    ## pull, make checks later
 		    ## take their version, but create a backup of ours
 		    cp .gitmodules .gitmodules~

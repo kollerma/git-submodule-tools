@@ -6,7 +6,7 @@
 ## e.g., merge the where there are local and remote changes
 
 ## check for modified content and uncommited changes
-git check-clean
+git check-clean || exit 1
 
 ## check for unpushed commits in submodules
 if [ -f .gitmodules ]; then
@@ -21,15 +21,15 @@ fi
 
 ## do the pull
 ## git pull --recurse-submodules (does not work)
-git pull
+git pull || exit 1
 
 if [ -f .gitmodules ]; then
     ## initialize submodules: cannot combine --init with --merge!!
-    git submodule --quiet update --init --recursive
+    git submodule --quiet update --init --recursive || exit 1
     ## remove old submodule directories: 
     ## this is more or less safe, since only ignored files might be deleted
-    git submodule --quiet foreach git rm-orphaned-submodule-dirs
-    git rm-orphaned-submodule-dirs
+    git submodule --quiet foreach git rm-orphaned-submodule-dirs || exit 1
+    git rm-orphaned-submodule-dirs || exit 1
     ## attach heads
     git submodule --quiet foreach --recursive git attach-head
     ## fetch changes in submodules 

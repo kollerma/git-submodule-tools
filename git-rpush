@@ -4,7 +4,7 @@
 
 ## check for non remote tracking branches and fail
 ## TODO: if not --all
-git submodule --quiet foreach --recursive "git check-branch"
+git submodule --quiet foreach --recursive "git check-branch" || exit 1
 ## TODO: check for unpulled changes: fetch, then check
 # git fetch -q
 # git submodule --quiet foreach --recursive "git fetch -q"
@@ -21,11 +21,11 @@ done
 ## !!! check for uncommited changes ???
 ## push second level repositories
 echo "Pushing second level submodules..."
-git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\""
+git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\"" || exit 1
 echo "done."
 ## push first level repositories
 echo "Pushing first level submodules..."
-git submodule --quiet foreach git cpush -q "$@"
+git submodule --quiet foreach git cpush -q "$@" || exit 1
 echo "done."
 ## push super rep.
 git cpush -q "$@"
