@@ -19,6 +19,6 @@ while read line; do
 done <<< "$tmp"
 
 if [ "$unpushed" ]; then
-    echo "Pushing $PWD:"
+    echo "Pushing $PWD."
     git push "$@"
 fi
