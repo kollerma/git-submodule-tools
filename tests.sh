@@ -348,7 +348,7 @@ cp -r vorlesung3a vorlesung3b
 	## this will remove the submodule we just added
 	## but give the info we need to add it again.
 	## do so
-	git submodule add /scratch/kollerma/git-test/remote/aufgabe1.git aufgabe2
+	git submodule add $wd/remote/aufgabe1.git aufgabe2
     )
     git rcommit -am 'resolved conflict in serie2'
     git rpush
