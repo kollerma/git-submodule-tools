@@ -1,11 +1,18 @@
 #!/bin/bash -e
-## Remove the submodule $1
+## Remove the submodule
+## Usage: git rm-submodule [ --no-commit ] dir
+## does not commit if --no-commit is given 
 
-dir=$1
+if [ "$1" == "--no-commit" ]; then
+    nocommit=1
+    dir=$2
+else 
+    dir=$1
+fi
 
 ## check if this is a valid submodule
-if [[ ! "$dir" || $(git config --get submodule.$dir.url) == "" ]]; then
-    echo "Error: this is not a submodule."
+if [[ ! "$dir" || $(git ls-files --error-unmatch --stage -- "$dir" | grep -E '^160000') == "" ]]; then
+    echo "Error: \"$dir\" is not a submodule."
     exit 1
 fi
 
@@ -21,12 +28,14 @@ cd "$tdir"
 
 ## seems we're safe, so start removing
 ## remove config entries
-git config -f .gitmodules --remove-section submodule.$dir
-git config --remove-section submodule.$dir
+git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null || echo -n ""
+git config --remove-section submodule."$dir" 2>/dev/null || echo -n ""
 git rm --cached "$dir"
 rm -rf "$dir"
 ## commit changes
-git add .gitmodules
-git commit -m "removed submodule $dir"
+if [[ ! "$nocommit" ]]; then
+    git add .gitmodules
+    git commit -m "removed submodule $dir"
+    ## TODO: commit in super repositories of this one also??
+fi
 
-## TODO: commit in super repositories of this one also??

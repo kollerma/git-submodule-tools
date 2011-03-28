@@ -1,9 +1,19 @@
 #!/bin/bash -e
 ## If local and remote have diverged, but actually
 ## only the submodule pointers are different 
-## force a rebase to syncronise them again.
+## force a merge to syncronise them again.
 ## -q for quiet operation
 ## -f for forcing trying to converge
+
+## how does it work:
+## 1. prefer local commit pointer
+## if only submodules and .gitmodules has changed:
+##   if submodule was removed in remote since merge-base: remove it
+##   if submodule was removed locally: keep it removed
+##   if submodule urls are different locally and remotely
+##     if submodule did not change in remote since merge-base: keep local
+##     else use remote
+## else: give up
 
 while getopts ":fq" opt; do
     case $opt in
@@ -24,7 +34,7 @@ done
 
 if [ -f .gitmodules ]; then
     ## Check if local and remote have diverged
-    ## in the submodules and rebase if necessary
+    ## in the submodules and merge if necessary
     ## check if its a remote tracking branch and get it
     tmp=`git branch --no-color -vv 2> /dev/null`
     while read line; do
@@ -53,7 +63,7 @@ if [ -f .gitmodules ]; then
 	#     echo "Converge started..."
 	#     echo "$output"
 	# fi
-	if [[ $force -eq 1 ]] || ! git diff $branch...$remote --no-ext-diff --quiet --exit-code $sub; then
+	if [[ $force -eq 1 ]] || ! git diff "$branch"..."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
 	    if ! git diff --no-ext-diff --quiet --exit-code; then
@@ -69,44 +79,83 @@ if [ -f .gitmodules ]; then
 		if [[ $(echo "$output" | sed -e '$ d' -e '/ .gitmodules/ d') == "" ]]; then
 		    ## so probably a submodule was removed in the remote
 		    ## and we made some changes to it
-		    ## the next section has some overlap with
-		    ## git-rm-submodule and git-rm-orphaned-submodules
-		    ## make sure they're clean
-		    git submodule --quiet foreach git check-clean || exit 1
-		    ## check for unpushed changes in submodules
-		    git submodule --quiet foreach git check-unpushed || exit 1
-		    ## check for local non-tracking branches
-		    git submodule --quiet foreach git check-non-tracking || exit 1
-		    ## pull, make checks later
-		    ## take their version, but create a backup of ours
-		    cp .gitmodules .gitmodules~
-		    git merge -q -s recursive -X theirs $remote >/dev/null 2>&1 || echo "Removing submodules dropped in remote..."
-		    ## then start removing submodules
-		    tmp=`git status --porcelain`
+		    ## create a backup of the current .gitmodules
+		    cp .gitmodules .gitmodules-old
+		    ## checkout the version from merge base
+		    mergebase=`git merge-base HEAD origin/master`
+		    git checkout "$mergebase" -- .gitmodules || { echo "Mergebase: $mergebase at $PWD"; exit 1 ;}
+		    cp .gitmodules .gitmodules-mb
+		    ## checkout remote .gitmodules
+		    git checkout "$remote" -- .gitmodules
+		    ## now walk submodules in .gitmodules~ and check their status
+		    tmp=`git config -f .gitmodules-old --get-regexp "submodule\..*\.path"`
 		    while read line; do
-			if [[ "${line:0:2}" == "UD" || "${line:0:2}" == "??" && "${line:3}" != ".gitmodules~" ]]; then
-			    ## this has to be removed
-			    lsub=${line:3}
-			    if [[ $q -ne 1 ]]; then
-				url=`git config -f .gitmodules~ --get submodule.$lsub.url` && echo "Removing submodule \"$lsub\"." && echo "Issue \"git submodule add $url $lsub\" to add again."
+			##echo "$line"
+			lsub=`expr "$line" : 'submodule\.\(.*\)\.path '`
+			lpath=${line#submodule.*.path }
+			lurl=`git config -f .gitmodules-old --get submodule."$lsub".url`
+			## check if this submodule exists in remote
+			## if the url is different, favor theirs if changed since $mergehead
+			rurl=`git config -f .gitmodules --get submodule."$lsub".url || echo ""`
+			##echo "rurl: $rurl"
+			if [[ "$rurl" ]]; then
+			    ## if the urls haven't changed: continue
+			    if [[ "$rurl" != "$lurl" ]]; then
+				mburl=`git config -f .gitmodules-mb --get submodules."$lsub".url || echo ""` 
+				##echo "mburl: $mburl"
+				if [ "$rurl" == "$mburl" ]; then
+				    ## ok, url has changed in local but not remote
+				    ## use local version
+				    git config -f .gitmodules submodule."$lsub".url "$lurl"
+				else 
+				    ## use remote url (already in .gitmodules)
+				    ## but we have to update the commit pointer
+				    git checkout "$remote" -- "$lsub"
+				fi
 			    fi
-			    rm -r "$lsub/"
-			    git rm --ignore-unmatch --quiet "$lsub" >/dev/null
+			else
+			    ## seems the submodule does not exist in remote
+			    ## check if it was present in merge-base
+			    if [ "$(git config -f .gitmodules-mb --get submodule."$lsub".url)" != "" ]; then
+				## yes, it was there
+			        ## so remove it aswell
+				echo "Removing submodule \"$lsub\" dropped in remote."
+				echo "Issue \"git submodule add $lurl $lsub\" to add it again."
+				git rm-submodule --no-commit "$lsub"
+				continue
+			    fi
+			    ## ok, it was added later: keep it
+			    ## add it to .gitmodules
+			    ##echo "adding $lsub at $lurl"
+			    git config -f .gitmodules submodule."$lsub".path "$lpath"
+			    git config -f .gitmodules submodule."$lsub".url "$lurl"
 			fi
 		    done <<< "$tmp"
-		    rm .gitmodules~
-		    git ccommit -qm 'Converged submodules'
+		    rm .gitmodules-old .gitmodules-mb
+		    git add .gitmodules
+		    ## sync new configs
+		    git submodule --quiet sync
+		    ## update
+		    git submodule --quiet update --init --recursive
+		    ## attach heads
+		    git submodule --quiet foreach --recursive git attach-head
+		    ## commit
+		    git ccommit -am "Converged submodules"
+		    ## now we're ready to merge
+		    git merge "$remote" -s recursive -X ours -q
 		else
 		    echo "Error in $PWD: (got cold feet)"
-		    echo " Differences between local and remote other than just submodules, cannot converge branches. Rebase by hand."
+		    echo " Differences between local and remote other than just submodules, cannot converge branches. Merge by hand."
 		    exit 1
 		fi
 	    else
+		## there are just differences in the submodule pointers
+		## TODO: help to merge this aswell
 		git merge $remote
 	    fi
 	    echo "done."
 	else 
-	    if [[ $q -ne 1 ]] && ! git diff $branch..$remote --no-ext-diff --quiet --exit-code $sub; then
+	    if [[ $q -ne 1 ]] && ! git diff "$branch".."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
 		echo "Notice in $PWD:"
 		echo " Not converging, use \"git converge-submodules -f\" if necessary"
 	    fi

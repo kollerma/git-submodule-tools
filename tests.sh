@@ -353,3 +353,63 @@ cp -r vorlesung3a vorlesung3b
     git rcommit -am 'resolved conflict in serie2'
     git rpush
 )
+
+####
+## cause conflict -- stage 5: when submodules have been added twice
+##                            in different versions 
+####
+
+(cd vorlesung3
+    ## add aufgabe1.git as aufgabe2 again, aufgabe3.git as aufgabe3
+    ## check for updates, but ignore them
+    git rfetch --dry-run
+    (cd serie2
+	git submodule add $wd/remote/aufgabe1.git aufgabe2
+	git submodule add $wd/remote/aufgabe3.git aufgabe3
+	git commit -m 'added aufgabe1.git as aufgabe2, aufgabe3.git as aufgabe3'
+    )
+    git rcommit -am 'added some submodules in serie2'
+)
+
+cp -r vorlesung3 vorlesung3c
+(cd vorlesung3
+    ## fetch updates
+    git rfetch
+    (cd serie2
+	git converge-submodules
+    )
+    git rcommit -am 'converged submodules'
+    git rpush
+)
+    
+####
+## test submodule version conflict resolution
+####
+
+(cd vorlesung
+    git rpull
+    ## switch branch in serie2/aufgabe1
+    (cd serie2/aufgabe1
+	git branch alternative origin/alternative
+	git checkout alternative
+    )
+    git rcommit -am 'switched branch in serie2/aufgabe1'
+)
+
+(cd vorlesung3
+    ## revert to an old commit in serie2/aufgabe1
+    (cd serie2/aufgabe1
+	git reset --hard HEAD~1
+    )
+    git rcommit -am 'reset version in serie2/aufgabe1'
+    git rpush
+)
+
+(cd vorlesung
+    ## fetch updates
+    git rfetch
+    (cd serie2
+	git converge-submodules
+	## fails
+    )
+)
