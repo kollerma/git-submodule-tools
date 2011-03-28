@@ -1,36 +1,101 @@
 #!/bin/bash -e
 ## check for modified content and uncommited changes
 
-## Tests copied from bash completion support for core Git.
-## by Shawn O. Pearce <spearce@spearce.org>
+if [[ "$@" == "" ]]; then
+    unstaged=1
+    uncommited=1
+    untracked=1
+    unmerged=1
+else
+    while test $# -ne 0
+    do
+	case "$1" in 
+	    --exit-code)
+		exitcode=1
+		;;
+	    --unstaged)
+		unstaged=1
+		;;
+	    --uncommited)
+		uncommited=1
+		;;
+	    --untracked)
+		untracked=1
+		;;
+	    --unmerged)
+		unmerged=1
+		;;
+	    --ignore-submodules)
+		ignoresub="all"
+		;;
+	    --ignore-submodules=*)
+	        ignoresub="${1#--ignore-submodules=}"
+		;;
+	    *)
+		break
+		;;
+	    esac
+	shift
+    done
+fi
 
-## Check unstaged changes
-if ! git diff --no-ext-diff --quiet --exit-code; then
-    ## not in submodules
-    if ! git diff --no-ext-diff --quiet --ignore-submodules --exit-code; then
-	output=" There are unstaged changes. Use \"git add <file>\" to add.
+if [[ "$ignoresub" ]]; then
+    status=`git status --porcelain --ignore-submodules=$ignoresub`
+else
+    status=`git status --porcelain`
+fi
+
+if [[ $unstaged -eq 1 ]]; then
+  if echo "$status" | grep -E '^[ MARC][MD]' -q; then
+      if [[ $exitcode -eq 1 ]]; then
+	  exit 1;
+      else
+	  if [[ "$ignoresub" ]] || git status --porcelain --ignore-submodules | grep -E '^[ MARC][MD]' -q; then
+	      output=" There are unstaged changes. Use \"git add <file>\" to add.
 "
-    fi
-    ## in submodules
-    ## get submodules
-    tmp=`git config -f .gitmodules --get-regexp "submodule\..*\.path"`
-    while read line; do
-	sub="$sub ${line#submodule.*.path }"
-    done <<< "$tmp"
-    if ! git diff --no-ext-diff --quiet --exit-code $sub; then
-	output="$output There is modified content in submodules.
+	  fi
+	  sub=`git ls-files --error-unmatch --stage | grep -E '^160000' | sed -e 's/^.*	//' | tr '\n' ' '`
+	  if [[ ! "$ignoresub" && "$sub" ]]; then
+	      if git status --porcelain -- $sub | grep -E '^[ MARC][MD]' -q; then
+		  output="$output There is modified content in submodules.
 "
+	      fi
+	  fi
+      fi
+  fi
+fi
+
+if [[ $unmerged -eq 1 ]]; then
+    if echo "$status" | grep -E '^(DD|AU|UD|UA|DU|AU|UU)' -q; then
+        if [[ $exitcode -eq 1 ]]; then
+	    exit 1;
+	else
+	    output="$output There are unmerged files. Use \"git add <file>\" when merged.
+"
+	fi
     fi
 fi
 
-if (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); then
-    output="$output There are uncommited files. Use \"git rcommit\" or \"git commit\" to commit.
-"
-fi 
+if [[ $uncommited -eq 1 ]]; then
+    if echo "$status" | grep -E '^[MADRC]' -q; then
+	if [[ $exitcode -eq 1 ]]; then
+	    exit 1;
+	else
+	    output="$output There are uncommited files. Use \"git rcommit\" or \"git commit\" to commit.
+"	
+	fi
+    fi
+fi
 
-if [ -n "$(git ls-files --others --exclude-standard)" ]; then
-    output="$output There are untracked files not in .gitignore. Try \"make clean\" to remove temporary files.
+if [[ $untracked -eq 1 ]]; then
+    if echo "$status" | grep -E '^\?\?' -q; then
+	if [[ $exitcode -eq 1 ]]; then
+	    exit 1;
+	else
+	     output="$output There are untracked files not in .gitignore. Try \"make clean\" to remove temporary files.
 "
+	fi
+    fi
 fi
 
 if [[ "$output" ]]; then

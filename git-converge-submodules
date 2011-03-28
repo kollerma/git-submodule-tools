@@ -66,9 +66,9 @@ if [ -f .gitmodules ]; then
 	if [[ $force -eq 1 ]] || ! git diff "$branch"..."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
-	    if ! git diff --no-ext-diff --quiet --exit-code; then
+	    if ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules; then
 		echo "Error in $PWD:"
-		echo " Uncommited changes, cannot converge branches"
+		echo " Uncommited changes, cannot converge submodules."
 		exit 1
 	    fi
 	    echo "Converging local and remote..."
