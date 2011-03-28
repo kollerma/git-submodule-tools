@@ -7,10 +7,6 @@ submodules are thought not only as quasi static repositories, but as
 something where active development happens. The scripts support two levels
 of submodules, but most scripts do not support more than that.
 
-At the moment the scripts depend on `git-what-branch` by Seth
-Robertson. <https://github.com/SethRobertson/git-what-branch>.
-This dependency is likely to be removed soon.
-
 How to use
 ----------
 
