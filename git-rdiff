@@ -4,6 +4,8 @@
 
 ## continue silently, if there are unstaged changes
 ## we assume that such directories have already been merged.
+## TODO: also show difference if fast forward is possible.
+## TODO: if differences in submodules, show nicer output
 if git diff --no-ext-diff --quiet --exit-code; then
     ## check if its a remote tracking branch and get it
     tmp=`git branch --no-color -vv 2> /dev/null`
