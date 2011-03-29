@@ -231,7 +231,7 @@ git rclone $wd/remote/vorlesung.git vorlesung4
 	    git push
 	)
 	## now it should work
-    	git rm-submodule aufgabe2
+    	git rm-submodule aufgabe2 || { echo "rm-submodule failed!"; exit 1; }
     )
     ## have to commit this in super repository by hand
     git rcommit -am 'removed submodule serie2/aufgabe2'

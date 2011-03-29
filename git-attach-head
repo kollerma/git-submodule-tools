@@ -40,8 +40,31 @@ if [[ ! "$branch" ]]; then
 else 
     ## try to attach head now
     branch=${branch#heads/}
-    echo "Attaching $PWD to $branch..."
+    ##echo "Attaching $PWD to $branch..."
     lbranch=${branch#remotes/*/}
+    if [ "$branch" != "$lbranch" ]; then
+	## we matched a remote/../ branch
+	rbranch=${branch#remotes/}
+	## check if a local branch exists that tracks this branch
+	tbranch=`git branch -vv | grep "\[$rbranch" | sed -e 's/  \([^ ]*\) .*/\1/' -e '2,$ d'`
+	if [[ "$tbranch" ]]; then
+	    ## check if we can fast forward the corresponding local branch
+	    if git branch -vv | grep "  $tbranch" | grep " ahead " -q; then
+		## cannot, since local branch is ahead -> exit
+		if [[ "$w" ]]; then
+		    echo "Warning in $PWD:"
+		    echo " Cannot attach HEAD. The local branch $tbranch is ahead of $rbranch."
+		fi
+		exit 0
+		echo "Error: this should not show up... (debug)"
+	    fi
+	    lbranch="$tbranch"
+	else
+	    ## there is no local tracking branch for $remote: create one
+	    git branch "$lbranch" "$rbranch"
+	    branch="$lbranch"
+	fi
+    fi
     git checkout --quiet "$lbranch" > /dev/null
     if [ "$branch" != "$lbranch" ]; then
 	echo "Fast forwarding local branch"

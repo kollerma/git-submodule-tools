@@ -15,11 +15,11 @@ while read line; do
     dir=`expr "$key" : 'submodule\.\(.*\)\.url'`
     #echo "$dir"
     if [[ -d "$dir" && $(git config -f .gitmodules --get "$key") == '' ]]; then
-	## WARNING: we assume the directory is clean and does not contain
-	## unpushed commits.
 	## Check if the directory does not contain non-tracking branches
 	tdir=$PWD
 	cd "$dir"
+	git check-clean || exit 1
+	git check-unpushed || exit 1
 	git check-non-tracking || exit 1
 	cd "$tdir"
 	## TODO: confirm the removal??
