@@ -25,20 +25,14 @@ while getopts ":aq" opt; do
   esac
 done
 
-if [ $a -ne 1 ] && ! git diff --no-ext-diff --quiet --exit-code; then
+if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
     echo "Warning in $PWD:"
     echo " Unstaged changes to files under version control."
     echo " To add, use option -a to stage or add files manually with git add <file>."
 fi 
-   
-## check if -a or --all option is set
-# echo "Hello $PWD $a"
-
-# if ([ $a -eq 1 ] && ! git diff --no-ext-diff --quiet --exit-code); then
-#     echo "yes, do it!"
- 
+    
 ## commit if dirty
-if ([ $a -eq 1 ] && ! git diff --no-ext-diff --quiet --exit-code) || (git rev-parse --quiet --verify HEAD >/dev/null && ! git diff-index --cached --quiet HEAD --); 
+if ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommited --exit-code --ignore-submodules=dirty; 
 then
     ## check for detached head
     if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then

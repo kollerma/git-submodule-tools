@@ -82,7 +82,8 @@ functionality that should simplify the work with submodules.
   Basically run a `git pull` (only if necessary). Does a little more if just
   submodule pointers are involved, like removing clean submodules.
 * `git-rm-submodule`: remove a submodule in git's config and in the working
-  copy.
+  copy. Commits the removal of the submodule if the argument `--no-commit`
+  is not given. 
 
 Helper Scripts
 --------------
@@ -101,8 +102,11 @@ Some commands that are just thought to be used internally.
 * `git-check-branch`: checks if the current checked out branch is a remote
   tracking branch. Fails if not or if rep. is in detached head state.
 * `git-check-clean`: checks if a repository is clean and if not reports in
-  what way: changes to submodules, staged or unstaged changes to tracked
-  files and untracked files.
+  what way: changes to submodules, staged, unstaged or unmerged changes to
+  tracked files and untracked files. Either checks for all of them or only
+  for the given arguments: `--unmerged`, `--unstaged`, `--uncommited`,
+  `--untracked`. Returns exit code if `--exit-code` is given. The argument
+  `--ignore-submodules` is the same as for `git status`. 
 * `git-check-unpushed`: checks for any unpushed remote tracking branch.
 * `git-check-non-tracking`: checks if there are any non-tracking branches.
 

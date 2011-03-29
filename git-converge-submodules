@@ -53,22 +53,13 @@ if [ -f .gitmodules ]; then
     
     if [[ ! "$nontracking" ]]; then
 	## get submodules
-	tmp=`git config -f .gitmodules --get-regexp "submodule\..*\.path"`
-	while read line; do
-	    sub="$sub ${line#submodule.*.path }"
-	done <<< "$tmp"
-	## echo "$sub"
-	# output=`git diff $branch...$remote --stat --no-ext-diff $sub`
-	# if [[ "$output" ]]; then
-	#     echo "Converge started..."
-	#     echo "$output"
-	# fi
+	sub=`git ls-files --error-unmatch --stage | grep -E '^160000' | sed -e 's/^.*	//' | tr '\n' ' '`
 	if [[ $force -eq 1 ]] || ! git diff "$branch"..."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
-	    if ! git diff --no-ext-diff --quiet --exit-code; then
+	    if ! git check-clean --uncommited --unmerged --exit-code --ignore-submodules; then
 		echo "Error in $PWD:"
-		echo " Uncommited changes, cannot converge branches"
+		echo " Uncommited changes, cannot converge submodules."
 		exit 1
 	    fi
 	    echo "Converging local and remote..."
@@ -140,7 +131,7 @@ if [ -f .gitmodules ]; then
 		    ## attach heads
 		    git submodule --quiet foreach --recursive git attach-head
 		    ## commit
-		    git ccommit -am "Converged submodules"
+		    git ccommit -qam "Converged submodules"
 		    ## now we're ready to merge
 		    git merge "$remote" -s recursive -X ours -q
 		else
@@ -151,7 +142,19 @@ if [ -f .gitmodules ]; then
 	    else
 		## there are just differences in the submodule pointers
 		## TODO: help to merge this aswell
-		git merge $remote
+		git merge $remote -q || {
+		    ## there was a merge conflict, i.e. both pointers different from mergebase
+		    ## get conflicting pointers
+		    conflicts=`git status --porcelain | grep -E '^UU' | sed -e 's/UU //' | tr '\n' ' '`
+		    ## prefer our version
+		    git checkout HEAD -- $conflicts
+		    ## commit
+		    git commit -qm "Converged submodules, used local submodule version for conflicts: $conflicts."
+		}
+	        ## update submodules
+		git submodule --quiet update --init --recursive
+		## attach heads
+		git submodule --quiet foreach --recursive git attach-head
 	    fi
 	    echo "done."
 	else 
