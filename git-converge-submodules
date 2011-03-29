@@ -131,7 +131,7 @@ if [ -f .gitmodules ]; then
 		    ## attach heads
 		    git submodule --quiet foreach --recursive git attach-head
 		    ## commit
-		    git ccommit -am "Converged submodules"
+		    git ccommit -qam "Converged submodules"
 		    ## now we're ready to merge
 		    git merge "$remote" -s recursive -X ours -q
 		else
@@ -142,7 +142,19 @@ if [ -f .gitmodules ]; then
 	    else
 		## there are just differences in the submodule pointers
 		## TODO: help to merge this aswell
-		git merge $remote
+		git merge $remote -q || {
+		    ## there was a merge conflict, i.e. both pointers different from mergebase
+		    ## get conflicting pointers
+		    conflicts=`git status --porcelain | grep -E '^UU' | sed -e 's/UU //' | tr '\n' ' '`
+		    ## prefer our version
+		    git checkout HEAD -- $conflicts
+		    ## commit
+		    git commit -qm "Converged submodules, used local submodule version for conflicts: $conflicts."
+		}
+	        ## update submodules
+		git submodule --quiet update --init --recursive
+		## attach heads
+		git submodule --quiet foreach --recursive git attach-head
 	    fi
 	    echo "done."
 	else 

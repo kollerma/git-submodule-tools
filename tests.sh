@@ -412,4 +412,11 @@ cp -r vorlesung3 vorlesung3c
 	git converge-submodules
 	## fails
     )
+    git rcommit -am 'merged serie2'
+    git rpush
+)
+
+(cd vorlesung3
+    ## pull
+    git rpull
 )
