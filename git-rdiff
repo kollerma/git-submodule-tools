@@ -6,7 +6,7 @@
 ## we assume that such directories have already been merged.
 ## TODO: also show difference if fast forward is possible.
 ## TODO: if differences in submodules, show nicer output
-if ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
+if git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
     ## check if its a remote tracking branch and get it
     tmp=`git branch --no-color -vv 2> /dev/null`
     while read line; do
