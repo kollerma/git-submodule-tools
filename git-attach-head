@@ -29,24 +29,24 @@ HEAD=`git rev-parse HEAD`
 ## get first refs for master (prefer master)
 branch=`git show-ref master | grep $HEAD | sed 's/.*refs\///' | sed -e '2,$ d'`
 if [[ ! "$branch" ]]; then
-    ## ok, allow all refs but HEAD, get first match
-    branch=`git show-ref | grep $HEAD | sed -e 's/.*refs\///' -e '/HEAD/ d' | sed -e '2,$ d'`
+    ## ok, allow all refs but HEAD and tags/*, get first match
+    branch=`git show-ref | grep $HEAD | sed -e 's/.*refs\///' -e '/HEAD/ d' -e '/tags\// d' | sed -e '2,$ d'`
 fi
 if [[ ! "$branch" ]]; then
     if [[ "$w" ]]; then
 	echo "Warning in $PWD:"
 	echo " Cannot attach HEAD. There are probably unmerged updates available. Go (\"cd\") there and use \"git brach -v\" list available branches. Switch branches with \"git checkout <branchname>\"."
     fi
-    exit 0
-fi
-
-## try to attach head now
-
-lbranch=${branch##remotes/*/}
-git checkout --quiet "$lbranch" > /dev/null
-if [ "$branch" != "$lbranch" ]; then
-    echo "Fast forwarding local branch"
-    git merge --quiet --ff-only $HEAD
+else 
+    ## try to attach head now
+    branch=${branch#heads/}
+    echo "Attaching $PWD to $branch..."
+    lbranch=${branch#remotes/*/}
+    git checkout --quiet "$lbranch" > /dev/null
+    if [ "$branch" != "$lbranch" ]; then
+	echo "Fast forwarding local branch"
+	git merge --quiet --ff-only $HEAD
+    fi
 fi
 
 
