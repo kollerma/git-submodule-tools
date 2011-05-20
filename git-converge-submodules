@@ -112,7 +112,7 @@ if [ -f .gitmodules ]; then
 			        ## so remove it aswell
 				echo "Removing submodule \"$lsub\" dropped in remote."
 				echo "Issue \"git submodule add $lurl $lsub\" to add it again."
-				git rm-submodule --no-commit "$lsub"
+				git rm-submodule --no-commit "$lsub" || echo "Submodule has already been removed."
 				continue
 			    fi
 			    ## ok, it was added later: keep it
