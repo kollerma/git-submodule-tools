@@ -420,3 +420,22 @@ cp -r vorlesung3 vorlesung3c
     ## pull
     git rpull
 )
+
+####
+## test mv-submodule
+####
+
+(cd vorlesung
+    ## mv serie2 to serie3
+    git mv-submodule serie1 serie2 && exit 1 || echo "Ok series2 exists already"
+    git mv-submodule serie2 serie3
+
+    [ ! -d serie2 ] || { echo "Error: serie2 not removed"; exit 1; }
+    [ -d serie3 ] || { echo "Error: serie3 not created"; exit 1; }
+
+    ## move it back
+    git mv-submodule serie3 serie2
+
+    [ ! -d serie3 ] || { echo "Error: serie3 not removed"; exit 1; }
+    [ -d serie2 ] || { echo "Error: serie2 not created"; exit 1; }
+)

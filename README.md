@@ -84,6 +84,7 @@ functionality that should simplify the work with submodules.
 * `git-rm-submodule`: remove a submodule in git's config and in the working
   copy. Commits the removal of the submodule if the argument `--no-commit`
   is not given. 
+* `git-mv-submodule`: move a submodule, also has a `--no-commit` argument.
 
 Helper Scripts
 --------------
