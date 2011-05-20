@@ -3,7 +3,23 @@
 ## this includes removing orphaned directories
 ## and attaching heads.
 
-## check for modified content and uncommited changes
+## read input, display help if necessary
+if [[ "$@" == "" || "$@" == *--help* ]]; then
+    cat<<EOF
+ This command is like git-checkout, but acts recursively, i.e.,
+ makes sure that the submodules are at the correct commit, 
+ their HEADs are attached if possible and orphaned submodule
+ directories are removed.
+
+ Usage:
+    git rcheckout ...
+
+    ...: same arguments as git-checkout
+EOF
+    exit 0;
+fi
+
+## check for modified content and uncommitted changes
 git check-clean || exit 1
 
 ## do the checkout

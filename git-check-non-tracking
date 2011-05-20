@@ -2,6 +2,21 @@
 ## Check for non-tracking branches not fully merged to HEAD.
 ## if argument -p is given: does not exit with a failure
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command checks for non-tracking branches that are not fully
+ merged to a tracking branch. This is part of a series of checks
+ used to determine whether it is safe to remove a submodule.
+
+ Usage:
+    git check-non-tracking [-p]
+
+    -p: do not raise an error
+EOF
+    exit 0;
+fi
+
 while getopts ":p" opt; do
     case $opt in
 	p)

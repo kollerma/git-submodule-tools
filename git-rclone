@@ -3,6 +3,19 @@
 ## clone into $2 directory
 ## and attach heads.
 
+## read input, display help if necessary
+if [[ "$@" == "" || "$@" == *--help* ]]; then
+    cat<<EOF
+ This command executes a recursive clone, i.e., the repository
+ is cloned as well as all submodules. The submodules HEADs are
+ attached, if possible. See also "git clone --help".
+
+ Usage:
+    git rclone <repository> [<directory>]
+EOF
+    exit 0;
+fi
+
 if [[ "$2" ]]; then
     name="$2"
 else

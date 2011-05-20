@@ -1,6 +1,22 @@
 #!/bin/bash -e
 ## Remove orphaned submodule directories
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command removed orphaned submodule directories, i.e., 
+ if a submodule was removed but the directory was not removed
+ because it was not empty. Before removing a directory, the 
+ script checks for any changes that might be lost. Afterwards,
+ a submodule sync is executed.
+
+ Usage:
+    git rm-orphaned-submodule-dirs
+EOF
+    exit 0;
+fi
+
+
 ## do nothing if there is no .gitmodules file
 if [ ! -f .gitmodules ]; then
     exit 0;

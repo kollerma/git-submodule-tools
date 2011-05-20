@@ -1,6 +1,22 @@
 #!/bin/bash -e
 ## Do a recursive push
-## accepts the same argument as push
+## accepts the same argumenta as push
+
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command executes git-cpush recursively. It starts with
+ the innermost submodules and then works its way back. Only accepts
+ two levels of submodules. The push is only executed if all 
+ submodules are on remote-tracking branches.
+
+ Usage:
+    git rpush ...
+
+    ...: same arguments as git-push
+EOF
+    exit 0;
+fi
 
 ## check for non remote tracking branches and fail
 ## TODO: if not --all
@@ -18,7 +34,7 @@ for (( i = 1; i <= $# ; i++ )); do
   CMD="$CMD $(echo "$ARG" | awk '{gsub(".", "\\\\&");print}')"
 done
 
-## !!! check for uncommited changes ???
+## !!! check for uncommitted changes ???
 ## push second level repositories
 echo "Pushing second level submodules..."
 git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\"" || exit 1

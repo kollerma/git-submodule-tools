@@ -3,6 +3,21 @@
 ## Usage: git rm-submodule [ --no-commit ] dir
 ## does not commit if --no-commit is given 
 
+## read input, display help if necessary
+if [[ "$@" == "" || "$@" == *--help* ]]; then
+    cat<<EOF
+ This command removes the submodule <directory> and creates a new commit
+ with a simple commit message including the url of the removed
+ submodule.
+
+ Usage:
+    git rm-submodule [--no-commit] <directory>
+
+    --no-commit: do not commit the result
+EOF
+    exit 0;
+fi
+
 if [ "$1" == "--no-commit" ]; then
     nocommit=1
     dir=$2
@@ -27,6 +42,8 @@ git check-non-tracking || exit 1
 cd "$tdir"
 
 ## seems we're safe, so start removing
+## get submodule url
+url=`git config --get submodule."$dir".url || echo "unknown"`
 ## remove config entries
 git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null || echo -n ""
 git config --remove-section submodule."$dir" 2>/dev/null || echo -n ""
@@ -35,7 +52,7 @@ rm -rf "$dir"
 ## commit changes
 if [[ ! "$nocommit" ]]; then
     git add .gitmodules
-    git commit -m "removed submodule $dir"
+    git commit -m "removed submodule \"$dir\" (url: $url)"
     ## TODO: commit in super repositories of this one also??
 fi
 

@@ -15,6 +15,22 @@
 ##     else use remote
 ## else: give up
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command tries to automatically resolve the most common conflicts
+ that arise when working with git submodules. It takes care only of 
+ conflicts involving submodules and the file ".gitmodules".
+
+ Usage:
+    git converge-submodules [-q] [-f]
+
+    -q: act quietly
+    -f: disable some checks to force execution
+EOF
+    exit 0;
+fi
+
 while getopts ":fq" opt; do
     case $opt in
 	q)
@@ -57,9 +73,9 @@ if [ -f .gitmodules ]; then
 	if [[ $force -eq 1 ]] || ! git diff "$branch"..."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
-	    if ! git check-clean --uncommited --unmerged --exit-code --ignore-submodules; then
+	    if ! git check-clean --uncommitted --unmerged --exit-code --ignore-submodules; then
 		echo "Error in $PWD:"
-		echo " Uncommited changes, cannot converge submodules."
+		echo " Uncommitted changes, cannot converge submodules."
 		exit 1
 	    fi
 	    echo "Converging local and remote..."

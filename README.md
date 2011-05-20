@@ -105,7 +105,7 @@ Some commands that are just thought to be used internally.
 * `git-check-clean`: checks if a repository is clean and if not reports in
   what way: changes to submodules, staged, unstaged or unmerged changes to
   tracked files and untracked files. Either checks for all of them or only
-  for the given arguments: `--unmerged`, `--unstaged`, `--uncommited`,
+  for the given arguments: `--unmerged`, `--unstaged`, `--uncommitted`,
   `--untracked`. Returns exit code if `--exit-code` is given. The argument
   `--ignore-submodules` is the same as for `git status`. 
 * `git-check-unpushed`: checks for any unpushed remote tracking branch.
@@ -123,7 +123,6 @@ Known Problems
   .gitmodules files lie. Otherwise the scripts might incorrectly assume
   that there are not submodules.
 * Scripts are slow. 
-* There is no help.
 * When invoking `git rcommit` without giving the message, the shell somehow
   breaks afterwards and has to be restarted.
 * The scripts were tested for git version 1.7.3.4 but not for any other

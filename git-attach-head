@@ -4,6 +4,24 @@
 ## If argument -w is given: warn if HEAD cannot be attached
 ## prefer master over other branches
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command tries to reattach the head of a git repository to some 
+ branch.
+ If the HEAD and the top of a branch are identical, then this branch
+ is checked out. If this is not the case, but the local branch can be
+ fast forwarded, then the script does so. Prefers "master" over other
+ branches.
+
+ Usage:
+    git attach-head [-w]
+
+    -w: warn if HEAD cannot be attached
+EOF
+    exit 0;
+fi
+
 ## TODO: do some error checking?
 
 ## stop if HEAD is a ref already

@@ -3,6 +3,23 @@
 ## Usage: git mv-submodule [ --no-commit ] from to
 ## does not commit if --no-commit is given 
 
+## read input, display help if necessary
+if [[ "$@" == "" || "$@" == *--help* ]]; then
+    cat<<EOF
+ This command moves the submodule <from> to <to> and creates a new 
+ commit with a simple commit message including the url of the 
+ removed submodule. It just removes <from> and then adds <to>. 
+ This means, that you will require an internet connection to download 
+ the submodule again.
+
+ Usage:
+    git mv-submodule [--no-commit] <from> <to>
+
+    --no-commit: do not commit the result
+EOF
+    exit 0;
+fi
+
 if [ "$1" == "--no-commit" ]; then
     nocommit=1
     from=$2

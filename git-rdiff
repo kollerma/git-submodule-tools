@@ -2,6 +2,19 @@
 ## Show diff branch..origin/branch 
 ## for this repository and all submodules
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command compares local with remote branches recursively for
+ each submodule and lists differing files.
+
+ Usage:
+    git rdiff
+EOF
+    exit 0;
+fi
+
+
 ## continue silently, if there are unstaged changes
 ## we assume that such directories have already been merged.
 ## TODO: also show difference if fast forward is possible.

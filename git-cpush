@@ -2,6 +2,21 @@
 ## Do a conditional push: only push, if remotes are behind
 ## otherwise accept the same arguments as push
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command is similar to git-push, but only executes the push
+ if necessary.
+
+ Usage:
+    git cpush ...
+
+    ...: same arguments as git-push
+EOF
+    exit 0;
+fi
+
+
 tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
     if [[ "${line:0:1}" != "*" ]]; then

@@ -1,9 +1,29 @@
 #!/bin/bash -e
-## check for modified content and uncommited changes
+## check for modified content and uncommitted changes
 
-if [[ "$@" == "" ]]; then
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command can be used to check for modified content,
+ uncommitted changes and many other things.
+
+ Usage:
+    git check-clean [--exit-code] [--unstaged] [--uncommitted]
+     [--untracked] [--unmerged] [--ignore-submodules[=<when>]] 
+
+    --exit-code: return an exit code instead of a message
+    --unstaged: check for unstaged files
+    --uncommitted: check for staged but uncommitted files
+    --untracked: check for untracked files
+    --unmerged: check for unmerged files
+    --ignore-submodules: ignore submodules, optionally specifying
+       in when to ignore submodules (see help of git-status), 
+       defaults to "all".
+EOF
+    exit 0;
+elif [[ "$@" == "" ]]; then
     unstaged=1
-    uncommited=1
+    uncommitted=1
     untracked=1
     unmerged=1
 else
@@ -16,8 +36,8 @@ else
 	    --unstaged)
 		unstaged=1
 		;;
-	    --uncommited)
-		uncommited=1
+	    --uncommitted)
+		uncommitted=1
 		;;
 	    --untracked)
 		untracked=1
@@ -76,12 +96,12 @@ if [[ $unmerged -eq 1 ]]; then
     fi
 fi
 
-if [[ $uncommited -eq 1 ]]; then
+if [[ $uncommitted -eq 1 ]]; then
     if echo "$status" | grep -E '^[MADRC]' -q; then
 	if [[ $exitcode -eq 1 ]]; then
 	    exit 1;
 	else
-	    output="$output There are uncommited files. Use \"git rcommit\" or \"git commit\" to commit.
+	    output="$output There are uncommitted files. Use \"git rcommit\" or \"git commit\" to commit.
 "	
 	fi
     fi

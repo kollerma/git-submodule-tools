@@ -5,7 +5,22 @@
 ## if there are such changes, you have to do it by hand
 ## e.g., merge the where there are local and remote changes
 
-## check for modified content and uncommited changes
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command executes a git-pull and then updates all submodules.
+ Orphaned submodule directories are removed if they are clean. The
+ HEADs of submodules are attached if necessary and possible. 
+ Executes git-rfetch to download possibly existing updates for
+ submodules.
+
+ Usage:
+    git rpull
+EOF
+    exit 0;
+fi
+
+## check for modified content and uncommitted changes
 git check-clean || exit 1
 
 ## check for unpushed commits in submodules

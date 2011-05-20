@@ -4,6 +4,22 @@
 ## and warn if there are files that are neither added
 ## nor ignored.
 
+## read input, display help if necessary
+if [[ "$@" == "" || "$@" == *--help* ]]; then
+    cat<<EOF
+ This command is very similar to git-commit. The only difference is
+ that a new commit is only recorded, if the resulting commit is not
+ empty. (Thus avoiding the error that would be raised by git-commit.)
+ Gives a warning if there are unstaged changes.
+
+ Usage:
+    git ccommit ...
+
+    ...: same arguments as git-commit
+EOF
+    exit 0;
+fi
+
 a=0
 q=0
 
@@ -32,7 +48,7 @@ if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-
 fi 
     
 ## commit if dirty
-if ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommited --exit-code --ignore-submodules=dirty; 
+if ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommitted --exit-code --ignore-submodules=dirty; 
 then
     ## check for detached head
     if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then

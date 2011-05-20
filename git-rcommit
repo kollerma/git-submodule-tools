@@ -3,6 +3,24 @@
 ## accepts the same arguments as commit
 ## but does a ccommit in each submodule as well
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command executes a recursive commit. It begins with the innermost
+ submodules and works its way back. It is recommended to use the option
+ -a, otherwise the script will not commit the change in a submodule
+ pointer which changed because of a commit therein. Commit messages can 
+ be supplied using the options -m <message> or -F <file>. See also 
+ "git commit --help". 
+
+ Usage:
+    git rcommit ...
+
+    ...: same arguments as git-commit
+EOF
+    exit 0;
+fi
+
 ## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
 CMD="git ccommit -q"
 
