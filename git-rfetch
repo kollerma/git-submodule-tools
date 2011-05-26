@@ -1,5 +1,5 @@
 #!/bin/bash -e
-## Check for updates, does a fetch (dry-run) and reports
+## Check for updates, does a bfetch (dry-run) and reports
 ## the changes. This is just for convenience.
 ## Argument --dry-run just runs fetch --dry-run
 
@@ -34,7 +34,7 @@ fi
 
 ## check the submodules
 if [ -f .gitmodules ]; then
-    tmp=`git submodule foreach --recursive git fetch $dryrun 2>&1`
+    tmp=`git submodule foreach --recursive git bfetch $dryrun 2>&1`
     while read line; do
         ## Ok, just check line by line
         ## This looks like...

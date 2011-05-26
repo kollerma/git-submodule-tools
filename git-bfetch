@@ -1,0 +1,50 @@
+#!/bin/bash -e
+## Check for updates, does a fetch (dry-run)
+## but only for the current branch
+
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ This command fetches changes from origin for the current branch only. 
+
+ Usage:
+    git bfetch [--dry-run]
+
+    --dry-run: show what would be done without making
+       any changes. 
+EOF
+    exit 0;
+fi
+
+if [[ "$1" ]]; then
+    if [[ "$1" == "--dry-run" ]]; then
+	dryrun="--dry-run"
+    else 
+	echo "Error: bfetch does only accept the argument --dry-run,
+    nothing else."
+    fi
+fi
+
+## get current branch 
+branch=`git name-rev --name-only HEAD`
+## get correct remote
+tmp=`git remote`
+while read line; do
+    ## check if this branch is tracking the current remote
+    remote="$line"
+    tmp2=`git branch --no-color -vv 2> /dev/null | grep "$branch" | grep "$remote"`
+    if [[ "$tmp2" != "" ]]; then
+	## found it
+	## do we require the remote branch name??
+	break
+    fi
+    ## otherwise take last one or continue
+done <<< "$tmp"
+
+if [[ "$remote" == "" ]]; then
+    echo "Error in $PWD:"
+    echo " Could not find remote. Stopping."
+    exit 1
+fi
+
+git fetch $dryrun "$remote" "$branch"
