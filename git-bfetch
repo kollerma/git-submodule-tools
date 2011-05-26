@@ -5,7 +5,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
- This command fetches changes from origin for the current branch only. 
+ This command fetches changes from origin just like "git fetch",
+ but swallows all output that does not  
 
  Usage:
     git bfetch [--dry-run]
@@ -27,24 +28,6 @@ fi
 
 ## get current branch 
 branch=`git name-rev --name-only HEAD`
-## get correct remote
-tmp=`git remote`
-while read line; do
-    ## check if this branch is tracking the current remote
-    remote="$line"
-    tmp2=`git branch --no-color -vv 2> /dev/null | grep "$branch" | grep "$remote"`
-    if [[ "$tmp2" != "" ]]; then
-	## found it
-	## do we require the remote branch name??
-	break
-    fi
-    ## otherwise take last one or continue
-done <<< "$tmp"
 
-if [[ "$remote" == "" ]]; then
-    echo "Error in $PWD:"
-    echo " Could not find remote. Stopping."
-    exit 1
-fi
-
-git fetch $dryrun "$remote" "$branch"
+## do the fetch and filter the result
+git fetch $dryrun 2>&1 | grep " $branch " | cat
