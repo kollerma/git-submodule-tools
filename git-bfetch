@@ -6,7 +6,8 @@
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
  This command fetches changes from origin just like "git fetch",
- but swallows all output that does not  
+ but swallows all output that does not belong to the currently
+ checked out branch. 
 
  Usage:
     git bfetch [--dry-run]

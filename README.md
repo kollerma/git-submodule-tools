@@ -110,6 +110,8 @@ Some commands that are just thought to be used internally.
   `--ignore-submodules` is the same as for `git status`. 
 * `git-check-unpushed`: checks for any unpushed remote tracking branch.
 * `git-check-non-tracking`: checks if there are any non-tracking branches.
+* `git-bfetch`: calls git fetch, but shows only output for the currently
+  checked out branch.
 
 Other Stuff
 -----------
