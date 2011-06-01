@@ -116,7 +116,8 @@ Some commands that are just thought to be used internally.
 Other Stuff
 -----------
 
-The script `tests.sh` can be used to test the scripts.
+* The script `tests.sh` can be used to test the scripts.
+* The script `gen-man.sh` can be used to generate man pages.
 
 Known Problems
 --------------
