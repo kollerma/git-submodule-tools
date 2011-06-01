@@ -47,8 +47,8 @@ if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-
     echo " To add, use option -a to stage or add files manually with git add <file>."
 fi 
     
-## commit if dirty
-if ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommitted --exit-code --ignore-submodules=dirty; 
+## commit if dirty (or --allow-empty is given)
+if [[ "$@" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommitted --exit-code --ignore-submodules=dirty; 
 then
     ## check for detached head
     if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
