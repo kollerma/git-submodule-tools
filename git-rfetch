@@ -62,8 +62,8 @@ if [[ "$output" ]]; then
     echo -n "$output"
     if [[ "$dryrun" == "--dry-run" ]]; then
 	echo "Use \"git rfetch\" to fetch updates."
-	echo "Then go to the innermost submodules and use git pull to merge the updates."
+	echo "Then go to the innermost submodules and use \"git rpull\" to merge the updates."
     else
-	echo "Fetched updates. Now use \"git rdiff\" to show the differing files. Then \"git pull\" in the correct folder to merge updates."
+	echo "Fetched updates. Now use \"git rdiff\" to show the differing files. Then \"git rpull\" in the correct folder to merge updates."
     fi
 fi
