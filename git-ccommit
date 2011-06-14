@@ -57,7 +57,7 @@ then
 	exit 1
     fi
 
-    echo "Commiting in $PWD..."
+    echo "Committing in $PWD..."
     git commit "$@"
     
     if [ -f .gitmodules ]; then
