@@ -16,13 +16,7 @@ EOF
     exit 0;
 fi
 
-
-## do nothing if there is no .gitmodules file
-if [ ! -f .gitmodules ]; then
-    exit 0;
-fi
-
-## find submodule urls in .gitmodules:
+## find submodule urls not in .gitmodules:
 git config --get-regexp submodule.*url |
 while read line; do
     #echo "$line"
