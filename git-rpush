@@ -5,6 +5,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive push
+
  This command executes git-cpush recursively. It starts with
  the innermost submodules and then works its way back. Only accepts
  two levels of submodules. The push is only executed if all 

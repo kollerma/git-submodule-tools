@@ -5,6 +5,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Check for unpushed commits in tracking branches
+
  This command checks for unpushed commits in tracking branches. 
  This is part of a series of checks used to determine whether it is 
  safe to remove a submodule.

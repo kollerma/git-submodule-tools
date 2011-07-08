@@ -4,6 +4,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Check for a remote tracking branch
+
  This command checks whether the repository is on a remote tracking
  branch. Otherwise an error is raised.
 

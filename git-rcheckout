@@ -6,6 +6,8 @@
 ## read input, display help if necessary
 if [[ "$@" == "" || "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive checkout
+
  This command is like git-checkout, but acts recursively, i.e.,
  makes sure that the submodules are at the correct commit, 
  their HEADs are attached if possible and orphaned submodule

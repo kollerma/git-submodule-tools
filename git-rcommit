@@ -6,6 +6,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive commit
+
  This command executes a recursive commit. It begins with the innermost
  submodules and works its way back. It is recommended to use the option
  -a, otherwise the script will not commit the change in a submodule

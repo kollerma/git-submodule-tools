@@ -16,6 +16,7 @@ mkdir -p man/man1
 for CMD in git-*;
 do
     man="man/man1/$CMD.1"
+    name=
     desc=
     synopsis=
     options=
@@ -29,7 +30,7 @@ do
 	line=${line%% }
 	## remove any leading whitespaces
 	cline=`echo $line`
-	if [[ "$usage" -eq 2 ]]; then
+	if [[ "$usage" -eq 3 ]]; then
 	    ## we're in options
 	    if [[ "${cline:1:1}" == "-" ]]; then
 	    options="$options
@@ -37,16 +38,17 @@ $cline"
 	    else
 		options="$options $cline"
 	    fi
-	elif [[ "$usage" -eq 1 ]]; then
+	elif [[ "$usage" -eq 2 ]]; then
 	    ## we're in Synopsis
 	    if [[ "$cline" == "" ]]; then
-		usage=2
+		usage=3
 	    else
 		synopsis="$synopsis $cline"
 	    fi
-	else
+	elif [[ "$usage" -eq 1 ]]; then
+	    ## we're in Description
 	    if expr "$line" : 'Usage:' > /dev/null; then
-		usage=1
+		usage=2
 	    elif [[ "$cline" != "" ]]; then
 		if [[ "$cline" == "$line" ]]; then
 		    desc="$desc 
@@ -56,6 +58,13 @@ $line"
 $line
 .br"
 		fi
+	    fi
+	else 
+	    ## we're in Name
+	    if [[ "$cline" == "" ]]; then
+		usage=1
+	    else
+		name="$name $cline"
 	    fi
 	fi	    
     done <<< "$help"
@@ -73,7 +82,7 @@ $line
     ## write man page
     echo ".TH $CMD 1 \"$date\"" > "$man"
     echo ".SH NAME" >> "$man"
-    echo "$CMD" >> "$man"
+    echo "$CMD -$name" >> "$man"
     echo ".SH SYNOPSIS" >> "$man"
     echo ".B $synopsis" >> "$man"
     echo ".SH DESCRIPTION" >> "$man"

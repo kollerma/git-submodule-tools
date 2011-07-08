@@ -6,6 +6,8 @@
 ## read input, display help if necessary
 if [[ "$@" == "" || "$@" == *--help* ]]; then
     cat<<EOF
+ Remove a submodule
+
  This command removes the submodule <directory> and creates a new commit
  with a simple commit message including the url of the removed
  submodule.

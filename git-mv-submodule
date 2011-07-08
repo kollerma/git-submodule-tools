@@ -6,6 +6,8 @@
 ## read input, display help if necessary
 if [[ "$@" == "" || "$@" == *--help* ]]; then
     cat<<EOF
+ Move a submodule
+
  This command moves the submodule <from> to <to> and creates a new 
  commit with a simple commit message including the url of the 
  removed submodule. It just removes <from> and then adds <to>. 

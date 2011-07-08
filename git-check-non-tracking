@@ -5,6 +5,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Check for any non-tracking branches
+
  This command checks for non-tracking branches that are not fully
  merged to a tracking branch. This is part of a series of checks
  used to determine whether it is safe to remove a submodule.

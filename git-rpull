@@ -8,6 +8,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive pull
+
  This command executes a git-pull and then updates all submodules.
  Orphaned submodule directories are removed if they are clean. The
  HEADs of submodules are attached if necessary and possible. 

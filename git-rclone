@@ -6,6 +6,8 @@
 ## read input, display help if necessary
 if [[ "$@" == "" || "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive clone
+
  This command executes a recursive clone, i.e., the repository
  is cloned as well as all submodules. The submodules HEADs are
  attached, if possible. See also "git clone --help".

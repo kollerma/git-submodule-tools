@@ -4,6 +4,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Remove orphaned submodule directories
+
  This command removed orphaned submodule directories, i.e., 
  if a submodule was removed but the directory was not removed
  because it was not empty. Before removing a directory, the 

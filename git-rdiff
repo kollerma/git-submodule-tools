@@ -5,6 +5,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive diff
+
  This command compares local with remote branches recursively for
  each submodule and lists differing files.
 

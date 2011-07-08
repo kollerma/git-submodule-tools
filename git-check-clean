@@ -4,6 +4,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Check for cleanliness of repository
+
  This command can be used to check for modified content,
  uncommitted changes and many other things.
 

@@ -7,6 +7,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Attach HEAD to a branch if possible
+
  This command tries to reattach the head of a git repository to some 
  branch.
  If the HEAD and the top of a branch are identical, then this branch

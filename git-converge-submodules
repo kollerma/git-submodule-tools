@@ -18,6 +18,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Resolve merge conflicts
+
  This command tries to automatically resolve the most common conflicts
  that arise when working with git submodules. It takes care only of 
  conflicts involving submodules and the file ".gitmodules".

@@ -5,6 +5,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Push only if necessary
+
  This command is similar to git-push, but only executes the push
  if necessary.
 

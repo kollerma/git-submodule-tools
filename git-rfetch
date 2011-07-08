@@ -6,6 +6,8 @@
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
+ Recursive fetch
+
  This command recursively fetches changes from origin. 
 
  Usage:

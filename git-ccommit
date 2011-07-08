@@ -7,6 +7,8 @@
 ## read input, display help if necessary
 if [[ "$@" == "" || "$@" == *--help* ]]; then
     cat<<EOF
+ Commit only if necessary
+
  This command is very similar to git-commit. The only difference is
  that a new commit is only recorded, if the resulting commit is not
  empty. (Thus avoiding the error that would be raised by git-commit.)
