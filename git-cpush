@@ -35,6 +35,11 @@ while read line; do
     unpushed=" Branch \"$branch\" is ahead by $status commit(s)."
 done <<< "$tmp"
 
+## push also if --tags argument is given
+if [[ "$@" == *--tags* ]]; then
+    unpushed="Push tags"
+fi
+
 if [ "$unpushed" ]; then
     echo "Pushing $PWD."
     git push "$@"
