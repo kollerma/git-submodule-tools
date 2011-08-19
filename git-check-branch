@@ -18,7 +18,12 @@ fi
 if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
     ## detached head cannot be remote tracking branch...
     echo "Error in $PWD:"
-    echo " Detached head. Use \"git attach-head\" or \"git rpull\" to update submodule."
+    echo " Detached head. This probably just mean that there are updates available"
+    echo " that are not yet used. To update to the most recent version, use "
+    echo "   git checkout <branchname> "
+    echo " To list all branches, use "
+    echo "   git branch -a "
+    echo " Alternatively try to use \"git attach-head\" or \"git rpull\" to update submodule."
     exit 1
 fi
 
