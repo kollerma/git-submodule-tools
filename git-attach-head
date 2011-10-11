@@ -55,7 +55,7 @@ fi
 if [[ ! "$branch" ]]; then
     if [[ "$w" ]]; then
 	echo "Warning in $PWD:"
-	echo " Cannot attach HEAD. There are probably unmerged updates available. Go (\"cd\") there and use \"git brach -v\" list available branches. Switch branches with \"git checkout <branchname>\"."
+	echo " Cannot attach HEAD. There are probably unmerged updates available. Go (\"cd\") there and use \"git branch -v\" list available branches. Switch branches with \"git checkout <branchname>\"."
     fi
 else 
     ## try to attach head now
