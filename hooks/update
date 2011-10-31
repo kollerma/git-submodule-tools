@@ -38,28 +38,40 @@ commits=$(git ls-tree -r "$newrev" | grep ^160000)
 
 ## --- Check if commit exists for each submodule
 while read line; do
-    echo "Reading $line"
+    #echo "Reading $line"
     ## format of a line: <mode> SP <type> SP <object> TAB <file>
     commit=$(expr "$line" : '.* \(.*\)	')
-    echo "Commit: $commit"
-    path=$(expr "$line" : '.*	\(.*\)')
+    #echo "Commit: $commit"
+    rpath=$(expr "$line" : '.*	\(.*\)')
     ## replace / by \/
-    path=${path/\//\\/}
-    echo "Path: $path"
+    path=${rpath/\//\\/}
+    #echo "Path: $path"
     ## get repository associated with $path
     url=$(git show "$newrev:.gitmodules" | awk "/path = $path/{getline;print }")
     ## remove url = 
     url=${url#*url = }
-    echo "Url: $url"
+    #echo "Url: $url"
     ## Format of url: user@server:repo
     if [[ $url =~ $hostname ]]; then
 	repo="$repobase"${url#*:}
-	echo "Repo: $repo"
+	#echo "Repo: $repo"
 	if [[ -d "$repo" ]]; then
-	    GIT_DIR=$repo git rev-parse --quiet --verify $commit > /dev/null
-	    echo "Verified $commit"
+	    ## The following should work, but doesn't on the server
+	    #GIT_DIR=$repo git rev-parse --quiet --verify $commit > /dev/null
+	    ## so do the following instead
+	    if [[ "$(GIT_DIR=$repo git merge-base $commit HEAD || echo FAIL)" == "FAIL" ]]; then
+		cat<<EOF
+ Error: Cannot find commit for submodule "$rpath".
+ Did you use git push instead of git rpush?
+ Try again with git rpush.
+EOF
+	    exit 1
+	    fi
 	else 
-	    echo "Fatal error: cannot find repository $repo"
+	    cat<<EOF
+ Error: Cannot find submodule repository "$rpath".
+ The repository "$repo" does not exist.
+EOF
 	    exit 1
 	fi
     fi
