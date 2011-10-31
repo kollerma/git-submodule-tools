@@ -21,7 +21,7 @@ EOF
 fi
 
 ## check for modified content and uncommitted changes
-git check-clean || exit 1
+git check-clean --warn || exit 1
 ## check for non remote tracking branches and fail
 ## TODO: if not --all
 git submodule --quiet foreach --recursive "git check-branch" || exit 1

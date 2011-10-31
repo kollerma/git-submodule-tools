@@ -21,13 +21,17 @@ if [[ "$@" == *--help* ]]; then
     --ignore-submodules: ignore submodules, optionally specifying
        in when to ignore submodules (see help of git-status), 
        defaults to "all".
+    --warn: do not issue an error, but just a warning.
 EOF
     exit 0;
-elif [[ "$@" == "" ]]; then
+elif [[ "$@" == "" || "$@" == "--warn" ]]; then
     unstaged=1
     uncommitted=1
     untracked=1
     unmerged=1
+    if [[ "$@" == "--warn" ]]; then
+	warn=1
+    fi
 else
     while test $# -ne 0
     do
@@ -52,6 +56,9 @@ else
 		;;
 	    --ignore-submodules=*)
 	        ignoresub="${1#--ignore-submodules=}"
+		;;
+            --warn)
+		warn=1
 		;;
 	    *)
 		break
@@ -121,7 +128,13 @@ if [[ $untracked -eq 1 ]]; then
 fi
 
 if [[ "$output" ]]; then
-    echo "Error in $PWD:"
-    echo -n "$output"
-    exit 1
+    if [[ "$warn" ]]; then
+	echo "Warning in $PWD:"
+	echo -n "$output"
+	exit 0
+    else
+	echo "Error in $PWD:"
+	echo -n "$output"
+	exit 1
+    fi
 fi
