@@ -21,7 +21,9 @@ EOF
 fi
 
 ## check for modified content and uncommitted changes
-git check-clean --warn || exit 1
+git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
+## check for untracked files
+git check-clean --untracked --unstaged || echo "Warning: There are untracked files not in .gitignore."
 ## check for non remote tracking branches and fail
 ## TODO: if not --all
 git submodule --quiet foreach --recursive "git check-branch" || exit 1

@@ -130,8 +130,8 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     )
     ## try to pull now, should fail
     git rpull && exit 1 || echo "rpull failed, as required."
-    ## try to push, should not fail, since there are no new commits
-    git rpush || { echo "rpush failed, this shouldn't happen!!"; exit 1; }
+    ## try to push, should fail, since there are new commits
+    git rpush && exit 1 || echo "rpush failed, as required"
     ## commit
     git rcommit -am "some message"
     ## now there's a conflict, try to push again
@@ -167,6 +167,13 @@ git rclone $wd/remote/vorlesung.git vorlesung4
     git rcommit -am 'merged remote'
     ## and push
     git rpush
+    ## add an untracked file
+    touch serie1/aufgabe2/blah.Rnw
+    ## try to push, should not fail, since there only untracked files
+    ## but there should be a warning.
+    git rpush || { echo "rpush failed, this shouldn't happen!!"; exit 1; }
+    ## remove the file again
+    rm serie1/aufgabe2/blah.Rnw
 )
 
 ## Now pull this in vorlesung
