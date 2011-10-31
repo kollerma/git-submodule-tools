@@ -42,6 +42,11 @@ git pull || exit 1
 
 if [ -f .gitmodules ]; then
     ## initialize submodules: cannot combine --init with --merge!!
+    ## initialize first level submodules first
+    git submodule --quiet update --init || exit 1
+    ## now syncronize urls for the second level submodules
+    git submodule --quiet foreach git submodule --quiet sync || exit 1
+    ## now update second level submodules
     git submodule --quiet update --init --recursive || exit 1
     ## remove old submodule directories: 
     ## this is more or less safe, since only ignored files might be deleted
