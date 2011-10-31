@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Block commits that reference an unpushed commit 
+# from entering the repository. We can only check references
+# to commits in some local repository.
+#
+# The script only works if the url of a submodule contains
+# the hostname, see below.
+#
+# Configuration:
+hostname=$(hostname)
+repobase="/scratch/git-sfs/"
+#
+
+## Fail on first error
+set -e
+
+# --- Command line
+refname="$1"
+oldrev="$2"
+newrev="$3"
+
+# --- Safety check
+if [ -z "$GIT_DIR" ]; then
+	echo "Don't run this script from the command line." >&2
+	echo " (if you want, you could supply GIT_DIR then run" >&2
+	echo "  $0 <ref> <oldrev> <newrev>)" >&2
+	exit 1
+fi
+
+if [ -z "$refname" -o -z "$oldrev" -o -z "$newrev" ]; then
+	echo "Usage: $0 <ref> <oldrev> <newrev>" >&2
+	exit 1
+fi
+
+## --- Get submodule commits in <newrev>
+commits=$(git ls-tree -r "$newrev" | grep ^160000)
+
+## --- Check if commit exists for each submodule
+while read line; do
+    echo "Reading $line"
+    ## format of a line: <mode> SP <type> SP <object> TAB <file>
+    commit=$(expr "$line" : '.* \(.*\)	')
+    echo "Commit: $commit"
+    path=$(expr "$line" : '.*	\(.*\)')
+    ## replace / by \/
+    path=${path/\//\\/}
+    echo "Path: $path"
+    ## get repository associated with $path
+    url=$(git show "$newrev:.gitmodules" | awk "/path = $path/{getline;print }")
+    ## remove url = 
+    url=${url#*url = }
+    echo "Url: $url"
+    ## Format of url: user@server:repo
+    if [[ $url =~ $hostname ]]; then
+	repo="$repobase"${url#*:}
+	echo "Repo: $repo"
+	if [[ -d "$repo" ]]; then
+	    GIT_DIR=$repo git rev-parse --quiet --verify $commit > /dev/null
+	    echo "Verified $commit"
+	else 
+	    echo "Fatal error: cannot find repository $repo"
+	    exit 1
+	fi
+    fi
+done <<< "$commits"
+
+# --- Finished
+exit 0
