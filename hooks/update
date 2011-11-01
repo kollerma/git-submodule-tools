@@ -33,8 +33,15 @@ if [ -z "$refname" -o -z "$oldrev" -o -z "$newrev" ]; then
 	exit 1
 fi
 
+#echo "$refname $oldrev $newrev"
+
 ## --- Get submodule commits in <newrev>
-commits=$(git ls-tree -r "$newrev" | grep ^160000)
+commits=$(git ls-tree -r "$newrev" | grep ^160000 || echo "FAIL")
+
+if [[ "$commits" == "FAIL" ]]; then
+    ## there are no submodules
+    exit 0;
+fi
 
 ## --- Check if commit exists for each submodule
 while read line; do
