@@ -54,7 +54,7 @@ while read line; do
     path=${rpath/\//\\/}
     #echo "Path: $path"
     ## get repository associated with $path
-    url=$(git show "$newrev:.gitmodules" | awk "/path = $path/{getline;print }")
+    url=$(git show "$newrev:.gitmodules" | awk "/path = $path\$/{getline;print }")
     ## remove url = 
     url=${url#*url = }
     #echo "Url: $url"
