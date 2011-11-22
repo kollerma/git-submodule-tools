@@ -118,6 +118,8 @@ Other Stuff
 
 * The script `tests.sh` can be used to test the scripts.
 * The script `gen-man.sh` can be used to generate man pages.
+* Update hook `hooks/update` can be used to prevent pushing of commits 
+  containing references to submodule commits which have not been pushed.
 
 Known Problems
 --------------
