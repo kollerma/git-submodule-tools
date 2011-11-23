@@ -8,6 +8,8 @@ if [[ "$@" == *--help* ]]; then
 
  This command checks whether the repository is on a remote tracking
  branch. Otherwise an error is raised.
+ Does not raise an error if the repository is in detached HEAD mode 
+ and there are no new commits.
 
  Usage:
     git check-branch
@@ -17,14 +19,21 @@ fi
 
 if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
     ## detached head cannot be remote tracking branch...
-    echo "Error in $PWD:"
+    ## ...but: if there are no new commits, we can safely ignore this
+    if [[ $(git diff origin..  --quiet || echo "FAIL") == "FAIL" ]]; then
+	echo "Error in $PWD:"
+	echo " Detached head and new commits. Attach the HEAD by creating"
+        echo " a new branch or risk losing the commits."
+	exit 1
+    fi
+    echo "Warning in $PWD:"
     echo " Detached head. This probably just mean that there are updates available"
     echo " that are not yet used. To update to the most recent version, use "
     echo "   git checkout <branchname> "
     echo " To list all branches, use "
     echo "   git branch -a "
     echo " Alternatively try to use \"git attach-head\" or \"git rpull\" to update submodule."
-    exit 1
+    exit 0
 fi
 
 tmp=`git branch --no-color -vv 2> /dev/null`
