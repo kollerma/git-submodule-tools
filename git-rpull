@@ -43,19 +43,8 @@ fi
 git pull || exit 1
 
 if [ -f .gitmodules ]; then
-    ## initialize submodules: cannot combine --init with --merge!!
-    ## initialize first level submodules first
-    git submodule --quiet update --init || exit 1
-    ## now syncronize urls for the second level submodules
-    git submodule --quiet foreach git submodule --quiet sync || exit 1
-    ## now update second level submodules
-    git submodule --quiet update --init --recursive || exit 1
-    ## remove old submodule directories: 
-    ## this is more or less safe, since only ignored files might be deleted
-    git submodule --quiet foreach git rm-orphaned-submodule-dirs || exit 1
-    git rm-orphaned-submodule-dirs || exit 1
-    ## attach heads
-    git submodule --quiet foreach --recursive git attach-head
+    ## fix submodules
+    git fix-submodules --skip-checks
     ## fetch changes in submodules 
     ## this is necessary since if the submodule commit did not change
     ## in the super rep., then the submodule is not updated.

@@ -1,0 +1,40 @@
+#!/bin/bash -e
+## Fix submodules: make sure all submodules
+## are checked out correctly
+
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ Fix submodules
+
+ This command updates and initializes all submodules.
+ Orphaned submodule directories are removed if they are clean. The
+ HEADs of submodules are attached if necessary and possible. 
+
+ Usage:
+    git fix-submodules [--skip-checks]
+
+    --skip-checks: skip safety checks
+EOF
+    exit 0;
+fi
+
+## check for modified content and uncommitted changes
+if [[ "$@" != *--skip-checks* ]]; then
+    git check-clean || exit 1
+fi
+
+## initialize submodules: cannot combine --init with --merge!!
+## initialize first level submodules first
+##  2>&1 | grep -v "warning: unable to rmdir"
+git submodule --quiet update --init || exit 1
+## now syncronize urls for the second level submodules
+git submodule --quiet foreach git submodule --quiet sync || exit 1
+## now update second level submodules
+git submodule --quiet update --init --recursive || exit 1
+## remove old submodule directories: 
+## this is more or less safe, since only ignored files might be deleted
+git submodule --quiet foreach git rm-orphaned-submodule-dirs || exit 1
+git rm-orphaned-submodule-dirs || exit 1
+## attach heads if possible
+git submodule --quiet foreach --recursive git attach-head
