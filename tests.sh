@@ -44,6 +44,8 @@ for i in 1 2; do
     git clone --bare serie$i remote/serie$i.git
     cd serie$i
     git remote add origin $wd/remote/serie$i.git
+    ## to create tracking branches
+    git push -u --all
     cd ..
 done
 
