@@ -85,6 +85,7 @@ functionality that should simplify the work with submodules.
   copy. Commits the removal of the submodule if the argument `--no-commit`
   is not given. 
 * `git-mv-submodule`: move a submodule, also has a `--no-commit` argument.
+* `git-fix-submodules`: script to fix up the submodules in a repository.
 
 Helper Scripts
 --------------
