@@ -25,29 +25,15 @@ while read key url; do
     dir=`expr "$key" : 'submodule\.\(.*\)\.url'`
     #echo "$dir"
     if [[ -d "$dir" && $(git config -f .gitmodules --get "$key") != "$url" ]]; then
-	## Check if the directory does not contain non-tracking branches
 	tdir=$PWD
+	## Check if the directory is clean
 	cd "$dir"
 	git check-clean || exit 1
 	git check-unpushed || exit 1
 	git check-non-tracking || exit 1
 	cd "$tdir"
-	## TODO: confirm the removal??
-	# echo "$dir is an orphan"
-	# #get confirmation
-	# until [[ "$ans" == "n" || "$ans" == "y" ]]; do
-	#     if [[ "$ans" ]]; then
-	# 	echo "Please answer with y or n"
-	#     fi
-	#     echo "hello"
-	#     read asn # -p "Do you want to remove $dir (y/n)? " ans
-	#     echo "ans: $ans"
-	# done
-	# echo "ans: $ans"
-	# if [[ "$ans" == "y" ]]; then
-	#     echo "removing..."
+	## remove it
 	rm -rf "$dir"
-	# fi
     fi
 done
 
