@@ -25,14 +25,25 @@ fi
 ## check for modified content and uncommitted changes
 git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
 ## check for untracked files
-git check-clean --untracked --unstaged || exit 1
+if [[ $(git check-clean --untracked --unstaged --exit-code || echo "FAIL") == "FAIL" ]]; then
+    cat<<EOF
+ Error: Untracked files in submodules. Add them to .gitignore
+  in the respective submodules or remove them.
+  Use "git status" to see where they are.
+EOF
+    exit 1
+fi
 
 ## check for unpushed commits in submodules
 if [ -f .gitmodules ]; then
     unpushed=`git submodule --quiet foreach --recursive git check-unpushed -p`
     if [[ "$unpushed" != "" ]]; then
-	echo "Error: Unpushed commits in submodules."
-	echo "$unpushed"
+	cat<<EOF 
+ Error: Unpushed commits in submodules.
+  $unpushed
+  Push them one-by-one before pulling again. Otherwise some
+  commits might get lost.
+EOF
 	exit 1
     fi
 fi
