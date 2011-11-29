@@ -25,7 +25,7 @@ fi
 ## check for modified content and uncommitted changes
 git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
 ## check for untracked files
-git check-clean --untracked --unstaged || echo "Warning: There are untracked files not in .gitignore."
+git check-clean --untracked --unstaged || exit 1
 
 ## check for unpushed commits in submodules
 if [ -f .gitmodules ]; then

@@ -24,17 +24,11 @@ if [[ "$@" != *--skip-checks* ]]; then
     git check-clean || exit 1
 fi
 
-## initialize submodules: cannot combine --init with --merge!!
-## initialize first level submodules first
-##  2>&1 | grep -v "warning: unable to rmdir"
-git submodule --quiet update --init || exit 1
-## now syncronize urls for the second level submodules
-git submodule --quiet foreach git submodule --quiet sync || exit 1
-## now update second level submodules
-git submodule --quiet update --init --recursive || exit 1
-## remove old submodule directories: 
-## this is more or less safe, since only ignored files might be deleted
-git submodule --quiet foreach git rm-orphaned-submodule-dirs || exit 1
+## remove orphaned submodule directories
 git rm-orphaned-submodule-dirs || exit 1
+## update / initialize submodules
+git submodule --quiet update --init || exit 1
+## do the same for the submodules
+git submodule --quiet foreach git fix-submodules "$@"
 ## attach heads if possible
-git submodule --quiet foreach --recursive git attach-head
+git submodule --quiet foreach git attach-head

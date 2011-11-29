@@ -448,3 +448,72 @@ cp -r vorlesung3 vorlesung3c
     [ ! -d serie3 ] || { echo "Error: serie3 not removed"; exit 1; }
     [ -d serie2 ] || { echo "Error: serie2 not created"; exit 1; }
 )
+
+####
+## test removal and adding of a submodule of the same name
+####
+
+## create a set of new submodules to be used 
+## in the subsequent tests
+
+(cd remote
+    ## clone aufgabe1 into aufgabe4
+    git clone --bare aufgabe1.git aufgabe4.git
+)
+
+## add some commits to aufgabe1
+git clone remote/aufgabe1.git aufgabe1
+(cd aufgabe1
+    echo more-content >> ex.Rnw
+    git commit -am "first time adding more content to aufgabe1"
+    echo even-more-content >> ex.Rnw
+    git commit -am "second time adding more content to aufgabe1"
+    git push
+)
+
+## add some commits to aufgabe2
+git clone remote/aufgabe4.git aufgabe4
+(cd aufgabe4
+    echo more-content2 >> ex.Rnw
+    git commit -am "first time adding more content to aufgabe4"
+    echo even-more-content2 >> ex.Rnw
+    git commit -am "second time adding more content to aufgabe4"
+    git push
+)
+
+## create new repos vorlesung5 and vorlesung6
+git rclone remote/vorlesung.git vorlesung5
+git rclone remote/vorlesung.git vorlesung6
+
+## update to newest version aufgabe1 in vorlesung5
+(cd vorlesung5
+    git rpull
+    (cd serie1/aufgabe1
+	git checkout master
+    )
+    git rcommit -am "updated series1/aufgabe1"
+    ## the next push should be ok 
+    ## (even if HEAD in serie2/aufgabe2 is not attached)
+    git rpush
+)
+
+## update to newest version aufgabe1 in vorlesung6
+(cd vorlesung6
+    git rpull
+    (cd serie1
+	git rm-submodule aufgabe1
+	git submodule add $wd/remote/aufgabe4.git aufgabe1
+    )
+    git rcommit -am "added aufgabe4.git as aufgabe1"
+    git rpush
+)
+
+## go to vorlesung5 and pull again
+(cd vorlesung5
+    git rpull
+    ## the head of serie1/aufgabe1 should be attached now
+    (cd serie1/aufgabe1
+	git branch -v -a
+    )
+)
+    
