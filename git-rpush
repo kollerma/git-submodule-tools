@@ -38,23 +38,5 @@ git submodule --quiet foreach --recursive "git check-branch" || exit 1
 # git fetch -q
 # git submodule --quiet foreach --recursive "git fetch -q"
 
-
-## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
-CMD="git cpush -q"
-
-for (( i = 1; i <= $# ; i++ )); do
-  eval ARG=\$$i
-  CMD="$CMD $(echo "$ARG" | awk '{gsub(".", "\\\\&");print}')"
-done
-
-## !!! check for uncommitted changes ???
-## push second level repositories
-echo "Pushing second level submodules..."
-git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\"" || exit 1
-echo "done."
-## push first level repositories
-echo "Pushing first level submodules..."
-git submodule --quiet foreach git cpush -q "$@" || exit 1
-echo "done."
 ## push super rep.
 git cpush -q "$@"

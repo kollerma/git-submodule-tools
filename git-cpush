@@ -9,6 +9,7 @@ if [[ "$@" == *--help* ]]; then
 
  This command is similar to git-push, but only executes the push
  if necessary.
+ Before pushing, the submodules are pushed.
 
  Usage:
     git cpush ...
@@ -18,6 +19,8 @@ EOF
     exit 0;
 fi
 
+## push submodules first
+git submodule --quiet foreach git cpush "$@" || exit 1
 
 tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
