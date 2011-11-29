@@ -20,7 +20,9 @@ fi
 if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
     ## detached head cannot be remote tracking branch...
     ## ...but: if there are no new commits, we can safely ignore this
-    if [[ $(git diff origin..  --quiet || echo "FAIL") == "FAIL" ]]; then
+    ## FIXME: this test only succeed if the new commit is actually
+    ##        checked out
+    if [[ $(git diff origin...  --quiet || echo "FAIL") == "FAIL" ]]; then
 	echo "Error in $PWD:"
 	echo " Detached head and new commits. Attach the HEAD by creating"
         echo " a new branch or risk losing the commits."
