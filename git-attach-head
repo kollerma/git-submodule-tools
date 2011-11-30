@@ -27,7 +27,7 @@ fi
 ## TODO: do some error checking?
 
 ## stop if HEAD is a ref already
-if [[ $(cat .git/HEAD | cut -c1-4) == "ref:" ]]; then
+if git symbolic-ref HEAD 2> /dev/null ; then
     exit 0
 fi
 

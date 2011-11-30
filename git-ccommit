@@ -53,7 +53,7 @@ fi
 if [[ "$@" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommitted --exit-code --ignore-submodules=dirty; 
 then
     ## check for detached head
-    if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
+    if ! git symbolic-ref HEAD 2> /dev/null ; then
 	echo "Error in $PWD:"
 	echo " Refused to commit in detached head state. Use \"git rcheckout <branchname>\" to attach HEAD. List branches with \"git branch -v\"."
 	exit 1
