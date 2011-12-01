@@ -25,7 +25,6 @@ fi
 git check-clean || exit 1
 
 ## do the checkout
-## git pull --recurse-submodules (does not work)
 git checkout "$@" || exit 1
 ## fix submodule
 git fix-submodules --skip-checks

@@ -25,7 +25,7 @@ fi
 ## check for modified content and uncommitted changes
 git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
 ## check for untracked files
-if [[ $(git check-clean --untracked --unstaged --exit-code || echo "FAIL") == "FAIL" ]]; then
+if ! git check-clean --untracked --unstaged --exit-code; then
     cat<<EOF
  Error: Untracked files in submodules. Add them to .gitignore
   in the respective submodules or remove them.
@@ -50,7 +50,6 @@ fi
 ## git check-unpushed # no need to check in master
 
 ## do the pull
-## git pull --recurse-submodules (does not work)
 git pull || exit 1
 
 if [ -f .gitmodules ]; then

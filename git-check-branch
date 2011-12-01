@@ -17,12 +17,12 @@ EOF
     exit 0;
 fi
 
-if ! git symbolic-ref HEAD 2> /dev/null ; then
+if ! git symbolic-ref -q HEAD > /dev/null ; then
     ## detached head cannot be remote tracking branch...
     ## ...but: if there are no new commits, we can safely ignore this
     ## FIXME: this test only succeed if the new commit is actually
     ##        checked out
-    if [[ $(git diff origin...  --quiet || echo "FAIL") == "FAIL" ]]; then
+    if ! git diff origin...  --quiet; then
 	echo "Error in $PWD:"
 	echo " Detached head and new commits. Attach the HEAD by creating"
         echo " a new branch or risk losing the commits."
