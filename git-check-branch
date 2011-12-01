@@ -17,7 +17,7 @@ EOF
     exit 0;
 fi
 
-if [[ $(cat .git/HEAD | cut -c1-4) != "ref:" ]]; then
+if ! git symbolic-ref HEAD 2> /dev/null ; then
     ## detached head cannot be remote tracking branch...
     ## ...but: if there are no new commits, we can safely ignore this
     ## FIXME: this test only succeed if the new commit is actually
