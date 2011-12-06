@@ -40,9 +40,10 @@ if [ -f .gitmodules ]; then
     if [[ "$unpushed" != "" ]]; then
 	cat<<EOF 
  Error: Unpushed commits in submodules.
-  $unpushed
-  Push them one-by-one before pulling again. Otherwise some
-  commits might get lost.
+$unpushed
+  Try "git rpush" followed by another "git rpull". If that fails, 
+  push them one-by-one before pulling again. 
+  This safety measure ensures that no commits get lost.
 EOF
 	exit 1
     fi

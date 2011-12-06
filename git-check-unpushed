@@ -43,7 +43,7 @@ while read line; do
     ## if we're ahead: branch will show it after ":" 
     status=`expr "$remote" : '.*: ahead \(.*\)'` || continue
     ##echo "$status"
-    unpushed="$unpushed Branch \"$branch\" is ahead $status commit(s).
+    unpushed="$unpushed    Branch \"$branch\" is ahead $status commit(s).
 "
 done <<< "$tmp"
 
@@ -53,6 +53,6 @@ if [ "$unpushed" ]; then
 	echo -n "$unpushed"
 	exit 1
     fi
-    echo "In $PWD:"
+    echo "  In $PWD:"
     echo -n "$unpushed"
 fi

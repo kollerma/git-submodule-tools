@@ -9,7 +9,7 @@ Cloning into aufgabe1...
 done.
 Cloning into aufgabe2...
 done.
-[master (root-commit) c2452b4] first commit
+[master (root-commit) 843a4e6] first commit
  3 files changed, 8 insertions(+), 0 deletions(-)
  create mode 100644 .gitmodules
  create mode 160000 aufgabe1
@@ -25,7 +25,7 @@ Cloning into aufgabe1...
 done.
 Cloning into aufgabe2...
 done.
-[master (root-commit) ce5104c] first commit
+[master (root-commit) 3637f24] first commit
  3 files changed, 8 insertions(+), 0 deletions(-)
  create mode 100644 .gitmodules
  create mode 160000 aufgabe1
@@ -43,7 +43,7 @@ Cloning into serie2...
 done.
 Cloning into r-tutorial...
 done.
-[master (root-commit) 570416d] first commit
+[master (root-commit) 95c295c] first commit
  4 files changed, 12 insertions(+), 0 deletions(-)
  create mode 100644 .gitmodules
  create mode 100644 README
@@ -66,7 +66,7 @@ Cloning into vorlesung3...
 done.
 Attaching heads of submodules...
 done.
-[master e0ad488] This is no problem
+[master 10b0b01] This is no problem
  1 files changed, 1 insertions(+), 0 deletions(-)
 Warning in /scratch/kollerma/git-test/vorlesung2/serie1/aufgabe1:
  Unstaged changes to files under version control.
@@ -89,21 +89,21 @@ Pushing /scratch/kollerma/git-test/vorlesung2.
 To /scratch/kollerma/git-test/remote/vorlesung.git
  * [new tag]         state-1 -> state-1
 From /scratch/kollerma/git-test/remote/vorlesung
-   570416d..81f45b9  master     -> origin/master
+   95c295c..7e52571  master     -> origin/master
  * [new tag]         state-1    -> state-1
 Fetching submodule r-tutorial
 From /scratch/kollerma/git-test/remote/r-tutorial
-   905d4fc..0b42532  master     -> origin/master
+   905d4fc..a6f5062  master     -> origin/master
 Fetching submodule serie1
 From /scratch/kollerma/git-test/remote/serie1
-   c2452b4..6ba9fe8  master     -> origin/master
+   843a4e6..ead86d4  master     -> origin/master
 Fetching submodule serie1/aufgabe1
 From /scratch/kollerma/git-test/remote/aufgabe1
-   79e0e79..13e83a4  master     -> origin/master
+   79e0e79..f021ed2  master     -> origin/master
 Fetching submodule serie1/aufgabe2
 From /scratch/kollerma/git-test/remote/aufgabe2
-   17d8709..e0ad488  master     -> origin/master
-Updating 570416d..81f45b9
+   17d8709..10b0b01  master     -> origin/master
+Updating 95c295c..7e52571
 Fast-forward
  r-tutorial |    2 +-
  serie1     |    2 +-
@@ -149,26 +149,28 @@ Stopping at 'r-tutorial'; script returned non-zero status.
 rpush failed, as required.
  Error: Unpushed commits in submodules.
   In /scratch/kollerma/git-test/vorlesung3/r-tutorial:
- Branch "master" is ahead 1 commit(s).
-In /scratch/kollerma/git-test/vorlesung3/serie2:
- Branch "master" is ahead 1 commit(s).
-In /scratch/kollerma/git-test/vorlesung3/serie2/aufgabe1:
- Branch "master" is ahead 1 commit(s).
-  Push them one-by-one before pulling again. Otherwise some
-  commits might get lost.
+    Branch "master" is ahead 1 commit(s).
+  In /scratch/kollerma/git-test/vorlesung3/serie2:
+    Branch "master" is ahead 1 commit(s).
+  In /scratch/kollerma/git-test/vorlesung3/serie2/aufgabe1:
+    Branch "master" is ahead 1 commit(s).
+  Try "git rpush" followed by another "git rpull". If that fails, 
+  push them one-by-one before pulling again. 
+  This safety measure ensures that no commits get lost.
 rpull failed, as required.
 There are updates available for the current repository.
 There are updates available for serie2/aufgabe1.
 Fetched updates. Now use "git rdiff" to show the differing files. Then "git rpull" in the correct folder to merge updates.
  Error: Unpushed commits in submodules.
   In /scratch/kollerma/git-test/vorlesung3/r-tutorial:
- Branch "master" is ahead 1, behind 1 commit(s).
-In /scratch/kollerma/git-test/vorlesung3/serie2:
- Branch "master" is ahead 1 commit(s).
-In /scratch/kollerma/git-test/vorlesung3/serie2/aufgabe1:
- Branch "master" is ahead 1, behind 1 commit(s).
-  Push them one-by-one before pulling again. Otherwise some
-  commits might get lost.
+    Branch "master" is ahead 1, behind 1 commit(s).
+  In /scratch/kollerma/git-test/vorlesung3/serie2:
+    Branch "master" is ahead 1 commit(s).
+  In /scratch/kollerma/git-test/vorlesung3/serie2/aufgabe1:
+    Branch "master" is ahead 1, behind 1 commit(s).
+  Try "git rpush" followed by another "git rpull". If that fails, 
+  push them one-by-one before pulling again. 
+  This safety measure ensures that no commits get lost.
 rpull failed, as required.
 Pushing /scratch/kollerma/git-test/vorlesung3/r-tutorial.
 To /scratch/kollerma/git-test/remote/r-tutorial.git
@@ -194,11 +196,11 @@ Diff in /scratch/kollerma/git-test/vorlesung3/serie2/aufgabe1:
 Auto-merging tutorial.Rnw
 CONFLICT (content): Merge conflict in tutorial.Rnw
 Automatic merge failed; fix conflicts and then commit the result.
-Updating 79e0e79..13e83a4
+Updating 79e0e79..f021ed2
 Fast-forward
  ex.Rnw |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
-Updating 17d8709..e0ad488
+Updating 17d8709..10b0b01
 Fast-forward
  ex.Rnw |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
@@ -224,20 +226,20 @@ Pushing /scratch/kollerma/git-test/vorlesung3.
   Use "git status" to see where they are.
   Continuing anyway...
 From /scratch/kollerma/git-test/remote/vorlesung
-   81f45b9..b0e8675  master     -> origin/master
+   7e52571..3172786  master     -> origin/master
 Fetching submodule r-tutorial
 From /scratch/kollerma/git-test/remote/r-tutorial
-   0b42532..b3bfc6e  master     -> origin/master
+   a6f5062..a5c131b  master     -> origin/master
 Fetching submodule serie1
 From /scratch/kollerma/git-test/remote/serie1
-   6ba9fe8..1846a98  master     -> origin/master
+   ead86d4..1cd48f5  master     -> origin/master
 Fetching submodule serie2
 From /scratch/kollerma/git-test/remote/serie2
-   ce5104c..dc6bee2  master     -> origin/master
+   3637f24..6cec12f  master     -> origin/master
 Fetching submodule serie2/aufgabe1
 From /scratch/kollerma/git-test/remote/aufgabe2
-   e0ad488..dac2054  master     -> origin/master
-Updating 81f45b9..b0e8675
+   10b0b01..7a808a0  master     -> origin/master
+Updating 7e52571..3172786
 Fast-forward
  r-tutorial |    2 +-
  serie1     |    2 +-
@@ -252,7 +254,7 @@ Fetched updates. Now use "git rdiff" to show the differing files. Then "git rpul
 Diff in /scratch/kollerma/git-test/vorlesung/serie1/aufgabe2:
  ex.Rnw |    3 ---
  1 files changed, 0 insertions(+), 3 deletions(-)
-Updating e0ad488..dac2054
+Updating 10b0b01..7a808a0
 Fast-forward
  ex.Rnw |    3 ---
  1 files changed, 0 insertions(+), 3 deletions(-)
@@ -261,23 +263,23 @@ Committing in /scratch/kollerma/git-test/vorlesung...
 Pushing /scratch/kollerma/git-test/vorlesung/serie1.
 Pushing /scratch/kollerma/git-test/vorlesung.
 From /scratch/kollerma/git-test/remote/vorlesung
-   81f45b9..25b6cd6  master     -> origin/master
+   7e52571..a3d824b  master     -> origin/master
 Fetching submodule r-tutorial
 From /scratch/kollerma/git-test/remote/r-tutorial
-   0b42532..b3bfc6e  master     -> origin/master
+   a6f5062..a5c131b  master     -> origin/master
 Fetching submodule serie1
 From /scratch/kollerma/git-test/remote/serie1
-   6ba9fe8..82d09eb  master     -> origin/master
+   ead86d4..23b7283  master     -> origin/master
 Fetching submodule serie1/aufgabe2
 From /scratch/kollerma/git-test/remote/aufgabe2
-   e0ad488..dac2054  master     -> origin/master
+   10b0b01..7a808a0  master     -> origin/master
 Fetching submodule serie2
 From /scratch/kollerma/git-test/remote/serie2
-   ce5104c..dc6bee2  master     -> origin/master
+   3637f24..6cec12f  master     -> origin/master
 Fetching submodule serie2/aufgabe1
 From /scratch/kollerma/git-test/remote/aufgabe2
-   17d8709..dac2054  master     -> origin/master
-Updating 81f45b9..25b6cd6
+   17d8709..7a808a0  master     -> origin/master
+Updating 7e52571..a3d824b
 Fast-forward
  r-tutorial |    2 +-
  serie1     |    2 +-
@@ -304,12 +306,12 @@ do so (now or later) by using -b with the checkout command again. Example:
 
   git checkout -b new_branch_name
 
-HEAD is now at 81f45b9... I did something
+HEAD is now at 7e52571... I did something
 M	r-tutorial
 M	serie1
 M	serie2
-Previous HEAD position was 81f45b9... I did something
-HEAD is now at 570416d... first commit
+Previous HEAD position was 7e52571... I did something
+HEAD is now at 95c295c... first commit
 M	r-tutorial
 M	serie1
 Error in /scratch/kollerma/git-test/vorlesung2/r-tutorial:
@@ -320,8 +322,8 @@ Error in /scratch/kollerma/git-test/vorlesung2:
  There is modified content in submodules.
 rcheckout failed as it should have
 HEAD is now at 905d4fc I did something
-Previous HEAD position was 570416d... first commit
-HEAD is now at 25b6cd6... updated serie1/aufgabe2
+Previous HEAD position was 95c295c... first commit
+HEAD is now at a3d824b... updated serie1/aufgabe2
 M	r-tutorial
 M	serie1
 M	serie2
@@ -329,22 +331,22 @@ Error in /scratch/kollerma/git-test/vorlesung2/serie2/aufgabe2:
  There are untracked files not in .gitignore. Try "make clean" to remove temporary files.
 rm-submodule failed as it should have
 Switched to a new branch 'testbranch'
-[testbranch 573d270] catch this!
+[testbranch bb2cc55] catch this!
  1 files changed, 1 insertions(+), 0 deletions(-)
  create mode 100644 hallo
 Switched to branch 'master'
 Error in /scratch/kollerma/git-test/vorlesung2/serie2/aufgabe2:
  testbranch is not a remote tracking branch and is not fully merged to HEAD.
 rm-submodule caught non-tracking-branch
-Updating b1d0995..573d270
+Updating b1d0995..bb2cc55
 Fast-forward
  hallo |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
  create mode 100644 hallo
 To /scratch/kollerma/git-test/remote/aufgabe3.git
-   b1d0995..573d270  master -> master
+   b1d0995..bb2cc55  master -> master
 rm 'aufgabe2'
-[master aec5b49] removed submodule "aufgabe2" (url: /scratch/kollerma/git-test/remote/aufgabe3.git)
+[master d376eec] removed submodule "aufgabe2" (url: /scratch/kollerma/git-test/remote/aufgabe3.git)
  2 files changed, 0 insertions(+), 4 deletions(-)
  delete mode 160000 aufgabe2
 Committing in /scratch/kollerma/git-test/vorlesung2...
@@ -359,9 +361,9 @@ do so (now or later) by using -b with the checkout command again. Example:
 
   git checkout -b new_branch_name
 
-HEAD is now at 25b6cd6... updated serie1/aufgabe2
+HEAD is now at a3d824b... updated serie1/aufgabe2
 M	serie2
-Previous HEAD position was 25b6cd6... updated serie1/aufgabe2
+Previous HEAD position was a3d824b... updated serie1/aufgabe2
 Switched to branch 'master'
 M	serie2
 Your branch is ahead of 'origin/master' by 1 commit.
@@ -376,8 +378,8 @@ There are updates available for serie2/aufgabe2.
 Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
 From /scratch/kollerma/git-test/remote/aufgabe3
-   b1d0995..573d270  master     -> origin/master
-Updating b1d0995..573d270
+   b1d0995..bb2cc55  master     -> origin/master
+Updating b1d0995..bb2cc55
 Fast-forward
  hallo |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
@@ -386,9 +388,10 @@ Committing in /scratch/kollerma/git-test/vorlesung3/serie2...
 Committing in /scratch/kollerma/git-test/vorlesung3...
  Error: Unpushed commits in submodules.
   In /scratch/kollerma/git-test/vorlesung3/serie2:
- Branch "master" is ahead 1 commit(s).
-  Push them one-by-one before pulling again. Otherwise some
-  commits might get lost.
+    Branch "master" is ahead 1 commit(s).
+  Try "git rpush" followed by another "git rpull". If that fails, 
+  push them one-by-one before pulling again. 
+  This safety measure ensures that no commits get lost.
 This fails as it should
 Pushing /scratch/kollerma/git-test/vorlesung3/serie2.
 To /scratch/kollerma/git-test/remote/serie2.git
@@ -445,7 +448,7 @@ Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
 Cloning into aufgabe2...
 done.
-[master 75120f6] added aufgabe1.git as aufgabe2
+[master 581afa8] added aufgabe1.git as aufgabe2
  2 files changed, 4 insertions(+), 0 deletions(-)
  create mode 160000 aufgabe2
 Committing in /scratch/kollerma/git-test/vorlesung2...
@@ -474,12 +477,12 @@ There are updates available for serie2/aufgabe2.
 Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
 rm 'aufgabe2'
-[master e8f8e6d] removed submodule "aufgabe2" (url: /scratch/kollerma/git-test/remote/aufgabe3.git)
+[master 4d41ba3] removed submodule "aufgabe2" (url: /scratch/kollerma/git-test/remote/aufgabe3.git)
  2 files changed, 0 insertions(+), 4 deletions(-)
  delete mode 160000 aufgabe2
 Cloning into aufgabe2...
 done.
-[master a7a06c8] added aufgabe1.git as aufgabe2
+[master 25b664a] added aufgabe1.git as aufgabe2
  2 files changed, 4 insertions(+), 0 deletions(-)
  create mode 160000 aufgabe2
 Committing in /scratch/kollerma/git-test/vorlesung...
@@ -516,7 +519,7 @@ Cloning into aufgabe2...
 done.
 Cloning into aufgabe3...
 done.
-[master a4ab570] added aufgabe1.git as aufgabe2, aufgabe3.git as aufgabe3
+[master b9b1d55] added aufgabe1.git as aufgabe2, aufgabe3.git as aufgabe3
  3 files changed, 8 insertions(+), 0 deletions(-)
  create mode 160000 aufgabe2
  create mode 160000 aufgabe3
@@ -531,11 +534,11 @@ done.
 Pushing /scratch/kollerma/git-test/vorlesung3/serie2.
 Pushing /scratch/kollerma/git-test/vorlesung3.
 From /scratch/kollerma/git-test/remote/vorlesung
-   a808afe..1a5f4f9  master     -> origin/master
+   50aa688..011a7fc  master     -> origin/master
 Fetching submodule serie2
 From /scratch/kollerma/git-test/remote/serie2
-   8c96e6e..23ec9f3  master     -> origin/master
-Updating a808afe..1a5f4f9
+   cf186b2..c134277  master     -> origin/master
+Updating 50aa688..011a7fc
 Fast-forward
  serie2 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
@@ -545,7 +548,7 @@ Branch alternative set up to track remote branch alternative from origin.
 Switched to branch 'alternative'
 Committing in /scratch/kollerma/git-test/vorlesung/serie2...
 Committing in /scratch/kollerma/git-test/vorlesung...
-HEAD is now at d69f3cb some message
+HEAD is now at 306afe1 some message
 Committing in /scratch/kollerma/git-test/vorlesung3/serie2...
 Committing in /scratch/kollerma/git-test/vorlesung3...
 Pushing /scratch/kollerma/git-test/vorlesung3/serie2.
@@ -564,11 +567,11 @@ done.
 Pushing /scratch/kollerma/git-test/vorlesung/serie2.
 Pushing /scratch/kollerma/git-test/vorlesung.
 From /scratch/kollerma/git-test/remote/vorlesung
-   99ac6b9..85e0738  master     -> origin/master
+   63a1826..cb92ffe  master     -> origin/master
 Fetching submodule serie2
 From /scratch/kollerma/git-test/remote/serie2
-   97237d2..7769959  master     -> origin/master
-Updating 99ac6b9..85e0738
+   a3020a1..a212606  master     -> origin/master
+Updating 63a1826..cb92ffe
 Fast-forward
  serie2 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
@@ -579,33 +582,33 @@ Ok series2 exists already
 rm 'serie2'
 Cloning into serie3...
 done.
-[master f8eae79] moved submodule "serie2" to "serie3" (url: /scratch/kollerma/git-test/remote/serie2.git)
+[master babe71b] moved submodule "serie2" to "serie3" (url: /scratch/kollerma/git-test/remote/serie2.git)
  2 files changed, 3 insertions(+), 3 deletions(-)
  rename serie2 => serie3 (100%)
 rm 'serie3'
 Cloning into serie2...
 done.
-[master 535380b] moved submodule "serie3" to "serie2" (url: /scratch/kollerma/git-test/remote/serie2.git)
+[master d66dd11] moved submodule "serie3" to "serie2" (url: /scratch/kollerma/git-test/remote/serie2.git)
  2 files changed, 2 insertions(+), 2 deletions(-)
  rename serie3 => serie2 (100%)
 Cloning into bare repository aufgabe4.git...
 done.
 Cloning into aufgabe1...
 done.
-[master 9d13b77] first time adding more content to aufgabe1
+[master b170aee] first time adding more content to aufgabe1
  1 files changed, 1 insertions(+), 0 deletions(-)
-[master 8fa1761] second time adding more content to aufgabe1
+[master c849f0d] second time adding more content to aufgabe1
  1 files changed, 1 insertions(+), 0 deletions(-)
 To /scratch/kollerma/git-test/remote/aufgabe1.git
-   13e83a4..8fa1761  master -> master
+   f021ed2..c849f0d  master -> master
 Cloning into aufgabe4...
 done.
-[master 70f2597] first time adding more content to aufgabe4
+[master 31bbc01] first time adding more content to aufgabe4
  1 files changed, 1 insertions(+), 0 deletions(-)
-[master 05fc3cc] second time adding more content to aufgabe4
+[master d31fd34] second time adding more content to aufgabe4
  1 files changed, 1 insertions(+), 0 deletions(-)
 To /scratch/kollerma/git-test/remote/aufgabe4.git
-   13e83a4..05fc3cc  master -> master
+   f021ed2..d31fd34  master -> master
 Cloning into vorlesung5...
 done.
 Attaching heads of submodules...
@@ -625,7 +628,7 @@ Warning in /scratch/kollerma/git-test/vorlesung6/serie2/aufgabe2:
  Cannot attach HEAD. There are probably unmerged updates available. Go ("cd") there and use "git branch -v" list available branches. Switch branches with "git checkout <branchname>".
 done.
 Already up-to-date.
-Previous HEAD position was 13e83a4... I did something
+Previous HEAD position was f021ed2... I did something
 Switched to branch 'master'
 Committing in /scratch/kollerma/git-test/vorlesung5/serie1...
 Committing in /scratch/kollerma/git-test/vorlesung5...
@@ -639,17 +642,17 @@ Warning in /scratch/kollerma/git-test/vorlesung5/serie2/aufgabe2:
 Pushing /scratch/kollerma/git-test/vorlesung5/serie1.
 Pushing /scratch/kollerma/git-test/vorlesung5.
 From /scratch/kollerma/git-test/remote/vorlesung
-   85e0738..77585a4  master     -> origin/master
+   cb92ffe..ac745e3  master     -> origin/master
 Fetching submodule serie1
 From /scratch/kollerma/git-test/remote/serie1
-   82d09eb..2f132f8  master     -> origin/master
-Updating 85e0738..77585a4
+   23b7283..412a856  master     -> origin/master
+Updating cb92ffe..ac745e3
 Fast-forward
  serie1 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 Fast forwarding local branch
 rm 'aufgabe1'
-[master 93acacc] removed submodule "aufgabe1" (url: /scratch/kollerma/git-test/remote/aufgabe1.git)
+[master be1572c] removed submodule "aufgabe1" (url: /scratch/kollerma/git-test/remote/aufgabe1.git)
  2 files changed, 0 insertions(+), 4 deletions(-)
  delete mode 160000 aufgabe1
 Cloning into aufgabe1...
@@ -666,15 +669,15 @@ Warning in /scratch/kollerma/git-test/vorlesung6/serie2/aufgabe2:
 Pushing /scratch/kollerma/git-test/vorlesung6/serie1.
 Pushing /scratch/kollerma/git-test/vorlesung6.
 From /scratch/kollerma/git-test/remote/vorlesung
-   77585a4..b5b2b1c  master     -> origin/master
+   ac745e3..01619d0  master     -> origin/master
 Fetching submodule serie1
 From /scratch/kollerma/git-test/remote/serie1
-   2f132f8..d9b0ff7  master     -> origin/master
-Updating 77585a4..b5b2b1c
+   412a856..5e0caa1  master     -> origin/master
+Updating ac745e3..01619d0
 Fast-forward
  serie1 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 Fast forwarding local branch
-* master                05fc3cc second time adding more content to aufgabe4
+* master                d31fd34 second time adding more content to aufgabe4
   remotes/origin/HEAD   -> origin/master
-  remotes/origin/master 05fc3cc second time adding more content to aufgabe4
+  remotes/origin/master d31fd34 second time adding more content to aufgabe4
