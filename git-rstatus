@@ -1,0 +1,127 @@
+#!/bin/bash
+
+. "$(git --exec-path)/git-sh-setup"
+
+cd_to_toplevel
+superrepo=$(pwd)
+tmpdir=$(mktemp -d)
+
+cleanup () {
+	test -d "$tmpdir" && rm -rf "$tmpdir"
+}
+
+trap cleanup EXIT ERR
+
+export superrepo tmpdir
+
+upstream_status ()
+{
+	# Find how many commits we are ahead/behind our upstream
+	count="$(git rev-list --count --left-right "@{upstream}"...HEAD 2>/dev/null)"
+
+	case "$count" in
+	    "") # no upstream
+		p="" ;;
+	    "0	0") # equal to upstream
+		p="u=" ;;
+	    "0	"*) # ahead of upstream
+		p="u+${count#0	}" ;;
+	    *"	0") # behind upstream
+		p="u-${count%	0}" ;;
+	    *)	    # diverged from upstream
+		p="u+${count#*	}-${count%	*}" ;;
+	esac
+}
+
+
+worktree_index_status ()
+{
+	local g="$(git rev-parse --git-dir 2>/dev/null)"
+	w=""
+	i=""
+	s=""
+	u=""
+	c=""
+	r=""
+	b=""
+
+	if [ -z "$g" ]; then
+		b="DAMAGED! Consult Manu."
+		return
+	fi
+	if [ -f "$g/rebase-merge/interactive" ]; then
+		r="REBASE-i"
+		b="$(cat "$g/rebase-merge/head-name")"
+	elif [ -d "$g/rebase-merge" ]; then
+		r="REBASE-m"
+		b="$(cat "$g/rebase-merge/head-name")"
+	else
+		if [ -d "$g/rebase-apply" ]; then
+			if [ -f "$g/rebase-apply/rebasing" ]; then
+				r="REBASE"
+			elif [ -f "$g/rebase-apply/applying" ]; then
+				r="AM"
+			else
+				r="AM/REBASE"
+			fi
+		elif [ -f "$g/MERGE_HEAD" ]; then
+			r="MERGING"
+		elif [ -f "$g/CHERRY_PICK_HEAD" ]; then
+			r="CHERRY-PICKING"
+		elif [ -f "$g/BISECT_LOG" ]; then
+			r="BISECTING"
+		fi
+
+		b="$(git symbolic-ref HEAD 2>/dev/null)" || {
+			b="$(git describe --tags --exact-match HEAD 2>/dev/null)" ||
+			b="$(cut -c1-7 "$g/HEAD" 2>/dev/null)..." ||
+			b="unknown"
+			b="($b)"
+		}
+	fi
+
+	if [ "true" = "$(git rev-parse --is-inside-git-dir 2>/dev/null)" ]; then
+		if [ "true" = "$(git rev-parse --is-bare-repository 2>/dev/null)" ]; then
+			c="BARE!"
+		else
+			b="GIT_DIR!"
+		fi
+	elif [ "true" = "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]; then
+		git diff --no-ext-diff --quiet --exit-code --ignore-submodules=dirty || w="*"
+		if git rev-parse --quiet --verify HEAD >/dev/null; then
+			git diff-index --cached --quiet HEAD -- || i="+"
+		else
+			i="#"
+		fi
+		git rev-parse --verify refs/stash >/dev/null 2>&1 && s="$"
+
+		if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+			u="%"
+		fi
+	fi
+
+	# local f="$w$i$s$u"
+	b="${b##refs/heads/}"
+}
+
+do_one_status () {
+	outf=$(mktemp --tmpdir="$tmpdir")
+	name="$1"
+	path="$2"
+	toplevel="$3"
+	mypath="${toplevel#$superrepo}/$path"
+	mypath="${mypath#/}"
+	cd "$toplevel/$path"
+	
+	upstream_status
+	worktree_index_status
+	printf "%-20s %1s%1s%1s%1s %-6s %-20s %-15s\n" "$mypath" "$w" "$i" "$s" "$u" "$p" "$b" "$c$r" >"$outf"
+}
+
+export -f do_one_status upstream_status worktree_index_status
+
+git submodule foreach --quiet --recursive 'echo "$name $path $toplevel"' |
+xargs -n3 -P20 bash -c 'do_one_status "$@"' do_one_status
+
+printf "%-20s %1s%1s%1s%1s %-6s %-20s %-15s\n" SUBMODULE W I S U "<>" HEAD state
+cat "$tmpdir"/* | sort
