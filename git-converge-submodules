@@ -149,7 +149,7 @@ if [ -f .gitmodules ]; then
 		    ## attach heads
 		    git submodule --quiet foreach --recursive git attach-head
 		    ## commit
-		    git ccommit -qam "Converged submodules"
+		    git rcommit -qam "Converged submodules" --non-recursive
 		    ## now we're ready to merge
 		    git merge "$remote" -s recursive -X ours -q
 		else
