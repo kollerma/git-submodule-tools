@@ -81,13 +81,13 @@ else
 	    lbranch="$tbranch"
 	else
 	    ## there is no local tracking branch for $remote: create one
-	    git branch "$lbranch" "$rbranch"
+	    git branch "$lbranch" "$rbranch" > /dev/null
 	    branch="$lbranch"
 	fi
     fi
     git checkout --quiet "$lbranch" > /dev/null
     if [ "$branch" != "$lbranch" ]; then
-	echo "Fast forwarding local branch"
+	#echo "Fast forwarding local branch"
 	git merge --quiet --ff-only $HEAD
     fi
 fi
