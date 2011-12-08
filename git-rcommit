@@ -23,21 +23,55 @@ EOF
     exit 0;
 fi
 
-## from http://www.linuxforums.org/forum/programming-scripting/62564-bash-script-problem-preserving-quotes-arguments.html
-CMD="git ccommit -q"
+## commit in submodules first
+git submodule --quiet foreach "git rcommit \"$@\"" || exit 1
 
-for (( i = 1; i <= $# ; i++ )); do
-  eval ARG=\$$i
-  CMD="$CMD $(echo "$ARG" | awk '{gsub(".", "\\\\&");print}')"
+## check for --all or -a argument
+a=0
+while test $# != 0
+do
+    case "$1" in
+	-a|--all)
+	    a=1
+	    break
+	    ;;
+	--)
+	    break
+	    ;;
+	--*) 
+	    ;;
+	-*) ## option like -qa
+	    if [[ "$1" == *a* ]]; then
+		a=1
+		break
+	    fi
+	    ;;
+    esac
+    shift
 done
 
-## check arguments??
+if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
+    echo "Warning in $PWD:"
+    echo " Unstaged changes to files under version control."
+    echo " To add, use option -a to stage or add files manually with git add <file>."
+fi 
+    
+## commit if dirty (or --allow-empty is given)
+if [[ "$@" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommitted --exit-code --ignore-submodules=dirty; 
+then
+    ## check for detached head
+    if ! git symbolic-ref -q HEAD > /dev/null ; then
+	echo "Error in $PWD:"
+	echo " Refused to commit in detached head state. Use \"git rcheckout <branchname>\" to attach HEAD. List branches with \"git branch -v\"."
+	exit 1
+    fi
 
-## recursive commit
-## git submodule foreach 'git submodule foreach git add -u .'
-git submodule --quiet foreach "git submodule --quiet foreach \"$CMD\"" || exit 1
-## submodules
-## git submodule foreach git add -u .
-git submodule --quiet foreach "$CMD" || exit 1
-## git add -u .
-git ccommit -q "$@"
+    echo "Committing in $PWD..."
+    git commit -q "$@"
+    
+    if [ -f .gitmodules ]; then
+	## Syncronize submodules if necessary
+	git converge-submodules -q
+    fi
+fi
+
