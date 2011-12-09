@@ -33,7 +33,11 @@ EOF
 fi
 ## check for non remote tracking branches and fail
 ## TODO: if not --all
-git submodule --quiet foreach --recursive "git check-branch" || exit 1
+if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
+    #git submodule --quiet foreach --recursive "git check-branch" || exit 1
+    git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | 
+    xargs -r -n1 -P5 bash -c 'cd "$1"; git check-branch' xargs || exit 1
+fi
 ## TODO: check for unpulled changes: fetch, then check
 # git fetch -q
 # git submodule --quiet foreach --recursive "git fetch -q"

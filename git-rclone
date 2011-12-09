@@ -34,6 +34,6 @@ if [ -f .gitmodules ]; then
     echo "Attaching heads of submodules..."
     #git submodule --quiet foreach --recursive git attach-head -w
     git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | 
-    xargs -n1 -P5 bash -c 'cd "$1"; git attach-head -w' xargs
+    xargs -r -n1 -P5 bash -c 'cd "$1"; git attach-head -w' xargs
     echo "done."
 fi

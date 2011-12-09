@@ -38,9 +38,11 @@ if [ -f .gitmodules ]; then
     ## update / initialize submodules
     git submodule --quiet update --init || exit 1
     ## do the same for the submodules
-    git submodule --quiet foreach git fix-submodules "$@"
+    #git submodule --quiet foreach git fix-submodules "$@"
+    git submodule --quiet foreach 'echo "$toplevel/$path"' | 
+    xargs -r -n1 -P5 bash -c "cd \"\$1\"; git fix-submodules \"$@\"" xargs
     ## attach heads if possible
     #git submodule --quiet foreach git attach-head
     git submodule --quiet foreach 'echo "$toplevel/$path"' | 
-    xargs -n1 -P5 bash -c 'cd "$1"; git attach-head' xargs
+    xargs -r -n1 -P5 bash -c 'cd "$1"; git attach-head' xargs
 fi

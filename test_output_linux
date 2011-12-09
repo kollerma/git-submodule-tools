@@ -144,7 +144,6 @@ error: failed to push some refs to '/scratch/kollerma/git-test/remote/r-tutorial
 To prevent you from losing history, non-fast-forward updates were rejected
 Merge the remote changes (e.g. 'git pull') before pushing again.  See the
 'Note about fast-forwards' section of 'git push --help' for details.
-Stopping at 'r-tutorial'; script returned non-zero status.
 rpush failed, as required.
  Error: Unpushed commits in submodules.
  In /scratch/kollerma/git-test/vorlesung3/r-tutorial:
@@ -179,7 +178,6 @@ error: failed to push some refs to '/scratch/kollerma/git-test/remote/r-tutorial
 To prevent you from losing history, non-fast-forward updates were rejected
 Merge the remote changes (e.g. 'git pull') before pushing again.  See the
 'Note about fast-forwards' section of 'git push --help' for details.
-Stopping at 'r-tutorial'; script returned non-zero status.
 rpush failed, as required.
 Diff in /scratch/kollerma/git-test/vorlesung3/r-tutorial:
   tutorial.Rnw |    2 +-
@@ -310,7 +308,6 @@ Error in /scratch/kollerma/git-test/vorlesung2/r-tutorial:
  Refused to commit in detached head state. 
  Use "git rcheckout <branchname>" to attach HEAD. 
  List branches with "git branch -v".
-Stopping at 'r-tutorial'; script returned non-zero status.
 rcommit failed as it should have
 Error in /scratch/kollerma/git-test/vorlesung2:
  There is modified content in submodules.
@@ -394,7 +391,6 @@ error: failed to push some refs to '/scratch/kollerma/git-test/remote/serie2.git
 To prevent you from losing history, non-fast-forward updates were rejected
 Merge the remote changes (e.g. 'git pull') before pushing again.  See the
 'Note about fast-forwards' section of 'git push --help' for details.
-Stopping at 'serie2'; script returned non-zero status.
 This pushes the second level, but then fails
 There are updates available for the current repository.
 There are updates available for serie1.
@@ -450,7 +446,6 @@ error: failed to push some refs to '/scratch/kollerma/git-test/remote/serie2.git
 To prevent you from losing history, non-fast-forward updates were rejected
 Merge the remote changes (e.g. 'git pull') before pushing again.  See the
 'Note about fast-forwards' section of 'git push --help' for details.
-Stopping at 'serie2'; script returned non-zero status.
 Ok, there was an error in serie2
 There are updates available for the current repository.
 Fetched updates. Now use "git rdiff" to show the differing files. 
@@ -485,7 +480,6 @@ error: failed to push some refs to '/scratch/kollerma/git-test/remote/serie2.git
 To prevent you from losing history, non-fast-forward updates were rejected
 Merge the remote changes (e.g. 'git pull') before pushing again.  See the
 'Note about fast-forwards' section of 'git push --help' for details.
-Stopping at 'serie2'; script returned non-zero status.
 Ok, there was an error in serie2
 There are updates available for the current repository.
 Fetched updates. Now use "git rdiff" to show the differing files. 

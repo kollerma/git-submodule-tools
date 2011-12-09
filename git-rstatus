@@ -121,7 +121,7 @@ do_one_status () {
 export -f do_one_status upstream_status worktree_index_status
 
 git submodule foreach --quiet --recursive 'echo "$name $path $toplevel"' |
-xargs -n3 -P20 bash -c 'do_one_status "$@"' do_one_status
+xargs -r -n3 -P20 bash -c 'do_one_status "$@"' do_one_status
 
 printf "%-20s %1s%1s%1s%1s %-6s %-20s %-15s\n" SUBMODULE W I S U "<>" HEAD state
 cat "$tmpdir"/* | sort

@@ -161,7 +161,7 @@ EOF
 		    ## attach heads
 		    ## git submodule --quiet foreach --recursive git attach-head
 		    git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | 
-		    xargs -n1 -P5 bash -c 'cd "$1"; git attach-head' xargs
+		    xargs -r -n1 -P5 bash -c 'cd "$1"; git attach-head' xargs
 		    ## commit
 		    git rcommit -qam "Converged submodules" --non-recursive
 		    ## now we're ready to merge
@@ -191,7 +191,7 @@ EOF
 		## attach heads
 		#git submodule --quiet foreach --recursive git attach-head
 		git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | 
-		xargs -n1 -P5 bash -c 'cd "$1"; git attach-head' xargs
+		xargs -r -n1 -P5 bash -c 'cd "$1"; git attach-head' xargs
 	    fi
 	    echo "done."
 	else 
