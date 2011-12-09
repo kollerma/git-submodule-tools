@@ -24,8 +24,10 @@ if [[ "$1" ]]; then
     if [[ "$1" == "--dry-run" ]]; then
 	dryrun="--dry-run"
     else 
-	echo "Error: bfetch does only accept the argument --dry-run,
-    nothing else."
+	cat<<EOF 
+Error: bfetch does only accept the argument --dry-run, nothing else.
+EOF
+	exit 1
     fi
 fi
 

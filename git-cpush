@@ -21,6 +21,9 @@ fi
 
 ## push submodules first
 git submodule --quiet foreach git cpush "$@" || exit 1
+# cmd='cd "$1"; git cpush ' "$@"
+# git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | 
+# xargs -n1 -P5 bash -c "$cmd" xargs
 
 tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do

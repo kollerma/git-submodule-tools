@@ -49,10 +49,10 @@ done <<< "$tmp"
 
 if [ "$unpushed" ]; then
     if [[ $p -ne 1 ]]; then
-	echo "Error in $PWD:"
-	echo -n "$unpushed"
+	echo -n "Error in $PWD:
+$unpushed"
 	exit 1
     fi
-    echo "  In $PWD:"
-    echo -n "$unpushed"
+    echo -n " In $PWD:
+$unpushed"
 fi

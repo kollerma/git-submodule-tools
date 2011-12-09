@@ -47,10 +47,10 @@ fi
 
 if [ "$nontracking" ]; then
     if [[ $p -ne 1 ]]; then
-	echo "Error in $PWD:"
-	echo -n "$nontracking"
+	echo -n "Error in $PWD:
+$nontracking"
 	exit 1
     fi
-    echo "In $PWD:"
-    echo -n "$nontracking"
+    echo -n "In $PWD:
+$nontracking"
 fi

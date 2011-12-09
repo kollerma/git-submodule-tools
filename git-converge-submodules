@@ -83,8 +83,10 @@ if [ -f .gitmodules ]; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
 	    if ! git check-clean --uncommitted --unmerged --exit-code --ignore-submodules; then
-		echo "Error in $PWD:"
-		echo " Uncommitted changes, cannot converge submodules."
+		cat<<EOF 
+Error in $PWD:
+ Uncommitted changes, cannot converge submodules.
+EOF
 		exit 1
 	    fi
 	    echo "Converging local and remote..."
@@ -135,9 +137,12 @@ if [ -f .gitmodules ]; then
 			    if [ "$(git config -f .gitmodules-mb --get submodule."$lsub".url)" != "" ]; then
 				## yes, it was there
 			        ## so remove it aswell
-				echo "Removing submodule \"$lsub\" dropped in remote."
-				echo "Issue \"git submodule add $lurl $lsub\" to add it again."
-				git rm-submodule --no-commit "$lsub" || echo "Submodule has already been removed."
+				cat<<EOF 
+Removing submodule "$lsub" dropped in remote.
+Issue "git submodule add $lurl $lsub" to add it again.
+EOF
+				git rm-submodule --no-commit "$lsub" || 
+				echo "Submodule has already been removed."
 				continue
 			    fi
 			    ## ok, it was added later: keep it
@@ -162,8 +167,11 @@ if [ -f .gitmodules ]; then
 		    ## now we're ready to merge
 		    git merge "$remote" -s recursive -X ours -q
 		else
-		    echo "Error in $PWD: (got cold feet)"
-		    echo " Differences between local and remote other than just submodules, cannot converge branches. Merge by hand."
+		    cat<<EOF 
+Error in $PWD: (got cold feet)
+ Differences between local and remote other than just submodules, 
+ cannot converge branches. Merge by hand.
+EOF
 		    exit 1
 		fi
 	    else
@@ -188,8 +196,10 @@ if [ -f .gitmodules ]; then
 	    echo "done."
 	else 
 	    if [[ $q -ne 1 ]] && ! git diff "$branch".."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
-		echo "Notice in $PWD:"
-		echo " Not converging, use \"git converge-submodules -f\" if necessary"
+		cat<<EOF 
+Notice in $PWD:
+ Not converging, use "git converge-submodules -f" if necessary
+EOF
 	    fi
 	fi  
     fi

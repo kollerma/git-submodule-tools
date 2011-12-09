@@ -59,9 +59,11 @@ do
 done
 
 if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
-    echo "Warning in $PWD:"
-    echo " Unstaged changes to files under version control."
-    echo " To add, use option -a to stage or add files manually with git add <file>."
+    cat<<EOF 
+Warning in $PWD:
+ Unstaged changes to files under version control.
+ To add, use option -a to stage or add files manually with git add <file>.
+EOF
 fi 
     
 ## commit if dirty (or --allow-empty is given)
@@ -69,8 +71,12 @@ if [[ "$args" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! git check-clean --unst
 then
     ## check for detached head
     if ! git symbolic-ref -q HEAD > /dev/null ; then
-	echo "Error in $PWD:"
-	echo " Refused to commit in detached head state. Use \"git rcheckout <branchname>\" to attach HEAD. List branches with \"git branch -v\"."
+	cat<<EOF 
+Error in $PWD:
+ Refused to commit in detached head state. 
+ Use "git rcheckout <branchname>" to attach HEAD. 
+ List branches with "git branch -v".
+EOF
 	exit 1
     fi
 

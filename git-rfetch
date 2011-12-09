@@ -23,8 +23,7 @@ if [[ "$1" ]]; then
     if [[ "$1" == "--dry-run" ]]; then
 	dryrun="--dry-run"
     else 
-	echo "Error: rfetch does only accept the argument --dry-run,
-    nothing else."
+	echo >&2 "Error: rfetch does only accept the argument --dry-run, nothing else."
     fi
 fi
 
@@ -68,11 +67,15 @@ fi
 
 
 if [[ "$output" ]]; then
-    echo -n "$output"
     if [[ "$dryrun" == "--dry-run" ]]; then
-	echo "Use \"git rfetch\" to fetch updates."
-	echo "Then go to the innermost submodules and use \"git rpull\" to merge the updates."
+	cat<<EOF 
+${output}Use "git rfetch" to fetch updates.
+Then go to the innermost submodules and use "git rpull" to merge the updates.
+EOF
     else
-	echo "Fetched updates. Now use \"git rdiff\" to show the differing files. Then \"git rpull\" in the correct folder to merge updates."
+	cat<<EOF 
+${output}Fetched updates. Now use "git rdiff" to show the differing files. 
+Then "git rpull" in the correct folder to merge updates.
+EOF
     fi
 fi

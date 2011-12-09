@@ -39,8 +39,10 @@ if [[ ! "$from" || $(git ls-files --error-unmatch --stage -- "$from" | grep -E '
 fi
 ## check destination
 if [[ ! "$to" ]]; then
-    echo "Error: argument <to> missing."
-    echo " Use git mv-submodule [--no-commit] <from> <to>"
+    cat<<EOF 
+Error: argument <to> missing.
+ Use git mv-submodule [--no-commit] <from> <to>
+EOF
     exit 1
 fi
 if [ -e "$to" ]; then

@@ -48,8 +48,10 @@ if git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; 
 	output=`git diff $branch..$remote --ignore-submodules --stat --no-ext-diff`
 
 	if [[ "$output" != "" ]]; then
-	    echo "Diff in $PWD:"
-	    echo "$output"
+	    cat<<EOF 
+Diff in $PWD:
+ $output
+EOF
 	fi
     fi
 fi
