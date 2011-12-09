@@ -19,16 +19,19 @@ EOF
     exit 0;
 fi
 
-## check for modified content and uncommitted changes
-if [[ "$@" != *--skip-checks* ]]; then
-    git check-clean || exit 1
+## continue only if there are submodules
+if [ -f .gitmodules ]; then 
+    ## check for modified content and uncommitted changes
+    if [[ "$@" != *--skip-checks* ]]; then
+	git check-clean || exit 1
+    fi
+    
+    ## remove orphaned submodule directories
+    git rm-orphaned-submodule-dirs || exit 1
+    ## update / initialize submodules
+    git submodule --quiet update --init || exit 1
+    ## do the same for the submodules
+    git submodule --quiet foreach git fix-submodules "$@"
+    ## attach heads if possible
+    git submodule --quiet foreach git attach-head
 fi
-
-## remove orphaned submodule directories
-git rm-orphaned-submodule-dirs || exit 1
-## update / initialize submodules
-git submodule --quiet update --init || exit 1
-## do the same for the submodules
-git submodule --quiet foreach git fix-submodules "$@"
-## attach heads if possible
-git submodule --quiet foreach git attach-head
