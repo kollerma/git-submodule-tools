@@ -71,7 +71,7 @@ if [[ "$args" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! git check-clean --unst
 then
     ## check for detached head
     if ! git symbolic-ref -q HEAD > /dev/null ; then
-	cat<<EOF 
+	cat 2>&1 <<EOF 
 Error in $PWD:
  Refused to commit in detached head state. 
  Use "git rcheckout <branchname>" to attach HEAD. 

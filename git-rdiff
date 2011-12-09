@@ -42,8 +42,10 @@ if git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; 
     done <<< "$tmp"
 
     if [[ "$nontracking" ]]; then
-	echo "Error in $PWD:"
-	echo " Not on a remote tracking branch."
+	cat 2>&1 <<EOF 
+Error in $PWD:
+ Not on a remote tracking branch.
+EOF
     else 
 	output=`git diff $branch..$remote --ignore-submodules --stat --no-ext-diff`
 

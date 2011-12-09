@@ -133,7 +133,7 @@ if [[ "$output" ]]; then
 $output"
 	exit 0
     else
-	echo -n "Error in $PWD:
+	echo 2>&1 -n "Error in $PWD:
 $output"
 	exit 1
     fi

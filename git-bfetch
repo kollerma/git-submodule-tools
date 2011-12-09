@@ -24,7 +24,7 @@ if [[ "$1" ]]; then
     if [[ "$1" == "--dry-run" ]]; then
 	dryrun="--dry-run"
     else 
-	cat<<EOF 
+	cat >&2 <<EOF 
 Error: bfetch does only accept the argument --dry-run, nothing else.
 EOF
 	exit 1

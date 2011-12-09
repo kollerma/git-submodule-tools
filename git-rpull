@@ -28,7 +28,7 @@ fi
 git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
 ## check for untracked files
 if ! git check-clean --untracked --unstaged --exit-code; then
-    cat<<EOF
+    cat >&2 <<EOF
  Error: Untracked files in submodules. Add them to .gitignore
   in the respective submodules or remove them.
   Use "git status" to see where they are.
@@ -47,7 +47,7 @@ cd "$cdup" || {
 if [ -f .gitmodules ]; then
     unpushed=`git submodule --quiet foreach --recursive git check-unpushed -p`
     if [[ "$unpushed" != "" ]]; then
-	cat<<EOF 
+	cat >&2 <<EOF 
  Error: Unpushed commits in submodules.
 $unpushed
   Try "git rpush" followed by another "git rpull". If that fails, 

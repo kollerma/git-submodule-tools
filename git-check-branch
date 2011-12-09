@@ -23,7 +23,7 @@ if ! git symbolic-ref -q HEAD > /dev/null ; then
     ## FIXME: this test only succeed if the new commit is actually
     ##        checked out
     if ! git diff origin...  --quiet; then
-	cat<<EOF
+	cat 2>&1 <<EOF
 Error in $PWD:
  Detached head and new commits. Attach the HEAD by creating
  a new branch or risk losing the commits.
@@ -55,7 +55,7 @@ activebranch=`git name-rev --name-only HEAD`
 
 if [[ "$nontracking" ]]; then
     ## if we're here: fail
-    cat<<EOF 
+    cat 2>&1 <<EOF 
 Error in $PWD: 
  Branch "$activebranch" is not a remote tracking branch.
 EOF

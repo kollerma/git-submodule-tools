@@ -29,7 +29,7 @@ fi
 
 ## check if this is a valid submodule
 if [[ ! "$dir" || $(git ls-files --error-unmatch --stage -- "$dir" | grep -E '^160000') == "" ]]; then
-    echo "Error: \"$dir\" is not a submodule."
+    echo >&2 "Error: \"$dir\" is not a submodule."
     exit 1
 fi
 

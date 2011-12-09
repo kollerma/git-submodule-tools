@@ -34,19 +34,19 @@ fi
 
 ## check if this is a valid submodule
 if [[ ! "$from" || $(git ls-files --error-unmatch --stage -- "$from" | grep -E '^160000') == "" ]]; then
-    echo "Error: \"$from\" is not a submodule."
+    echo 2>&1 "Error: \"$from\" is not a submodule."
     exit 1
 fi
 ## check destination
 if [[ ! "$to" ]]; then
-    cat<<EOF 
+    cat 2>&1 <<EOF 
 Error: argument <to> missing.
  Use git mv-submodule [--no-commit] <from> <to>
 EOF
     exit 1
 fi
 if [ -e "$to" ]; then
-    echo "Error: \"$to\" exists already. Remove it first."
+    echo 2>&1 "Error: \"$to\" exists already. Remove it first."
     exit 1
 fi
 

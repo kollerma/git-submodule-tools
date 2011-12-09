@@ -47,7 +47,7 @@ fi
 
 if [ "$nontracking" ]; then
     if [[ $p -ne 1 ]]; then
-	echo -n "Error in $PWD:
+	echo 2>&1 -n "Error in $PWD:
 $nontracking"
 	exit 1
     fi
