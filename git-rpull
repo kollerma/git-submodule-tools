@@ -36,6 +36,13 @@ EOF
     exit 1
 fi
 
+## ensure that we are in the toplevel directory
+cdup=$(git rev-parse --show-toplevel) &&
+cd "$cdup" || {
+    echo >&2 "Cannot chdir to $cdup, the toplevel of the working tree"
+    exit 1
+}
+
 ## check for unpushed commits in submodules
 if [ -f .gitmodules ]; then
     unpushed=`git submodule --quiet foreach --recursive git check-unpushed -p`

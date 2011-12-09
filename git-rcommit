@@ -77,7 +77,7 @@ then
     echo "Committing in $PWD..."
     git commit -q "$args"
     
-    if [ -f .gitmodules ]; then
+    if git ls-files /.gitmodules > /dev/null ; then
 	## Syncronize submodules if necessary
 	git converge-submodules -q
     fi

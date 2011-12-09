@@ -33,7 +33,15 @@ if [[ ! "$dir" || $(git ls-files --error-unmatch --stage -- "$dir" | grep -E '^1
     exit 1
 fi
 
-tdir=$PWD
+## get the full path of the submodule
+dir=$(git ls-files --full-name "$dir")
+## ensure that we are in the toplevel directory
+cdup=$(git rev-parse --show-toplevel) &&
+cd "$cdup" || {
+    echo >&2 "Cannot chdir to $cdup, the toplevel of the working tree"
+    exit 1
+}
+
 cd "$dir"
 ## check if submodule is clean
 git check-clean || exit 1
@@ -43,7 +51,7 @@ git check-unpushed || exit 1
 git check-non-tracking || exit 1
 ## find the real git-dir (might be git-file, for v.1.7.8 compatibility)
 gitdir=$(git rev-parse --git-dir)
-cd "$tdir"
+cd "$cdup"
 
 ## seems we're safe, so start removing
 ## get submodule url

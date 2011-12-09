@@ -50,6 +50,13 @@ while getopts ":fq" opt; do
   esac
 done 
 
+## ensure we are in the toplevel directory
+cdup=$(git rev-parse --show-toplevel) &&
+cd "$cdup" || {
+    echo >&2 "Cannot chdir to $cdup, the toplevel of the working tree"
+    exit 1
+}
+
 if [ -f .gitmodules ]; then
     ## Check if local and remote have diverged
     ## in the submodules and merge if necessary
