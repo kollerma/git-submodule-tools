@@ -31,8 +31,11 @@ while read key url; do
 	git check-clean || exit 1
 	git check-unpushed || exit 1
 	git check-non-tracking || exit 1
+        ## find the real git-dir (might be git-file, for v.1.7.8 compatibility)
+	gitdir=$(git rev-parse --git-dir)
 	cd "$tdir"
-	## remove it
+        ## remove git dir first (might git-file, for v.1.7.8 compatibility)
+	rm -rf "$dir$gitdir"
 	rm -rf "$dir"
     fi
 done

@@ -41,6 +41,8 @@ git check-clean || exit 1
 git check-unpushed || exit 1
 ## check for local non-tracking-branches
 git check-non-tracking || exit 1
+## find the real git-dir (might be git-file, for v.1.7.8 compatibility)
+gitdir=$(git rev-parse --git-dir)
 cd "$tdir"
 
 ## seems we're safe, so start removing
@@ -49,6 +51,8 @@ url=`git config --get submodule."$dir".url || echo "unknown"`
 ## remove config entries
 git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null || echo -n ""
 git config --remove-section submodule."$dir" 2>/dev/null || echo -n ""
+## remove git dir first (might git-file, for v.1.7.8 compatibility)
+rm -rf "$dir$gitdir"
 git rm --cached "$dir"
 rm -rf "$dir"
 ## commit changes
