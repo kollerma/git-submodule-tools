@@ -17,7 +17,9 @@ if [[ "$@" == *--help* ]]; then
  submodules.
 
  Usage:
-    git rpull
+    git rpull ...
+
+    ...: same arguments as git pull
 EOF
     exit 0;
 fi
@@ -51,7 +53,7 @@ fi
 ## git check-unpushed # no need to check in master
 
 ## do the pull
-git pull || exit 1
+git pull "$@" || exit 1
 
 if [ -f .gitmodules ]; then
     ## fix submodules
