@@ -83,7 +83,7 @@ EOF
     echo "Committing in $PWD..."
     git commit -q "$args"
     
-    if git ls-files /.gitmodules > /dev/null ; then
+    if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
 	## Syncronize submodules if necessary
 	git converge-submodules -q
     fi
