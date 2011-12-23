@@ -33,7 +33,7 @@ EOF
 fi
 ## check for non remote tracking branches and fail
 ## TODO: if not --all
-if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
+if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
     #git submodule --quiet foreach --recursive "git check-branch" || exit 1
     git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | 
     xargs -r -n1 -P5 bash -c 'cd "$1"; git check-branch' xargs || exit 1

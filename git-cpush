@@ -19,8 +19,10 @@ EOF
     exit 0;
 fi
 
+
+
 ## push submodules first
-if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
+if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
     CMD='cd "$1"; git cpush '"$@"
     #git submodule --quiet foreach git cpush "$@" || exit 1
     git submodule --quiet foreach 'echo "$toplevel/$path"' | 

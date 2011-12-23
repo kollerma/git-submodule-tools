@@ -28,7 +28,7 @@ args=$@
 
 ## commit in submodules first
 if [[ "$args" != *--non-recursive* ]]; then
-    if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
+    if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
         #git submodule --quiet foreach "git rcommit \"$COMMIT_ARGS\"" || exit 1
 	CMD='cd "$1"; git rcommit '"$args"
 	git submodule --quiet foreach 'echo "$toplevel/$path"' | 
@@ -88,7 +88,7 @@ EOF
     echo "Committing in $PWD..."
     git commit -q "$args"
     
-    if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
+    if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
 	## Syncronize submodules if necessary
 	git converge-submodules -q
     fi
