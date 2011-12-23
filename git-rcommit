@@ -30,8 +30,9 @@ args=$@
 if [[ "$args" != *--non-recursive* ]]; then
     if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
         #git submodule --quiet foreach "git rcommit \"$COMMIT_ARGS\"" || exit 1
+	CMD='cd "$1"; git rcommit '"$args"
 	git submodule --quiet foreach 'echo "$toplevel/$path"' | 
-	xargs -r -n1 -P1 bash -c "cd \"\$1\"; git rcommit \"$args\"" xargs || exit 1
+	xargs -r -n1 -P1 bash -c "$CMD" xargs || exit 1
     fi
 else 
     ## remove --non-recursive from $args
