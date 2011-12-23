@@ -21,9 +21,10 @@ fi
 
 ## push submodules first
 if git ls-files --error-unmatch /.gitmodules > /dev/null 2>&1 ; then
+    CMD='cd "$1"; git cpush '"$@"
     #git submodule --quiet foreach git cpush "$@" || exit 1
     git submodule --quiet foreach 'echo "$toplevel/$path"' | 
-    xargs -r -n1 -P5 bash -c "cd \"\$1\"; git cpush \"$@\"" xargs || exit 1
+    xargs -r -n1 -P5 bash -c "$CMD" xargs || exit 1
 fi
 
 tmp=`git branch --no-color -vv 2> /dev/null`
