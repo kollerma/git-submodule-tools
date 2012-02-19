@@ -26,14 +26,14 @@ readRepo <- function(dir=getwd()) {
                    data.frame(tag = "", mode = NA, object = "", stage = NA,
                               file = with(status, file[XY == "!!"])))
   ## add directories
-  files$directory = sub("/[^/]*$", "/", files$file)
+  files$directory = sub("/[^/]*$", "", files$file)
   files <- within(files, directory[directory == file] <- "")
   dirs <- unique(files$directory)
   dirs <- dirs[dirs != ""]
   if (length(dirs) > 0) 
     files <- rbind(files,
                    data.frame(tag = "", mode = 040000, object = "", stage = NA,
-                              file = dirs, directory = sub("/[^/]*/", "/", dirs)))
+                              file = dirs, directory = sub("(/?)[^/]+/?", "\\1", dirs)))
   ## add status
   files$was <- files$status <- ""
   for (file in status$file) {
@@ -45,7 +45,7 @@ readRepo <- function(dir=getwd()) {
   ## sort by directory, filename
   if (nrow(files) > 1) files <- files[with(files, mixedorder(file)),]
   ## remove directory from filename
-  files$filename <- sub(".*/([^/]*/?)$", "\\1", files$file)
+  files$filename <- sub(".*/([^/]+/?)$", "\\1", files$file)
   files
 }
 
@@ -62,19 +62,20 @@ offspring <- function(path, user.data=NULL) {
   ## drop all files in directories
   files <- files[files$directory == "", ]
   data.frame(Filename=files$filename, Status = gitStatus2Str(files$status),
-             Mode=gitMode2Str(files$mode), mode=files$mode)
+             Mode=gitMode2Str(files$mode))
 }
 hasOffspring <- function(children,user.data=NULL, ...) {
-  return(children$mode == 160000)
+  return(children$Mode %in% gitMode2Str(c(160000, 40000)))
 }
 icon.FUN <- function(children,user.data=NULL, ...) {
   x <- rep("file", length=nrow(children))
-  x[children$mode == 160000] <- "directory"
+  x[children$Mode == gitMode2Str(160000)] <- "network"
+  x[children$Mode == gitMode2Str(40000)] <- "directory"
   return(x)
 }
 
 w <- gwindow("git manager", toolkit=guiToolkit("RGtk2"))
-tr <- gtree(offspring, hasOffspring, icon.FUN = icon.FUN, container=w)
+tr <- gtree(offspring, hasOffspring = hasOffspring, icon.FUN = icon.FUN, container=w)
 
 ## add basic doubleclick handler
 addHandlerDoubleclick(tr, handler=function(h,...) {
