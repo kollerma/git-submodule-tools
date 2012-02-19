@@ -1,6 +1,8 @@
 require(gWidgets)
 require(gWidgetsRGtk2)
 require(gtools) ## for mixedsort
+require(RGtk2)
+
 ## source("methods.R")
 
 ##' readRepo
@@ -71,12 +73,39 @@ icon.FUN <- function(children,user.data=NULL, ...) {
   return(x)
 }
 
-w <- gwindow("GUI Test", toolkit=guiToolkit("RGtk2"))
+w <- gwindow("git manager", toolkit=guiToolkit("RGtk2"))
 tr <- gtree(offspring, hasOffspring, icon.FUN = icon.FUN, container=w)
 
+## add basic doubleclick handler
 addHandlerDoubleclick(tr, handler=function(h,...) {
-  print(svalue(h$obj))		# the key
-  print(h$obj[])		# vector of keys
+  print(svalue(h$obj))		     # the key
+  print(paste(h$obj[], collapse="/")) # vector of keys
 })
 
-add3rdMousePopupmenu(tr, list(test=list(handler=function(h, ...) print(h))), action="TEST")
+## add Context Menu
+## like add3rdMousePopupMenu but with dynamic menu
+contextMenu <- function(h, widget, event, action=NULL, ...) {
+  ## Mac use ctrl - button 1
+  if(event$GetButton() == 3 ||
+     (event$GetState() == GdkModifierType['control-mask'] &&
+      event$GetButton() == 1)) {
+    obj <- h$action$actualobj
+    ## update current selection
+    path <- obj$getPathAtPos(event$x, event$y)$path
+    sel <- obj$getSelection()
+    sel$unselectAll()
+    sel$selectPath(path)
+    menulist <- list(list(handler=function(x, ...) print(paste(obj[], collapse="/"))))
+    names(menulist) <- svalue(obj)
+    mb = gmenu(menulist, popup = TRUE)
+    mb = tag(mb,"mb")                 # actual widget
+    gtkMenuPopup(mb,button = event$GetButton(),
+                 activate.time=event$GetTime())
+  } else {
+    return(FALSE)
+  }
+}
+addHandler(tr@widget, signal="button-press-event",
+           handler=contextMenu, action=list(actualobj=tr))
+
+
