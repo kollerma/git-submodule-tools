@@ -69,7 +69,7 @@ hasOffspring <- function(children,user.data=NULL, ...) {
 }
 icon.FUN <- function(children,user.data=NULL, ...) {
   x <- rep("file", length=nrow(children))
-  x[children$Mode == gitMode2Str(160000)] <- "network"
+  x[children$Mode == gitMode2Str(160000)] <- "jump-to"
   x[children$Mode == gitMode2Str(40000)] <- "directory"
   return(x)
 }
