@@ -62,16 +62,18 @@ offspring <- function(path, user.data=NULL) {
   files <- readRepo(directory)
   ## drop all files in directories
   files <- files[files$directory == "", ]
-  data.frame(Filename=files$filename, Status = gitStatus2Str(files$status),
-             Mode=gitMode2Str(files$mode))
+  Status <- gitStatus2Str(files$status)
+  data.frame(Filename=files$filename, Staged = grepl("(to|in) index", Status),
+             Modified = grepl("in work tree", Status),
+             Status = Status, Mode=gitMode2Str(files$mode), mode=files$mode)
 }
 hasOffspring <- function(children,user.data=NULL, ...) {
-  return(children$Mode %in% gitMode2Str(c(160000, 40000)))
+  return(children$mode == 160000 | children$mode == 40000)
 }
 icon.FUN <- function(children,user.data=NULL, ...) {
   x <- rep("file", length=nrow(children))
-  x[children$Mode == gitMode2Str(160000)] <- "jump-to"
-  x[children$Mode == gitMode2Str(40000)] <- "directory"
+  x[children$mode == 160000] <- "jump-to"
+  x[children$mode == 40000] <- "directory"
   return(x)
 }
 
@@ -173,7 +175,7 @@ setMethod(".update",
             obj <- object
             ## first get a list of expanded rows
             expandedRows <- getExpandedRows(obj)
-            print(expandedRows)
+            #print(expandedRows)
             ## collapse all rows (is this needed?)
             obj@widget$CollapseAll()
             ## remove all rows
@@ -204,7 +206,24 @@ addHandlerDoubleclick(tr, handler=function(h,...) {
 ## add Context Menu
 addHandler(tr@widget, signal="button-press-event",
            handler=contextMenu, action=list(actualobj=tr))
-
+## Hide mode column
+tr@widget@widget$GetColumn(6)$SetVisible(FALSE)
+## change cellrenderer of Staged column
+cellrenderer <- gtkCellRendererToggleNew()
+#cellrenderer$activatable <- TRUE
+cellrenderer$radio <- TRUE
+column <- tr@widget@widget$GetColumn(2)
+column$Clear()
+column$PackStart(cellrenderer, TRUE)
+column$AddAttribute(cellrenderer, "active", 2)
+## change cellrenderer of Modified column
+## cellrenderer <- gtkCellRendererToggleNew()
+## #cellrenderer$activatable <- TRUE
+## cellrenderer$radio <- TRUE
+column <- tr@widget@widget$GetColumn(3)
+column$Clear()
+column$PackStart(cellrenderer, TRUE)
+column$AddAttribute(cellrenderer, "active", 3)
 
 ## can update tree view while keeping the rows expanded
 update(tr@widget)
