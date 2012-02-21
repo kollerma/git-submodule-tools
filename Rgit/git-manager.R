@@ -62,9 +62,18 @@ offspring <- function(path, user.data=NULL) {
   files <- readRepo(directory)
   ## drop all files in directories
   files <- files[files$directory == "", ]
+  ## get Status
   Status <- gitStatus2Str(files$status)
-  data.frame(Filename=files$filename, Staged = grepl("(to|in) index", Status),
-             Modified = grepl("in work tree", Status),
+  Staged <- grepl("(to|in) index", Status)
+  Modified <- grepl("in work tree", Status)
+  ## for modified submodules, get separate status
+  idx <- files$mode == 160000 & substring(files$status, 2, 2) == "M"
+  if (any(idx)) {
+    Status[idx] <- gitStatus2Str(sprintf("%s ", substring(files$status[idx], 1, 1)))
+    Status[idx] <- paste(Status[idx], gitSubmoduleStatus(directory, files$file[idx]), sep=", ")
+    Status[idx] <- sub(", $", "", sub("^, ", "", Status[idx]))
+  }
+  data.frame(Filename=files$filename, Staged = Staged, Modified = Modified,
              Status = Status, Mode=gitMode2Str(files$mode), mode=files$mode)
 }
 hasOffspring <- function(children,user.data=NULL, ...) {

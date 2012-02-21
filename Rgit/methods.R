@@ -191,3 +191,20 @@ gitStatus2Str <- function(status) {
  ret <- sub("^, ", "", ret)
  sub(", $", "", ret)
 }
+
+##' Get Submodule Status String
+##'
+##' Get informative submodule status string from git status
+##' @param directory repository directory
+##' @param submodules requested submodules
+gitSubmoduleStatus <- function(directory, submodules) {
+  str <- gitSystem(paste("status",submodules,collapse=" "), directory)
+  ret <- character(0)
+  ## get all lines in question
+  for (submodule in submodules) {
+    val <- grep(sprintf("\\#.*?:\\s+%s\\s+\\(", submodule), str, value=TRUE)
+    val <- sub(".*\\(([^)]+)\\)\\s*$", "\\1", val[length(val)])
+    ret <- c(ret, if (length(val) > 0) val else "")
+  }
+  ret
+}
