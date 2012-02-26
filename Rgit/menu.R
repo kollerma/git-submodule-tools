@@ -7,10 +7,10 @@ genMenulist <- function(obj) {
   list(File=list(
          Refresh = gaction("Refresh", tooltip = "Refresh view",
            icon = "refresh",
-           handler = menuRefresh, action=action),
+           handler = function(...) menu("Refresh", ...), action=action),
          Quit = gaction("Quit", tooltip = "Quit git manager",
            icon = "quit",
-           handler = menuQuit, action=action)
+           handler = function(...) menu("Quit", ...), action=action)
          ))
 }
 
@@ -21,10 +21,10 @@ genToolbar <- function(obj) {
   action <- list(obj=obj)
   list(Refresh = gaction("Refresh", tooltip = "Refresh view",
          icon = "refresh",
-         handler = menuRefresh, action=action),
+         handler = function(...) menu("Refresh", ...), action=action),
        Quit = gaction("Quit", tooltip = "Quit git manager",
          icon = "quit",
-         handler = menuQuit, action=action))
+         handler = function(...) menu("Quit", ...), action=action))
 }
 
 ##' Generate menulist for context menu
@@ -46,52 +46,52 @@ genContextMenulist <- function(obj) {
   
   menulist <-
     list(Open=gaction("Open", tooltip = "Open using external program",
-           icon = "open", handler = menuOpen, action = action),
+           icon = "open", handler = function(...) menu("Open", ...), action = action),
          Delete=gaction("Delete", tooltip = "Delete in work tree",
-           icon = "delete", handler = menuDelete, action = action))
+           icon = "delete", handler = function(...) menu("Delete", ...), action = action))
   if (is.na(mode)) { ## an untracked file
     menulist$Ignore <- gaction("Ignore", tooltip = "Add to .gitignore",
                                icon = "stop",
-                               handler = menuIgnore, action = action)
+                               handler = function(...) menu("Ignore", ...), action = action)
   }
   if (is.na(mode) || modified) { ## a modified or untracked file
     menulist$Add <- gaction("Add", tooltip = "Add to staging area", icon = "add",
-                              handler = menuAdd, action = action)
+                              handler = function(...) menu("Add", ...), action = action)
   }
   if (!is.na(mode)) { ## a tracked file
     if (staged) {
       menulist$Unadd <- gaction("Unadd", tooltip = "Remove from stagin area",
                                 icon = "remove",
-                                handler = menuUnadd, action = action)
+                                handler = function(...) menu("Unadd", ...), action = action)
     }
     if (modified) {
       menulist$Reset <- gaction("Reset", tooltip = "Reset to version in index",
                                 icon = "revert-to-saved",
-                                handler = menuReset, action = action)
+                                handler = function(...) menu("Reset", ...), action = action)
     }
     menulist$Move <- gaction("Move", tooltip = "Rename",
-                             handler = menuMove, action = action)
+                             handler = function(...) menu("Move", ...), action = action)
   }
   if (!is.na(mode) && mode == 160000) { ## submodule
     menulist$Rpull <- gaction("Rpull",
                               tooltip = "Pull updates from server, recursively",
                               icon = "go-down",
-                              handler = menuRpull, action = action)
+                              handler = function(...) menu("Rpull", ...), action = action)
     menulist$Rpush <- gaction("Rpush",
                               tooltip = "Push commits to server, recursively",
                               icon = "go-up",
-                              handler = menuRpush, action = action)
+                              handler = function(...) menu("Rpush", ...), action = action)
     if (modified) {
       menulist$Rcommit <- gaction("Rcommit", tooltip = "Commit, recursively",
                                   icon = "apply",
-                                  handler = menuRcommit, action = action)
+                                  handler = function(...) menu("Rcommit", ...), action = action)
     }
     menulist$Rcheckout <- gaction("Rcheckout",
                                   tooltip = "Checkout another branch/tag",
-                                  handler=menuRcheckout, action = action)
+                                  handler=function(...) menu("Rcheckout", ...), action = action)
     menulist$Log <- gaction("Log", tooltip = "Display commit log",
                             icon = "info",
-                            handler = menuLog, action = action)
+                            handler = function(...) menu("Log", ...), action = action)
   }
   ## try to find a Makefile
   if (!is.na(mode) && (mode == 160000 || mode == 40000)) {
@@ -111,25 +111,33 @@ genContextMenulist <- function(obj) {
                   clean=menulist$Make[[target]]$icon <- "clear",
                   all=menulist$Make[[target]]$icon <- "execute",
                   edit=menulist$Make[[target]]$icon <- "edit", NULL),
-                handler = menuMake, action = c(action, list(target=target)))
+                handler = function(...) menu("Make", ...), action = c(action, list(target=target)))
     }
   }
   
   menulist
 }
 
-menuQuit <- function(h, ...) dispose(h$action$obj$w)
-menuRefresh <- function(h, action) h$action$obj$refresh()
-menuOpen <- function(h, action, ...) str(h)
-menuDelete <- function(h, action, ...) str(h)
-menuIgnore <- function(h, action, ...) str(h)
-menuAdd <- function(h, action, ...) str(h)
-menuUnadd <- function(h, action, ...) str(h)
-menuReset <- function(h, action, ...) str(h)
-menuMove <- function(h, action, ...) str(h)
-menuRpull <- function(h, action, ...) str(h)
-menuRpush <- function(h, action, ...) str(h)
-menuRcommit <- function(h, action, ...) str(h)
-menuRcheckout <- function(h, action, ...) str(h)
-menuLog <- function(h, action, ...) str(h)
-menuMake <- function(h, action, ...) str(h)
+menu <- function(type, h, ...) {
+  obj <- h$action$obj
+  ## first treat types that do not require a loading animation,
+  ## and set the status for all other
+  switch(type,
+         Quit = dispose(obj$w),
+         Refresh = obj$status("Refreshing..."))
+  ## exit if no loading animation needed
+  if (type %in% c("Quit", "Log")) return()
+  ## other types need a loading animation
+  obj$hide()
+  on.exit(obj$show())
+  while(gtkEventsPending()) gtkMainIteration()
+  ## now do the work
+  ## switch(type,
+  ##        )
+  ## now refresh display the treeview again
+  obj$refresh()
+  ## update status
+  switch(type,
+         Refresh = obj$status("Refreshed"))
+  return()
+}

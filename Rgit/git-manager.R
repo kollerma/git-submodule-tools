@@ -155,12 +155,7 @@ setRefClass("gitManager",
               },
               refresh = function() {
                 'Refresh gTree'
-                .self$status("Refreshing...")
-                .self$hide()
-                while(gtkEventsPending()) gtkMainIteration()
                 update(.self$getGTree())
-                .self$status("Refreshed view.")
-                .self$show()
                 },
               status = function(value) {
                 'Set or get status bar message'
