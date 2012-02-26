@@ -127,12 +127,14 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' @slot w gWindow
 ##' @slot tr gTree
 ##' @slot s gStatus
+##' @slot position window position
 setRefClass("gitManager",
             fields = list(
               path = "character",
               w = "gWindow",
               tr = "gTree",
-              s = "gStatusbar"
+              s = "gStatusbar",
+              position = "list"
               ),
             methods = list(
               getGTree = function() {
@@ -153,6 +155,14 @@ setRefClass("gitManager",
                 if (missing(value)) return(svalue(s))
                 svalue(s) <<- value
                 invisible(svalue(s))
+              },
+              hide = function() {
+                position <<- w$getPosition()
+                visible(w) <<- FALSE
+              },
+              show = function() {
+                visible(w) <<- TRUE
+                w$move(position$x, position$y)
               }
               ))
 
@@ -164,16 +174,21 @@ setRefClass("gitManager",
 ##' @return gitManager object
 createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
-  w <- gwindow("git manager")
+  w <- gwindow("git manager", visible=FALSE)
   obj <- new("gitManager", path=path, w=w)
   obj$tr <- gtree(offspring, hasOffspring = hasOffspring,
                   icon.FUN = icon.FUN, container=w,
                   action = list(obj = obj))
   obj$s <- gstatusbar("Initializing...", container=w)
   ## add basic doubleclick handler
-  addHandlerDoubleclick(obj$getGTree(), handler=function(h,...) {
+  addHandlerDoubleclick(obj$getGTree(), handler=function(h, ...) {
+    visible(h$action$actualobj$w) <- FALSE
+    w <- loadingAnimation("Clicked", parent=h$action$actualobj$w)
     print(svalue(h$obj))		     # the key
     print(paste(h$obj[], collapse="/")) # vector of keys
+    Sys.sleep(4)
+    w$close()
+    visible(h$action$actualobj$w) <- TRUE
   }, action=list(actualobj=obj))
   ## add Context Menu
   addHandler(obj$getGTree(), signal="button-press-event",
@@ -197,6 +212,8 @@ createGUI <- function(path=getwd()) {
 
   ## set status
   obj$status("Initialized.")
+  ## now show it
+  obj$show()
   obj
 }
   

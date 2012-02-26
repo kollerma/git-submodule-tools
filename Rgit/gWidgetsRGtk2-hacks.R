@@ -84,3 +84,32 @@ setMethod(".update",
             if (length(expandedRows) > 0 && iter$retval)
               expandRows(obj, iter$iter, expandedRows)
           })
+
+##' A window to show a loading animation
+##'
+##' Modified version of traitr package.
+##' @param message A message to display along with graphic while loading. PANGO markup is okay.
+##' @return An item group instance with a \code{close} method to call to dismiss window
+##' @export
+##' @rdname misc
+##' @examples
+##' ## we call, something happens, then we close
+##' \dontrun{
+##' w <- loadingAnimation()
+##' ## .... something long, like dlg$make_gui() ...
+##' w$close()
+##' }
+loadingAnimation <- function(title, message="<b>Loading...</b>", parent=NULL) {
+  ## image from http://www.ajaxload.info/
+  w <- gwindow(title, visible=FALSE, width=200, height=100, parent=parent)
+  li <- anItemGroup(items=list(
+                      labelItem(message, attr=c(markup=TRUE)),
+                      imageItem(value=system.file("images/loading.gif", package="traitr"))
+                      ),
+                    w = w,
+                    close = function(.) dispose(.$w)
+                    )
+  li$make_gui(container=w)
+  visible(w) <- TRUE
+  li
+}
