@@ -105,12 +105,13 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
      (event$GetState() == GdkModifierType['control-mask'] &&
       event$GetButton() == 1)) {
     obj <- h$action$actualobj
+    tr <- obj$getTreeView()
     ## update current selection
-    path <- obj$getPathAtPos(event$x, event$y)$path
-    sel <- obj$getSelection()
+    path <- tr$getPathAtPos(event$x, event$y)$path
+    sel <- tr$getSelection()
     sel$unselectAll()
     sel$selectPath(path)
-    menulist <- genMenulist(obj)
+    menulist <- genMenulist(tr)
     mb = gmenu(menulist, popup = TRUE)
     mb = tag(mb,"mb")                 # actual widget
     gtkMenuPopup(mb,button = event$GetButton(),
@@ -120,32 +121,61 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
   }
 }
 
+##' gitManager reference class
+##'
+##' Contains all information about a git manager window.
+##' @slot path root path of repository
+##' @slot w gWindow
+##' @slot tr gTree
+setRefClass("gitManager",
+            fields = list(
+              path = "character",
+              w = "gWindow",
+              tr = "gTree"
+              ),
+            methods = list(
+              getGTree = function() {
+                'Return GTree object'
+                tr@widget
+                },
+              getTreeView = function() {
+                'Return gtkTreeView object'
+                tr@widget@widget
+              },
+              update = function() {
+                'Update gTree'
+                update(.self$getGTree())
+                }
+              ))
+
 ##' Create GUI
 ##'
 ##' Opens the window, adds all gui elements and
 ##' handlers.
 ##' @param path path to repo
-##' @return list containing the gwindow and the gtree objects.
+##' @return gitManager object
 createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
   w <- gwindow("git manager")
   tr <- gtree(offspring, hasOffspring = hasOffspring,
               icon.FUN = icon.FUN, container=w)
+  obj <- new("gitManager", path=path, w=w, tr=tr)
   ## add basic doubleclick handler
-  addHandlerDoubleclick(tr, handler=function(h,...) {
+  addHandlerDoubleclick(obj$getGTree(), handler=function(h,...) {
     print(svalue(h$obj))		     # the key
     print(paste(h$obj[], collapse="/")) # vector of keys
-  })
+  }, action=list(actualobj=obj))
   ## add Context Menu
-  addHandler(tr@widget, signal="button-press-event",
-             handler=contextMenu, action=list(actualobj=tr))
+  addHandler(obj$getGTree(), signal="button-press-event",
+             handler=contextMenu, action=list(actualobj=obj))
   ## Hide mode column
-  tr@widget@widget$GetColumn(6)$SetVisible(FALSE)
+  tv <- obj$getTreeView()
+  tv$GetColumn(6)$SetVisible(FALSE)
   ## change cellrenderer of Staged column
   cellrenderer <- gtkCellRendererToggleNew()
   ##cellrenderer$activatable <- TRUE
   cellrenderer$radio <- TRUE
-  column <- tr@widget@widget$GetColumn(2)
+  column <- tv$GetColumn(2)
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 2)
@@ -153,14 +183,11 @@ createGUI <- function(path=getwd()) {
   ## cellrenderer <- gtkCellRendererToggleNew()
   ## #cellrenderer$activatable <- TRUE
   ## cellrenderer$radio <- TRUE
-  column <- tr@widget@widget$GetColumn(3)
+  column <- tv$GetColumn(3)
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 3)
 
-  list(w=w, tr=tr)
+  obj
 }
-
-## can update tree view while keeping the rows expanded
-#update(tr@widget)
   
