@@ -105,13 +105,12 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
      (event$GetState() == GdkModifierType['control-mask'] &&
       event$GetButton() == 1)) {
     obj <- h$action$actualobj
-    tr <- obj$getTreeView()
     ## update current selection
-    path <- tr$getPathAtPos(event$x, event$y)$path
-    sel <- tr$getSelection()
+    path <- obj$tr$getPathAtPos(event$x, event$y)$path
+    sel <- obj$tr$getSelection()
     sel$unselectAll()
     sel$selectPath(path)
-    menulist <- genMenulist(tr)
+    menulist <- genMenulist(obj$tr)
     mb = gmenu(menulist, popup = TRUE)
     mb = tag(mb,"mb")                 # actual widget
     gtkMenuPopup(mb,button = event$GetButton(),
@@ -127,11 +126,13 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' @slot path root path of repository
 ##' @slot w gWindow
 ##' @slot tr gTree
+##' @slot s gStatus
 setRefClass("gitManager",
             fields = list(
               path = "character",
               w = "gWindow",
-              tr = "gTree"
+              tr = "gTree",
+              s = "gStatusbar"
               ),
             methods = list(
               getGTree = function() {
@@ -142,10 +143,17 @@ setRefClass("gitManager",
                 'Return gtkTreeView object'
                 tr@widget@widget
               },
-              update = function() {
-                'Update gTree'
+              refresh = function() {
+                'Refresh gTree'
+                .self$status("Refreshing...")
                 update(.self$getGTree())
-                }
+                .self$status("Refreshed view.")
+                },
+              status = function(value) {
+                if (missing(value)) return(svalue(s))
+                svalue(s) <<- value
+                invisible(svalue(s))
+              }
               ))
 
 ##' Create GUI
@@ -157,9 +165,11 @@ setRefClass("gitManager",
 createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
   w <- gwindow("git manager")
-  tr <- gtree(offspring, hasOffspring = hasOffspring,
-              icon.FUN = icon.FUN, container=w)
-  obj <- new("gitManager", path=path, w=w, tr=tr)
+  obj <- new("gitManager", path=path, w=w)
+  obj$tr <- gtree(offspring, hasOffspring = hasOffspring,
+                  icon.FUN = icon.FUN, container=w,
+                  action = list(obj = obj))
+  obj$s <- gstatusbar("Initializing...", container=w)
   ## add basic doubleclick handler
   addHandlerDoubleclick(obj$getGTree(), handler=function(h,...) {
     print(svalue(h$obj))		     # the key
@@ -168,26 +178,25 @@ createGUI <- function(path=getwd()) {
   ## add Context Menu
   addHandler(obj$getGTree(), signal="button-press-event",
              handler=contextMenu, action=list(actualobj=obj))
+  ## alter gTree
   ## Hide mode column
   tv <- obj$getTreeView()
   tv$GetColumn(6)$SetVisible(FALSE)
   ## change cellrenderer of Staged column
   cellrenderer <- gtkCellRendererToggleNew()
-  ##cellrenderer$activatable <- TRUE
   cellrenderer$radio <- TRUE
   column <- tv$GetColumn(2)
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 2)
   ## change cellrenderer of Modified column
-  ## cellrenderer <- gtkCellRendererToggleNew()
-  ## #cellrenderer$activatable <- TRUE
-  ## cellrenderer$radio <- TRUE
   column <- tv$GetColumn(3)
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 3)
 
+  ## set status
+  obj$status("Initialized.")
   obj
 }
   
