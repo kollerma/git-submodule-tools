@@ -208,3 +208,16 @@ gitSubmoduleStatus <- function(directory, submodules) {
   }
   ret
 }
+
+##' Get a list of targets from a Makefile
+##'
+##' Reads the makefile and returns a vector of targets.
+##' @param file path to Makefile
+##' @return vector of targets
+makeGetTargets <- function(file) {
+  makefile <- readLines(file, -1)
+  targets <- grep("^[^#[:space:]].*:", makefile, value=TRUE)
+  ## drop some
+  targets <- grep("(^\\.|:=|%|^\\$)", targets, value=TRUE, invert=TRUE)
+  sub(" *:.*$", "", targets)
+}
