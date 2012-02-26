@@ -110,7 +110,7 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
     sel <- obj$tr$getSelection()
     sel$unselectAll()
     sel$selectPath(path)
-    menulist <- genMenulist(obj$tr)
+    menulist <- genContextMenulist(obj)
     mb = gmenu(menulist, popup = TRUE)
     mb = tag(mb,"mb")                 # actual widget
     gtkMenuPopup(mb,button = event$GetButton(),
@@ -125,6 +125,10 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' Contains all information about a git manager window.
 ##' @slot path root path of repository
 ##' @slot w gWindow
+##' @slot m guiComponent
+##' @slot tb gToolbar
+##' @slot grp gGroup containing gTree and loading animation
+##' @slot la loading animation image
 ##' @slot tr gTree
 ##' @slot s gStatus
 ##' @slot position window position
@@ -132,6 +136,10 @@ setRefClass("gitManager",
             fields = list(
               path = "character",
               w = "gWindow",
+              m = "guiComponent",
+              tb = "gToolbar",
+              grp = "gGroup",
+              la = "gImage",
               tr = "gTree",
               s = "gStatusbar",
               position = "list"
@@ -148,21 +156,27 @@ setRefClass("gitManager",
               refresh = function() {
                 'Refresh gTree'
                 .self$status("Refreshing...")
+                .self$hide()
+                while(gtkEventsPending()) gtkMainIteration()
                 update(.self$getGTree())
                 .self$status("Refreshed view.")
+                .self$show()
                 },
               status = function(value) {
+                'Set or get status bar message'
                 if (missing(value)) return(svalue(s))
                 svalue(s) <<- value
                 invisible(svalue(s))
               },
               hide = function() {
-                position <<- w$getPosition()
-                visible(w) <<- FALSE
+                'Hide tree view and display loading animation'
+                grp$Remove(tr@widget@block@widget@widget)
+                grp$Add(la@widget@block)
               },
               show = function() {
-                visible(w) <<- TRUE
-                w$move(position$x, position$y)
+                'Show tree view and hide loading animation'
+                grp$Remove(la@widget@block)
+                grp$Add(tr@widget@block@widget@widget)
               }
               ))
 
@@ -176,19 +190,24 @@ createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
   w <- gwindow("git manager", visible=FALSE)
   obj <- new("gitManager", path=path, w=w)
+  ## add basic menu
+  obj$m <- gmenu(genMenulist(obj), container=w)
+  ## add basic toolbar
+  obj$tb <- gtoolbar(genToolbar(obj), style="icons", container=w)
+  ## create ggroup that will hold tree view and loading animation
+  obj$grp <- ggroup(horizontal=FALSE, spacing=0, container=w)
+  ## create loadingAnimation but do not display yet
+  obj$la <- gimage(system.file("images/loading.gif", package="traitr"),
+                   expand = TRUE)
+  ## create tree view
   obj$tr <- gtree(offspring, hasOffspring = hasOffspring,
-                  icon.FUN = icon.FUN, container=w,
-                  action = list(obj = obj))
+                  icon.FUN = icon.FUN, container=obj$grp,
+                  action = list(obj = obj), expand=TRUE)
   obj$s <- gstatusbar("Initializing...", container=w)
   ## add basic doubleclick handler
   addHandlerDoubleclick(obj$getGTree(), handler=function(h, ...) {
-    visible(h$action$actualobj$w) <- FALSE
-    w <- loadingAnimation("Clicked", parent=h$action$actualobj$w)
     print(svalue(h$obj))		     # the key
     print(paste(h$obj[], collapse="/")) # vector of keys
-    Sys.sleep(4)
-    w$close()
-    visible(h$action$actualobj$w) <- TRUE
   }, action=list(actualobj=obj))
   ## add Context Menu
   addHandler(obj$getGTree(), signal="button-press-event",
@@ -213,7 +232,7 @@ createGUI <- function(path=getwd()) {
   ## set status
   obj$status("Initialized.")
   ## now show it
-  obj$show()
+  visible(obj$w) <- TRUE
   obj
 }
   

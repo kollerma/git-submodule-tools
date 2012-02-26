@@ -1,13 +1,43 @@
+##' Generate menulist for regular menu
+##'
+##' File menu, etc
+##' @param obj gitManager object
+genMenulist <- function(obj) {
+  action <- list(obj=obj)
+  list(File=list(
+         Refresh = gaction("Refresh", tooltip = "Refresh view",
+           icon = "refresh",
+           handler = menuRefresh, action=action),
+         Quit = gaction("Quit", tooltip = "Quit git manager",
+           icon = "quit",
+           handler = menuQuit, action=action)
+         ))
+}
+
+##' Generate menulist for toolbar
+##'
+##' Toolbar with repo wide tasks
+genToolbar <- function(obj) {
+  action <- list(obj=obj)
+  list(Refresh = gaction("Refresh", tooltip = "Refresh view",
+         icon = "refresh",
+         handler = menuRefresh, action=action),
+       Quit = gaction("Quit", tooltip = "Quit git manager",
+         icon = "quit",
+         handler = menuQuit, action=action))
+}
+
 ##' Generate menulist for context menu
 ##'
 ##' Depending on type of file, generate a different context menu.
-##' @param obj gTreeRGtk object
-genMenulist <- function(obj) {
-  path <- paste(obj[], collapse="/")
-  filename <- svalue(obj)
+##' @param obj gitManager object
+genContextMenulist <- function(obj) {
+  tr <- obj$tr
+  path <- paste(tr[], collapse="/")
+  filename <- svalue(tr)
   #cat("Generating menu for", filename, "at", path, "\n")
 
-  sel <- obj$getSelection()$getSelected()
+  sel <- tr$getSelection()$getSelected()
   mode <- sel$model$getValue(sel$iter, 6)$value
   staged <- sel$model$getValue(sel$iter, 2)$value
   modified <- sel$model$getValue(sel$iter, 3)$value
@@ -88,6 +118,8 @@ genMenulist <- function(obj) {
   menulist
 }
 
+menuQuit <- function(h, ...) dispose(h$action$obj$w)
+menuRefresh <- function(h, action) h$action$obj$refresh()
 menuOpen <- function(h, action, ...) str(h)
 menuDelete <- function(h, action, ...) str(h)
 menuIgnore <- function(h, action, ...) str(h)
