@@ -66,12 +66,15 @@ offspring <- function(path, user.data, ...) {
     directory <- paste(obj$path, obj$repo, sep=.Platform$file.sep)
     dirty <- gitIsDirty(directory)
     Branch <- gitBranch(directory)
-    status <- c("dirty", "detached HEAD")
-    return(data.frame(Filename = obj$repo,
+    Upstream <- gitUpstream(directory)
+    status <- c("dirty", "detached HEAD", "unpushed commits", "unpulled commits")
+    return(data.frame(Filename = obj$repo, mode=0,
                       Staged = FALSE, Modified = dirty,
-                      Branch = Branch,
-                      Status = paste(status[c(dirty, nchar(Branch)==0)],collapse=", "),
-                      Mode=gitMode2Str(0), mode=0))
+                      Upstream = Upstream, Branch = Branch,
+                      Status = paste(status[c(dirty, nchar(Branch)==0,
+                        grepl("\\+", Upstream), grepl("\\-", Upstream))],
+                        collapse=", "),
+                      Mode=gitMode2Str(0)))
   }
   
   files <- readRepo(directory)
@@ -95,11 +98,20 @@ offspring <- function(path, user.data, ...) {
     Status[idx] <- paste(Status[idx],
                          gitStatus2Str(sprintf("%s ", substring(files$status[idx], 1, 1))),
                          gitSubmoduleStatus(directory, files$file[idx]), sep=", ")
-    Status[idx] <- sub(", $", "", sub("^, ", "", sub(", , ", ", ", Status[idx])))
   }
-  data.frame(Filename=files$filename, Staged = Staged, Modified = Modified,
-             Branch = Branch, Status = Status, Mode=gitMode2Str(files$mode),
-             mode=files$mode)
+  ## get upstream status
+  idx <- Branch != ""
+  Upstream <- Branch
+  Upstream[idx] <- sapply(paste(directory, files$filename[idx],
+                                sep = .Platform$file.sep), gitUpstream)
+  Status[idx] <- paste(Status[idx],
+                       ifelse(grepl("\\+", Upstream[idx]), "unpushed commits", ""),
+                       ifelse(grepl("\\-", Upstream[idx]), "unpulled commits", ""), sep=", ")
+  ## clean status
+  Status <- sub(", $", "", sub("^, ", "", gsub(", , ", ", ", Status)))
+  data.frame(Filename=files$filename, mode = files$mode,
+             Staged = Staged, Modified = Modified, Upstream = Upstream,
+             Branch = Branch, Status = Status, Mode=gitMode2Str(files$mode))
 }
 hasOffspring <- function(children,user.data=NULL, ...) {
   return(children$mode %in% c(0, 160000, 40000))
@@ -235,20 +247,20 @@ createGUI <- function(path=getwd()) {
   ## alter gTree
   ## Hide mode column
   tv <- obj$getTreeView()
-  tv$GetColumn(7)$SetVisible(FALSE)
+  tv$GetColumn(2)$SetVisible(FALSE)
   ## change cellrenderer of Staged column
   cellrenderer <- gtkCellRendererToggleNew()
   cellrenderer$radio <- TRUE
-  column <- tv$GetColumn(2)
-  column$Clear()
-  column$PackStart(cellrenderer, TRUE)
-  column$AddAttribute(cellrenderer, "active", 2)
-  ## TODO: remove cellrenderer in first cell (root repo)
-  ## change cellrenderer of Modified column
   column <- tv$GetColumn(3)
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 3)
+  ## TODO: remove cellrenderer in first cell (root repo)
+  ## change cellrenderer of Modified column
+  column <- tv$GetColumn(4)
+  column$Clear()
+  column$PackStart(cellrenderer, TRUE)
+  column$AddAttribute(cellrenderer, "active", 4)
 
   ## expand root repository
   obj$tr$ExpandRow(gtkTreePathNewFromString("0"), FALSE)

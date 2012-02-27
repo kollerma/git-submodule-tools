@@ -4,8 +4,10 @@
 ##' e. g., calls \code{git <args> 2>&1} in the supplied directory.
 ##' @param args argument to \code{git}.
 ##' @param dir directory to execute command in
+##' @param statusOnly only check the status of the command
+##' @param stopOnError whether to stop on error
 ##' @return vector of output
-gitSystem <- function(args, dir, statusOnly=FALSE) {
+gitSystem <- function(args, dir, statusOnly=FALSE, stopOnError=!statusOnly) {
   ## preserve working directory
   if (!missing(dir)) {
     ldir = getwd()
@@ -24,10 +26,12 @@ gitSystem <- function(args, dir, statusOnly=FALSE) {
       return(as.numeric(sub(".*(\\d+)$", "\\1", res$message)))
     } else return(0)
   } else {
-    if (is(res, "simpleWarning"))
-      stop("tried git ", args, "\nBut got the following error:\n",
-           res$message)
-    return(res)
+    if (is(res, "simpleWarning")) {
+      if (stopOnError) {
+        stop("tried git ", args, "\nBut got the following error:\n",
+             res$message)
+      } else return()
+    } else return(res)
   }
 }
 
@@ -165,7 +169,7 @@ gitMode2Str <- function(mode) {
                                   `100664` = "Regular non-executable group-writeable file",
                                   `100755` = "Regular executable file",
                                   `120000` = "Symbolic link",
-                                  `160000` = "Submodule (Gitlink)",
+                                  `160000` = "Submodule (gitlink)",
                                   `000000` = "Git repository",
                                   "unknown"))
 }
@@ -246,6 +250,26 @@ gitSubmoduleStatus <- function(directory, submodules) {
   }
   ret
 }
+
+##' Show upstream status
+##'
+##' Return number of unpushed and unpulled commits
+##' @param dir repository directory
+##' @return string like in git completion bash
+gitUpstream <- function(dir) {
+  count <- gitSystem("rev-list --count --left-right \\@{upstream}...HEAD",
+                     dir, stopOnError=FALSE)
+  if (length(count) == 0) return("")
+  ## equal to upstream
+  if (count == "0\t0") return("u=")
+  ## ahead of upstream
+  if (grepl("^0\t", count)) return(sub("^0\t", "u+", count))
+  ## behind upstream
+  if (grepl("\t0", count)) return(sub("(\\d+)\t0", "u-\\1", count))
+  ## diverged from upstream
+  return(sub("(\\d+)\t(\\d+)","u+\\2-\\1", count))
+}
+  
 
 ##' Get a list of targets from a Makefile
 ##'

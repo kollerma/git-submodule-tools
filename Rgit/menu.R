@@ -33,14 +33,14 @@ genToolbar <- function(obj) {
 ##' @param obj gitManager object
 genContextMenulist <- function(obj) {
   tr <- obj$tr
-  path <- paste(tr[], collapse="/")
+  path <- paste(tr[], collapse=.Platform$file.sep)
   filename <- svalue(tr)
   #cat("Generating menu for", filename, "at", path, "\n")
 
   sel <- tr$getSelection()$getSelected()
-  mode <- sel$model$getValue(sel$iter, 7)$value
-  staged <- sel$model$getValue(sel$iter, 2)$value
-  modified <- sel$model$getValue(sel$iter, 3)$value
+  mode <- sel$model$getValue(sel$iter, 2)$value
+  staged <- sel$model$getValue(sel$iter, 3)$value
+  modified <- sel$model$getValue(sel$iter, 4)$value
   action <- list(obj=obj, path=path, filename=filename,
                  mode=mode, staged=staged, modified=modified)
   
@@ -96,10 +96,10 @@ genContextMenulist <- function(obj) {
   }
   ## try to find a Makefile
   if (!is.na(mode) && (mode %in% c(0, 160000, 40000))) {
-    candidates <- paste(path, c("Makefile", "makefile"), sep="/")
+    candidates <- paste(obj$path, path, c("Makefile", "makefile"), sep=.Platform$file.sep)
     makefile <- candidates[file.exists(candidates)][1]
   } else if (casefold(filename) == "makefile") {
-    makefile <- path
+    makefile <- paste(obj$path, path, sep=.Platform$file.sep)
   } else makefile <- NA
   if (!is.na(makefile)) {
     targets <- makeGetTargets(makefile)
