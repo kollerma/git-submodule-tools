@@ -38,7 +38,7 @@ genContextMenulist <- function(obj) {
   #cat("Generating menu for", filename, "at", path, "\n")
 
   sel <- tr$getSelection()$getSelected()
-  mode <- sel$model$getValue(sel$iter, 6)$value
+  mode <- sel$model$getValue(sel$iter, 7)$value
   staged <- sel$model$getValue(sel$iter, 2)$value
   modified <- sel$model$getValue(sel$iter, 3)$value
   action <- list(obj=obj, path=path, filename=filename,
@@ -46,19 +46,20 @@ genContextMenulist <- function(obj) {
   
   menulist <-
     list(Open=gaction("Open", tooltip = "Open using external program",
-           icon = "open", handler = function(...) menu("Open", ...), action = action),
-         Delete=gaction("Delete", tooltip = "Delete in work tree",
-           icon = "delete", handler = function(...) menu("Delete", ...), action = action))
+           icon = "open", handler = function(...) menu("Open", ...), action = action))
+  if (!is.na(mode) && mode != 0)
+    menulist$Delete=gaction("Delete", tooltip = "Delete in work tree",
+      icon = "delete", handler = function(...) menu("Delete", ...), action = action)
   if (is.na(mode)) { ## an untracked file
     menulist$Ignore <- gaction("Ignore", tooltip = "Add to .gitignore",
                                icon = "stop",
                                handler = function(...) menu("Ignore", ...), action = action)
   }
-  if (is.na(mode) || modified) { ## a modified or untracked file
+  if (is.na(mode) || (modified && mode != 0)) { ## a modified or untracked file
     menulist$Add <- gaction("Add", tooltip = "Add to staging area", icon = "add",
                               handler = function(...) menu("Add", ...), action = action)
   }
-  if (!is.na(mode)) { ## a tracked file
+  if (!is.na(mode) && mode != 0) { ## a tracked file
     if (staged) {
       menulist$Unadd <- gaction("Unadd", tooltip = "Remove from stagin area",
                                 icon = "remove",
@@ -72,7 +73,7 @@ genContextMenulist <- function(obj) {
     menulist$Move <- gaction("Move", tooltip = "Rename",
                              handler = function(...) menu("Move", ...), action = action)
   }
-  if (!is.na(mode) && mode == 160000) { ## submodule
+  if (!is.na(mode) && mode %in% c(0, 160000)) { ## repo or submodule
     menulist$Rpull <- gaction("Rpull",
                               tooltip = "Pull updates from server, recursively",
                               icon = "go-down",
@@ -81,7 +82,7 @@ genContextMenulist <- function(obj) {
                               tooltip = "Push commits to server, recursively",
                               icon = "go-up",
                               handler = function(...) menu("Rpush", ...), action = action)
-    if (modified) {
+    if (modified && mode != 0) {
       menulist$Rcommit <- gaction("Rcommit", tooltip = "Commit, recursively",
                                   icon = "apply",
                                   handler = function(...) menu("Rcommit", ...), action = action)
@@ -94,7 +95,7 @@ genContextMenulist <- function(obj) {
                             handler = function(...) menu("Log", ...), action = action)
   }
   ## try to find a Makefile
-  if (!is.na(mode) && (mode == 160000 || mode == 40000)) {
+  if (!is.na(mode) && (mode %in% c(0, 160000, 40000))) {
     candidates <- paste(path, c("Makefile", "makefile"), sep="/")
     makefile <- candidates[file.exists(candidates)][1]
   } else if (casefold(filename) == "makefile") {

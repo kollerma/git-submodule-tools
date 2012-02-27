@@ -5,7 +5,7 @@
 ##' @param args argument to \code{git}.
 ##' @param dir directory to execute command in
 ##' @return vector of output
-gitSystem <- function(args, dir) {
+gitSystem <- function(args, dir, statusOnly=FALSE) {
   ## preserve working directory
   if (!missing(dir)) {
     ldir = getwd()
@@ -13,11 +13,22 @@ gitSystem <- function(args, dir) {
   }
   ## run command
   #print(args)
-  res <- system2("git", args=args, stdout=TRUE, stderr=TRUE)
+  res <- tryCatch(system2("git", args=args, stdout=TRUE, stderr=TRUE),
+                  warning=function(w) w)
   #print(res)
   ## restore working dir
   if (!missing(dir)) setwd(ldir)
-  return(res)
+  ## if args contain --exit-code, then return exit code
+  if (statusOnly) {
+    if (is(res, "simpleWarning")) {
+      return(as.numeric(sub(".*(\\d+)$", "\\1", res$message)))
+    } else return(0)
+  } else {
+    if (is(res, "simpleWarning"))
+      stop("tried git ", args, "\nBut got the following error:\n",
+           res$message)
+    return(res)
+  }
 }
 
 ##' git status
@@ -54,6 +65,32 @@ gitStatus <- function(dir=getwd(),
                     lclean(strsplit(substring(status, 4), " -> ")),
                     stringsAsFactors=FALSE)
   res
+}
+
+##' dirty repository?
+##'
+##' Checks if a repository is dirty.
+##' @param dir directory to check
+##' @return TRUE or FALSE
+gitIsDirty <- function(dir) {
+  gitSystem("diff --no-ext-diff --quiet --exit-code", dir, statusOnly = TRUE) > 0
+}
+
+##' Get Branch
+##'
+##' Get current branch name, some descriptive string
+##' or nothing if head is detached and describe is FALSE
+##' @param dir directory of respository
+##' @param describe try to describe (like master~3)?
+##' @return string
+gitBranch <- function(dir, describe=FALSE) {
+  if (describe)
+    return(gitSystem("describe --contains --always --all HEAD", dir))
+  ## find out if HEAD is attached
+  if (gitSystem("symbolic-ref -q HEAD", dir, statusOnly=TRUE) > 0)
+    return("")
+  ## HEAD is attached, return symbolic ref
+  gitSystem("describe --contains --all HEAD", dir)
 }
 
 ##' git ls-files
@@ -129,6 +166,7 @@ gitMode2Str <- function(mode) {
                                   `100755` = "Regular executable file",
                                   `120000` = "Symbolic link",
                                   `160000` = "Submodule (Gitlink)",
+                                  `000000` = "Git repository",
                                   "unknown"))
 }
 

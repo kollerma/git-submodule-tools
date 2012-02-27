@@ -55,37 +55,58 @@ readRepo <- function(dir=getwd()) {
 }
 
 ## function to find offspring
-offspring <- function(path, user.data=NULL) {
+offspring <- function(path, user.data, ...) {
+  obj <- user.data$obj
   if(length(path) > 0) 
-    directory <- paste(getwd(), .Platform$file.sep,
+    directory <- paste(obj$path, .Platform$file.sep,
                        paste(path,collapse=.Platform$file.sep),
                        sep="")
-  else
-    directory <- getwd()
+  else {
+    ## return the root module, wo that everything expands from there
+    directory <- paste(obj$path, obj$repo, sep=.Platform$file.sep)
+    dirty <- gitIsDirty(directory)
+    Branch <- gitBranch(directory)
+    status <- c("dirty", "detached HEAD")
+    return(data.frame(Filename = obj$repo,
+                      Staged = FALSE, Modified = dirty,
+                      Branch = Branch,
+                      Status = paste(status[c(dirty, nchar(Branch)==0)],collapse=", "),
+                      Mode=gitMode2Str(0), mode=0))
+  }
   
   files <- readRepo(directory)
   ## drop all files in directories
   files <- files[files$directory == "", ]
+  ## get branch name
+  Branch <- rep("", nrow(files))
+  idx <- !is.na(files$mode) & files$mode == 160000
+  if (any(idx)) 
+    Branch[idx] <- sapply(paste(directory, files$filename[idx],
+                                sep = .Platform$file.sep), gitBranch)
   ## get Status
   Status <- gitStatus2Str(files$status)
   Staged <- grepl("(to|in) index", Status)
   Modified <- grepl("in work tree", Status)
+  if (any(idx))
+    Status[idx] <- ifelse(nchar(Branch[idx]) == 0, "detached HEAD", "")
   ## for modified submodules, get separate status
   idx <- files$mode == 160000 & substring(files$status, 2, 2) == "M"
   if (any(idx)) {
-    Status[idx] <- gitStatus2Str(sprintf("%s ", substring(files$status[idx], 1, 1)))
     Status[idx] <- paste(Status[idx],
+                         gitStatus2Str(sprintf("%s ", substring(files$status[idx], 1, 1))),
                          gitSubmoduleStatus(directory, files$file[idx]), sep=", ")
-    Status[idx] <- sub(", $", "", sub("^, ", "", Status[idx]))
+    Status[idx] <- sub(", $", "", sub("^, ", "", sub(", , ", ", ", Status[idx])))
   }
   data.frame(Filename=files$filename, Staged = Staged, Modified = Modified,
-             Status = Status, Mode=gitMode2Str(files$mode), mode=files$mode)
+             Branch = Branch, Status = Status, Mode=gitMode2Str(files$mode),
+             mode=files$mode)
 }
 hasOffspring <- function(children,user.data=NULL, ...) {
-  return(children$mode == 160000 | children$mode == 40000)
+  return(children$mode %in% c(0, 160000, 40000))
 }
 icon.FUN <- function(children,user.data=NULL, ...) {
   x <- rep("file", length=nrow(children))
+  x[children$mode == 0] <- "about"
   x[children$mode == 160000] <- "jump-to"
   x[children$mode == 40000] <- "directory"
   return(x)
@@ -123,7 +144,8 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' gitManager reference class
 ##'
 ##' Contains all information about a git manager window.
-##' @slot path root path of repository
+##' @slot path directory containing repository
+##' @slot repo name of repository
 ##' @slot w gWindow
 ##' @slot m guiComponent
 ##' @slot tb gToolbar
@@ -135,6 +157,7 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 setRefClass("gitManager",
             fields = list(
               path = "character",
+              repo = "character",
               w = "gWindow",
               m = "guiComponent",
               tb = "gToolbar",
@@ -155,7 +178,7 @@ setRefClass("gitManager",
               },
               refresh = function() {
                 'Refresh gTree'
-                update(.self$getGTree())
+                update(.self$getGTree(), user.data = list(obj=.self))
                 },
               status = function(value) {
                 'Set or get status bar message'
@@ -184,7 +207,9 @@ setRefClass("gitManager",
 createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
   w <- gwindow("git manager", visible=FALSE)
-  obj <- new("gitManager", path=path, w=w)
+  obj <- new("gitManager", w=w,
+             path = sub("(.*)/[^/]+/?$", "\\1", path),
+             repo = sub(".*/([^/]+)/?$", "\\1", path))
   ## add basic menu
   obj$m <- gmenu(genMenulist(obj), container=w)
   ## add basic toolbar
@@ -197,7 +222,7 @@ createGUI <- function(path=getwd()) {
   ## create tree view
   obj$tr <- gtree(offspring, hasOffspring = hasOffspring,
                   icon.FUN = icon.FUN, container=obj$grp,
-                  action = list(obj = obj), expand=TRUE)
+                  offspring.data = list(obj = obj), expand=TRUE)
   obj$s <- gstatusbar("Initializing...", container=w)
   ## add basic doubleclick handler
   addHandlerDoubleclick(obj$getGTree(), handler=function(h, ...) {
@@ -210,7 +235,7 @@ createGUI <- function(path=getwd()) {
   ## alter gTree
   ## Hide mode column
   tv <- obj$getTreeView()
-  tv$GetColumn(6)$SetVisible(FALSE)
+  tv$GetColumn(7)$SetVisible(FALSE)
   ## change cellrenderer of Staged column
   cellrenderer <- gtkCellRendererToggleNew()
   cellrenderer$radio <- TRUE
@@ -218,11 +243,15 @@ createGUI <- function(path=getwd()) {
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 2)
+  ## TODO: remove cellrenderer in first cell (root repo)
   ## change cellrenderer of Modified column
   column <- tv$GetColumn(3)
   column$Clear()
   column$PackStart(cellrenderer, TRUE)
   column$AddAttribute(cellrenderer, "active", 3)
+
+  ## expand root repository
+  obj$tr$ExpandRow(gtkTreePathNewFromString("0"), FALSE)
 
   ## set status
   obj$status("Initialized.")

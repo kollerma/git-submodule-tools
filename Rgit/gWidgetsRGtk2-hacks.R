@@ -62,7 +62,7 @@ addChildren <- gWidgetsRGtk2:::addChildren
 ##' @param ... (unused)
 setMethod(".update",
           signature(toolkit="guiWidgetsToolkitRGtk2",object="gTreeRGtk"),
-          function(object, toolkit, ...) {
+          function(object, toolkit, user.data, ...) {
             obj <- object
             ## first get a list of expanded rows
             expandedRows <- getExpandedRows(obj)
@@ -72,7 +72,7 @@ setMethod(".update",
             ## remove all rows
             tag(obj, "store")$Clear()
             ## put in children again
-            children <- tag(obj, "offspring")("")
+            children <- tag(obj, "offspring")(c(), user.data)
             lst <- getOffSpringIcons(children, tag(obj, "hasOffspring"),
                                      tag(obj, "icon.FUN"))
             children <- lst$children
