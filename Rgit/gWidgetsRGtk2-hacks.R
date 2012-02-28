@@ -31,6 +31,7 @@ getExpandedRows <- function(obj) {
 ##' @param expandedRows vector of paths to expand
 ##' @param root used in recursive calling of the function
 expandRows <- function(obj, iter, expandedRows, root=NULL) {
+  while(gtkEventsPending()) gtkMainIteration()
   continue <- TRUE
   while(continue) {
     path <- tag(obj, "store")$GetValue(iter, tag(obj, "iconFudge"))$value
@@ -71,6 +72,7 @@ setMethod(".update",
             obj@widget$CollapseAll()
             ## remove all rows
             tag(obj, "store")$Clear()
+            while(gtkEventsPending()) gtkMainIteration()
             ## put in children again
             children <- tag(obj, "offspring")(c(), user.data)
             lst <- getOffSpringIcons(children, tag(obj, "hasOffspring"),
