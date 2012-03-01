@@ -23,7 +23,8 @@ if [[ "$1" ]]; then
     if [[ "$1" == "--dry-run" ]]; then
 	dryrun="--dry-run"
     else 
-	echo >&2 "Error: rfetch does only accept the argument --dry-run, nothing else."
+	echo >&2 "Error: rfetch does only accept the argument --dry-run,
+    nothing else."
     fi
 fi
 

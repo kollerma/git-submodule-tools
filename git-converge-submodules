@@ -83,7 +83,7 @@ if [ -f .gitmodules ]; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
 	    if ! git check-clean --uncommitted --unmerged --exit-code --ignore-submodules; then
-		cat 2>&1 <<EOF 
+		cat >&2 <<EOF 
 Error in $PWD:
  Uncommitted changes, cannot converge submodules.
 EOF
@@ -167,7 +167,7 @@ EOF
 		    ## now we're ready to merge
 		    git merge "$remote" -s recursive -X ours -q
 		else
-		    cat 2>&1 <<EOF 
+		    cat >&2 <<EOF 
 Error in $PWD: (got cold feet)
  Differences between local and remote other than just submodules, 
  cannot converge branches. Merge by hand.

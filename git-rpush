@@ -24,7 +24,7 @@ fi
 git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
 ## check for untracked files
 if ! git check-clean --untracked --unstaged --exit-code; then
-    cat<<EOF
+    cat >&2 <<EOF
  Warning: Untracked files in submodules. Add them to .gitignore
   in the respective submodules or remove them.
   Use "git status" to see where they are.

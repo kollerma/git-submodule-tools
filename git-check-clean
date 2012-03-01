@@ -129,11 +129,11 @@ fi
 
 if [[ "$output" ]]; then
     if [[ "$warn" ]]; then
-	echo -n "Warning in $PWD: 
+	echo >&2 -n "Warning in $PWD: 
 $output"
 	exit 0
     else
-	echo 2>&1 -n "Error in $PWD:
+	echo >&2 -n "Error in $PWD:
 $output"
 	exit 1
     fi

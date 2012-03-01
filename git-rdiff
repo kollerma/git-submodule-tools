@@ -42,7 +42,7 @@ if git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; 
     done <<< "$tmp"
 
     if [[ "$nontracking" ]]; then
-	cat 2>&1 <<EOF 
+	cat >&2 <<EOF 
 Error in $PWD:
  Not on a remote tracking branch.
 EOF

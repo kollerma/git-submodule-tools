@@ -54,7 +54,7 @@ if [[ ! "$branch" ]]; then
 fi
 if [[ ! "$branch" ]]; then
     if [[ "$w" ]]; then
-	cat<<EOF 
+	cat >&2 <<EOF 
 Warning in $PWD: 
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git branch -v" list available branches. 
@@ -76,7 +76,7 @@ else
 	    if git branch -vv | grep "  $tbranch" | grep " ahead " -q; then
 		## cannot, since local branch is ahead -> exit
 		if [[ "$w" ]]; then
-		    cat<<EOF 
+		    cat >&2 <<EOF 
 Warning in $PWD: 
  Cannot attach HEAD. 
  The local branch $tbranch is ahead of $rbranch.

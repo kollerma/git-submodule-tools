@@ -23,14 +23,14 @@ if ! git symbolic-ref -q HEAD > /dev/null ; then
     ## FIXME: this test only succeed if the new commit is actually
     ##        checked out
     if ! git diff origin...  --quiet; then
-	cat 2>&1 <<EOF
+	cat >&2 <<EOF
 Error in $PWD:
  Detached head and new commits. Attach the HEAD by creating
  a new branch or risk losing the commits.
 EOF
 	exit 1
     fi
-cat<<EOF
+cat >&2 <<EOF
 Warning in $PWD:
  Detached head. This probably just mean that there are updates available
  that are not yet used. To update to the most recent version, use 
@@ -55,7 +55,7 @@ activebranch=`git name-rev --name-only HEAD`
 
 if [[ "$nontracking" ]]; then
     ## if we're here: fail
-    cat 2>&1 <<EOF 
+    cat >&2 <<EOF 
 Error in $PWD: 
  Branch "$activebranch" is not a remote tracking branch.
 EOF
