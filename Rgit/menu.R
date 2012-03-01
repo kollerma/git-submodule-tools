@@ -154,12 +154,13 @@ menu <- function(type, h, ...) {
                 LongTest = systemWithSleep("sleep", "10"),
                 Rpull = gitSystemLong("rpull"))
   ## fetch errors
-  if (attr(ret, "exitcode") != 0) {
-    stop("Caught bad exitcode ", attr(ret, "exitcode"), " with message:\n",
-         attr(ret, "stderr"))
+  if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
+    showMessage(attr(ret, "stderr"), title = "Git error", icon = "dialog-error")
+    obj$status("Error")
   }
   ## now refresh display the treeview again
   obj$refresh()
+  if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) return()
   ## update status
   switch(type,
          LongTest = obj$status("Test successfull."),
@@ -171,5 +172,8 @@ menu <- function(type, h, ...) {
 showInfo <- function(action) {
   obj <- action$obj
   dir <- obj$absPath(action$path)
-  print(dir)
+  showMessage(paste("Info about", action$path, ":\n"),
+              "\nStatus:",gitSystem("status", dir),
+              "\nRemote:",gitSystem("remote -v", dir),
+              title="Info")
 }

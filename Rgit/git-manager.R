@@ -7,6 +7,7 @@ options(guiToolkit="RGtk2")
 source("methods.R")
 source("gWidgetsRGtk2-hacks.R")
 source("menu.R")
+source("widgets.R")
 
 ##' readRepo
 ##'
