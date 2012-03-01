@@ -58,12 +58,10 @@ readRepo <- function(dir=getwd()) {
 offspring <- function(path, user.data, ...) {
   obj <- user.data$obj
   if(length(path) > 0) 
-    directory <- paste(obj$path, .Platform$file.sep,
-                       paste(path,collapse=.Platform$file.sep),
-                       sep="")
+    directory <- obj$absPath(path)
   else {
     ## return the root module, wo that everything expands from there
-    directory <- paste(obj$path, obj$repo, sep=.Platform$file.sep)
+    directory <- obj$absPath()
     dirty <- gitIsDirty(directory)
     Branch <- gitBranch(directory)
     Upstream <- gitUpstream(directory)
@@ -207,6 +205,14 @@ setRefClass("gitManager",
                 'Show tree view and hide loading animation'
                 grp$Remove(la@widget@block)
                 grp$Add(tr@widget@block@widget@widget)
+              },
+              absPath = function(...) {
+                'Return absolute path'
+                paths <- unlist(list(...))
+                rPath <- if (length(paths) == 0) {
+                  rPath <- repo
+                } else paste(paths, collapse=.Platform$file.sep)
+                paste(path, rPath, sep=.Platform$file.sep)
               }
               ))
 
