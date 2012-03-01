@@ -35,6 +35,66 @@ gitSystem <- function(args, dir, statusOnly=FALSE, stopOnError=!statusOnly) {
   }
 }
 
+##' Non blocking system()
+##'
+##' Exectute an external command without blocking the gui.
+##' @param cmd command to run
+##' @param args string of arguments
+##' @param env environment variables
+##' @param separateStderr whether to separate stderr from stdout
+##' @return vector of strings (stdout) with attribute exitcode that contains
+##'   the exit code of the cmd and stderr attribute (if not separated).
+systemWithSleep <- function(cmd, args = c(), env = c(), separateStderr = TRUE) {
+    outfile <- tempfile()
+    errfile <- if (separateStderr) tempfile() else c()
+    codefile <- tempfile()
+    on.exit(unlink(c(errfile, outfile, codefile)))
+    ## open pipe
+    con <- pipe(paste(env, shQuote(cmd), args, ">", outfile,
+                      if (separateStderr) "2>" else "2>&1", errfile,
+                      "&& wait $!; echo $? >", codefile), "r")
+    ## test whether it is still running
+    while(!file.exists(codefile)) Sys.sleep(0.01)
+    ## get exit code
+    exitcode <- as.numeric(readLines(codefile))
+    ## close pipe
+    close(con)
+
+    ret <- readLines(outfile)
+    if (separateStderr) attr(ret, "stderr") <- readLines(errfile)
+    attr(ret, "exitcode") <- exitcode
+    ret
+}
+
+##' Execute a (long) git command
+##'
+##' Executes a git command using \code{systemWithSleep()},
+##' e. g., calls \code{git <args> 2>&1} in the supplied directory.
+##' @param args argument to \code{git}.
+##' @param dir directory to execute command in
+##' @param statusOnly only check the status of the command
+##' @param stopOnError whether to stop on error
+##' @return vector of output
+gitSystemLong <- function(args, dir, statusOnly=FALSE, stopOnError=FALSE) {
+  ## preserve working directory
+  if (!missing(dir)) {
+    ldir = getwd()
+    setwd(dir)
+  }
+  ## run command
+  res <- systemWithSleep("git", args=args, separateStderr=TRUE)
+  ## restore working dir
+  if (!missing(dir)) setwd(ldir)
+  if (stopOnError && attr(res, "exitcode") != 0) {
+    stop("tried git ", args, "\nBut got the status", attr(res, "exitcode"),
+         "and the following error message:\n",
+         attr(res, "stderr"))
+  }
+  if (statusOnly) {
+    return(attr(res, "exitcode"))
+  } else return(res)
+}
+
 ##' git status
 ##'
 ##' Calls git status.
