@@ -37,7 +37,7 @@ showMessageNewWindow <- function(..., title = "Message", icon="info",
 
 ##' Show Dialog
 ##'
-##' Shows a dialog while blocking the input to the parent window.
+##' Shows a dbraialog while blocking the input to the parent window.
 ##' @param ... marked up message to display
 ##' @param type of message, e.g., "info", "error", ...
 ##' @param obj gitManager object
@@ -50,4 +50,33 @@ showMessage <- function(..., type = "info", obj = obj) {
   dialog$setMarkup(markup)
   dialog$run()
   dialog$destroy()
+}
+
+setRefClass("choice",
+            fields = list(choice = "character"))
+
+##' Widget to select branch or tag
+##'
+##' Displays a tree view with two branches:
+##' branches and tags.
+##' @param dir repository directory
+##' @param obj gitManager obj
+##' @return selected branch or NULL (on cancel)
+selectBranchTag <- function(dir, obj) {
+  branches <- gitListBranches(dir, remote=TRUE)
+  active = attr(branches, "active")
+  if (length(branches) > 1) branches <- mixedsort(branches)
+  tags <- gitListTags(dir)
+  if (length(tags) > 1) tags <- mixedsort(tags)
+  gp <- ggroup(horizontal=FALSE, expand=TRUE)
+  glabel("Select branch or tag to checkout:", container=gp, anchor=c(0,1))
+  scrollwindow <- ggroup(horizontal=FALSE, container=gp,
+                         use.scrollwindow = TRUE, expand=TRUE)
+  rb <- gradio(c(branches, tags),
+               selected = which(branches == active),
+               container=scrollwindow, expand=TRUE)
+  sel <- new("choice")
+  ret <- gbasicdialog(title="Rcheckout", widget=gp, parent=obj$w,
+                      handler = function(h, ...) sel$choice <- svalue(rb))
+  if (ret) return(sel$choice) else return()
 }

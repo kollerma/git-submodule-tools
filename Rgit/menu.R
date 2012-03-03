@@ -153,40 +153,55 @@ genContextMenulist <- function(obj) {
 ##' @return NULL
 menu <- function(type, h, ...) {
   obj <- h$action$obj
+  rpath <- if (is.null(h$action$path)) gui$repo else h$action$path
+  path <- obj$absPath(rpath)
   ## first treat types that do not require a loading animation,
   ## and set the status for all other
-  switch(type,
-         Info = showInfo(h$action),
-         LongTest = obj$status("Calling systemWithSleep..."),
-         Refresh = obj$status("Refreshing..."),
-         Rpull = obj$status("Running 'git rpull'..."),
-         Quit = dispose(obj$w),
-         stop("Unknown action type: ", type))
+  val <- switch(type,
+                Info = showInfo(h$action),
+                LongTest = obj$status("Calling systemWithSleep..."),
+                Refresh = obj$status("Refreshing..."),
+                Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
+                Rcheckout = {
+                  obj$status("Select branch or tag to checkout...")
+                  selectBranchTag(path, obj)
+                },
+                Quit = dispose(obj$w),
+                stop("Unknown action type: ", type))
   ## exit if no loading animation needed
   if (type %in% c("Quit", "Log", "Info")) return()
   ## other types need a loading animation
   obj$hide()
-  on.exit(obj$show())
+  on.exit({ obj$refresh(); obj$show() })
   while(gtkEventsPending()) gtkMainIteration()
   ## now do the work
   ret <- switch(type,
                 LongTest = systemWithSleep("sleep", "10"),
-                Rpull = gitSystemLong("rpull"))
+                Rpull = gitSystemLong("rpull", path),
+                Rcheckout = {
+                  if (!is.null(val)) {
+                    obj$status("Checking out", val, "...")
+                    gitSystemLong(paste("rcheckout", val), path)
+                  } else {
+                    obj$status("Rcheckout cancelled")
+                  }
+                })
   ## fetch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
     showMessage("<b>Git Error</b>\n",
                 escape(attr(ret, "stderr")), type="error",
                 obj=obj)
     obj$status("Error")
+    return()
   }
-  ## now refresh display the treeview again
-  obj$refresh()
-  if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) return()
   ## update status
   switch(type,
-         LongTest = obj$status("Test successfull."),
+         LongTest = obj$status("Test successful."),
          Refresh = obj$status("Refreshed"),
-         Rpull = obj$statu("Rpull finished"))
+         Rpull = obj$status("Rpull in", rpath, "successfully finished"),
+         Rcheckout = {
+           if (!is.null(val)) obj$status("Rcheckout successful.")
+         })
   return()
 }
 

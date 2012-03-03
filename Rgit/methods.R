@@ -329,7 +329,43 @@ gitUpstream <- function(dir) {
   ## diverged from upstream
   return(sub("(\\d+)\t(\\d+)","u+\\2-\\1", count))
 }
-  
+
+##' List branches
+##'
+##' Calls git branch, optionally also returns the
+##' remote branches (without the remote/ prefix).
+##' The currently active branch is given in the
+##' attribute "active".
+##' @param dir repository directory
+##' @param remote whether to show remote-tracking branches as well
+##' @return vector of branch names
+gitListBranches <- function(dir, remote=FALSE) {
+  branches <- gitSystem(paste("branch", if (remote) "-a" else c()), dir)
+  if (remote) {
+    ## remove HEAD pointer
+    branches <- grep("/HEAD ->", branches, invert=TRUE, value=TRUE)
+    ## remove remotes/.../
+    branches <- sub("remotes/.*?/", "", branches)
+  }
+  ## find active branch
+  activebranch <- grepl("^\\*", branches)
+  ## remove leading spaces
+  branches <- sub("^\\*? +", "", branches)
+  ## find unique branches
+  ubranches <- unique(branches)
+  attr(ubranches, "active") <- branches[activebranch]
+  ubranches
+}
+
+##' List tags
+##'
+##' Calls git tag
+##' @param dir repository directory
+##' @return vector of tag names
+gitListTags <- function(dir) {
+  gitSystem("tag", dir)
+}
+
 
 ##' Get a list of targets from a Makefile
 ##'

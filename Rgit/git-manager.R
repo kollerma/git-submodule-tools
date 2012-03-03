@@ -31,6 +31,7 @@ readRepo <- function(dir=getwd()) {
                    data.frame(tag = "", mode = NA, object = "", stage = NA,
                               file = with(status, file[XY == "!!"])))
   ## add directories
+  ## FIXME: what to do with untracked directories? (orphaned submodules)
   files$directory = sub("/[^/]*$", "", files$file)
   files <- within(files, directory[directory == file] <- "")
   dirs <- unique(files$directory)
@@ -195,10 +196,11 @@ setRefClass("gitManager",
                 'Refresh gTree'
                 update(.self$getGTree(), user.data = list(obj=.self))
                 },
-              status = function(value) {
+              status = function(...) {
                 'Set or get status bar message'
-                if (missing(value)) return(svalue(s))
-                svalue(s) <<- value
+                values <- list(...)
+                if (length(values) == 0) return(svalue(s))
+                svalue(s) <<- paste(values, collapse=" ")
                 invisible(svalue(s))
               },
               hide = function() {
