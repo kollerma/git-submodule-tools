@@ -9,6 +9,9 @@
   list(Add=gaction("Add", tooltip = "Add to staging area",
          icon = "add",
          handler = function(...) menu("Add", ...), action = action),
+       Clean=gaction("Clean", tooltip = "Remove untracked files",
+         icon = "clear",
+         handler = function(...) menu("Clean", ...), action = action),
        Delete=gaction("Delete", tooltip = "Delete in work tree",
          icon = "delete",
          handler = function(...) menu("Delete", ...), action = action),
@@ -92,7 +95,7 @@ genContextMenulist <- function(obj) {
   if (!is.na(mode) && mode != 0)
     menulist <- c(menulist, "Delete")
   if (is.na(mode)) { ## an untracked file
-    menulist <- c(menulist, "Ignore")
+    menulist <- c(menulist, "Ignore", "Delete")
   }
   if (is.na(mode) || (modified && mode != 0)) { ## a modified or untracked file
     menulist <- c(menulist, "Add")
@@ -111,7 +114,7 @@ genContextMenulist <- function(obj) {
     if (modified && mode != 0) {
       menulist <- c(menulist, "Rcommit")
     }
-    menulist <- c(menulist, "Rcheckout", "Log", "Info")
+    menulist <- c(menulist, "Rcheckout", "Clean", "Log", "Info")
   }
   menulist <- .genMenulist(menulist, action)
   ## try to find a Makefile
