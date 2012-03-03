@@ -23,7 +23,7 @@ showMessageNewWindow <- function(..., title = "Message", icon="info",
   button.group <- ggroup(container = inner.group)
   ## Push buttons to right
   addSpring(button.group)
-  gbutton("ok", handler=handler,
+  gbutton("close", handler=handler,
           container=button.group)
   return()
 }

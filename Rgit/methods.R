@@ -63,6 +63,7 @@ systemWithSleep <- function(cmd, args = c(), env = c(), separateStderr = TRUE) {
     ret <- readLines(outfile)
     if (separateStderr) attr(ret, "stderr") <- readLines(errfile)
     attr(ret, "exitcode") <- exitcode
+    attr(ret, "cmd") <- paste(env, shQuote(cmd), args)
     ret
 }
 

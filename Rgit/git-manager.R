@@ -166,6 +166,7 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' @slot tr gTree
 ##' @slot s gStatus
 ##' @slot position window position
+##' @slot lastout output of last git command
 setRefClass("gitManager",
             fields = list(
               path = "character",
@@ -177,7 +178,8 @@ setRefClass("gitManager",
               la = "gImage",
               tr = "gTree",
               s = "gStatusbar",
-              position = "list"
+              position = "list",
+              lastout = "character"
               ),
             methods = list(
               getWindow = function() {

@@ -9,6 +9,9 @@
   list(Add=gaction("Add", tooltip = "Add to staging area",
          icon = "add",
          handler = function(...) menu("Add", ...), action = action),
+       `Add submodule`=gaction("Add submodule", tooltip = "Add a submodule",
+         icon = "jump-to",
+         handler = function(...) menu("AddSubmodule", ...), action = action),
        Clean=gaction("Clean", tooltip = "Remove untracked files",
          icon = "clear",
          handler = function(...) menu("Clean", ...), action = action),
@@ -21,6 +24,8 @@
        Info=gaction("Info", tooltip = "Display info",
          icon = "info",
          handler = function(...) menu("Info", ...), action=action),
+       `Last git output`=gaction("Last git output", tooltip = "Output of last git command",
+         handler = function(...) menu("LastGitOutput", ...), action=action),
        Log=gaction("Log", tooltip = "Display commit log",
          icon = "justify-left",
          handler = function(...) menu("Log", ...), action = action),
@@ -46,6 +51,9 @@
        Rcommit=gaction("Rcommit", tooltip = "Commit, recursively",
          icon = "apply",
          handler = function(...) menu("Rcommit", ...), action = action),
+       Rfetch=gaction("Rfetch", tooltip = "Fetch updates from server",
+         icon = "goto-bottom",
+         handler = function(...) menu("Rfetch", ...), action=action),
        Rpull=gaction("Rpull", tooltip = "Pull updates from server, recursively",
          icon = "go-down",
          handler = function(...) menu("Rpull", ...), action = action),
@@ -63,7 +71,8 @@
 ##' @param obj gitManager object
 genMenulist <- function(obj) {
   action <- list(obj=obj)
-  list(File=.genMenulist(c("LongCMD", "Refresh", "Quit"), action))
+  list(File=.genMenulist(c("Refresh", "Quit"), action),
+       Debug=.genMenulist(c("LongCMD", "Last git output"), action))
 }
 
 ##' Generate menulist for toolbar
@@ -71,7 +80,7 @@ genMenulist <- function(obj) {
 ##' Toolbar with repo wide tasks
 genToolbar <- function(obj) {
   action <- list(obj=obj)
-  .genMenulist(c("Rpull", "Refresh", "Quit"), action)
+  .genMenulist(c("Rfetch", "Rpull", "Rpush", "Refresh", "Quit"), action)
 }
 
 ##' Generate menulist for context menu
@@ -114,7 +123,7 @@ genContextMenulist <- function(obj) {
     if (modified && mode != 0) {
       menulist <- c(menulist, "Rcommit")
     }
-    menulist <- c(menulist, "Rcheckout", "Clean", "Log", "Info")
+    menulist <- c(menulist, "Rcheckout", "Clean", "Add submodule", "Log", "Info")
   }
   menulist <- .genMenulist(menulist, action)
   ## try to find a Makefile
@@ -162,9 +171,12 @@ menu <- function(type, h, ...) {
   ## and set the status for all other
   val <- switch(type,
                 Info = showInfo(h$action),
+                LastGitOutput = showGitOutput(obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
                 Refresh = obj$status("Refreshing..."),
+                Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
                 Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
+                Rpush = obj$status("Running 'git rpush' in", rpath, "..."),
                 Rcheckout = {
                   obj$status("Select branch or tag to checkout...")
                   selectBranchTag(path, obj)
@@ -172,7 +184,7 @@ menu <- function(type, h, ...) {
                 Quit = dispose(obj$w),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
-  if (type %in% c("Quit", "Log", "Info")) return()
+  if (type %in% c("Quit", "LastGitOutput", "Log", "Info")) return()
   ## other types need a loading animation
   obj$hide()
   on.exit({ obj$refresh(); obj$show() })
@@ -180,7 +192,9 @@ menu <- function(type, h, ...) {
   ## now do the work
   ret <- switch(type,
                 LongTest = systemWithSleep("sleep", "10"),
+                Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
+                Rpush = gitSystemLong("rpush", path),
                 Rcheckout = {
                   if (!is.null(val)) {
                     obj$status("Checking out", val, "...")
@@ -189,6 +203,7 @@ menu <- function(type, h, ...) {
                     obj$status("Rcheckout cancelled")
                   }
                 })
+  if (!is.null(ret)) obj$lastout <- ret
   ## fetch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
     showMessage("<b>Git Error</b>\n",
@@ -200,8 +215,10 @@ menu <- function(type, h, ...) {
   ## update status
   switch(type,
          LongTest = obj$status("Test successful."),
-         Refresh = obj$status("Refreshed"),
-         Rpull = obj$status("Rpull in", rpath, "successfully finished"),
+         Refresh = obj$status("Refreshed."),
+         Rfetch = obj$status("Rfetch in", rpath, "sucessfully finished."),
+         Rpull = obj$status("Rpull in", rpath, "successfully finished."),
+         Rpush = obj$status("Rpush in", rpath, "successfully finished."),
          Rcheckout = {
            if (!is.null(val)) obj$status("Rcheckout successful.")
          })
@@ -218,6 +235,10 @@ escape <- function(string) {
   gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", string)))
 }
 
+##' Show Info about repository
+##'
+##' Shows basic info about a repository in a separate window.
+##' @param action action list containing obj
 showInfo <- function(action) {
   obj <- action$obj
   dir <- obj$absPath(action$path)
@@ -227,4 +248,21 @@ showInfo <- function(action) {
   ## showMessage(paste("<big>Info about '", escape(action$path), "':</big>\n", sep=""),
   ##             "\n<b>Status:</b>\n",escape(gitSystem("status", dir)),
   ##             "\n<b>Remote:</b>\n",escape(gitSystem("remote -v", dir)), obj=obj)
+}
+
+##' Display last git output
+##'
+##' Displays the output of the last git command in
+##' a separate window.
+##' @param obj gitManager object
+showGitOutput <- function(obj) {
+  if (length(obj$lastout) == 0 && is.null(attributes(obj$lastout))) {
+    showMessage("No git output available yet.", obj=obj)
+    return()
+  }
+  output <- c("<b>Command:</b>\n", escape(attr(obj$lastout, "cmd")),
+              "\n<b>Stdout:</b>\n", escape(obj$lastout),
+              "\n<b>Stderr:</b>\n", escape(attr(obj$lastout, "stderr")),
+              paste("\n<b>Exit code:</b>", attr(obj$lastout, "exitcode")))
+  showMessageNewWindow(output, title="Last git output", obj=obj)
 }
