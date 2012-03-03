@@ -1,3 +1,10 @@
+##' Generate menulist
+##'
+##' Simple function to collect all the actions in one place.
+##' This method is called by genMenulist and similar commands.
+##' @param what vector of actions requested
+##' @param action action list to append to the actions
+##' @return list that can be used in gmenu, etc.
 .genMenulist <- function(what, action)
   list(Add=gaction("Add", tooltip = "Add to staging area",
          icon = "add",
@@ -53,7 +60,7 @@
 ##' @param obj gitManager object
 genMenulist <- function(obj) {
   action <- list(obj=obj)
-  list(File=.genMenulist(c("Refresh", "Quit"), action))
+  list(File=.genMenulist(c("LongCMD", "Refresh", "Quit"), action))
 }
 
 ##' Generate menulist for toolbar
@@ -133,6 +140,17 @@ genContextMenulist <- function(obj) {
   menulist
 }
 
+##' Menu handler
+##'
+##' This function handles all the buttons pressed in a menu.
+##' It first sets the status (indicating that the action is performed)
+##' or executes a short action immediately. In the former case the TreeView
+##' is then replaced by a spinner and the action is performed. In the end,
+##' the status is updated with a sucess message. It also captures errors and
+##' shows them in a dialog box.
+##' @param type type of menu button pressed
+##' @param h user info that contains the action list, etc.
+##' @return NULL
 menu <- function(type, h, ...) {
   obj <- h$action$obj
   ## first treat types that do not require a loading animation,
@@ -142,7 +160,8 @@ menu <- function(type, h, ...) {
          LongTest = obj$status("Calling systemWithSleep..."),
          Refresh = obj$status("Refreshing..."),
          Rpull = obj$status("Running 'git rpull'..."),
-         Quit = dispose(obj$w))
+         Quit = dispose(obj$w),
+         stop("Unknown action type: ", type))
   ## exit if no loading animation needed
   if (type %in% c("Quit", "Log", "Info")) return()
   ## other types need a loading animation
@@ -155,7 +174,9 @@ menu <- function(type, h, ...) {
                 Rpull = gitSystemLong("rpull"))
   ## fetch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
-    showMessage(attr(ret, "stderr"), title = "Git error", icon = "dialog-error")
+    showMessage("<b>Git Error</b>\n",
+                escape(attr(ret, "stderr")), type="error",
+                obj=obj)
     obj$status("Error")
   }
   ## now refresh display the treeview again
@@ -169,11 +190,23 @@ menu <- function(type, h, ...) {
   return()
 }
 
+##' Escape a string
+##'
+##' Escapes a string for display within message that is
+##' in Pango text markup language format.
+##' @param string to escape
+##' @return escaped string
+escape <- function(string) {
+  gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", string)))
+}
+
 showInfo <- function(action) {
   obj <- action$obj
   dir <- obj$absPath(action$path)
-  showMessage(paste("Info about", action$path, ":\n"),
-              "\nStatus:",gitSystem("status", dir),
-              "\nRemote:",gitSystem("remote -v", dir),
-              title="Info")
+  showMessageNewWindow(paste("<b>Info about '", escape(action$path), "':</b>\n", sep=""),
+              "\n<b>Status:</b>\n",escape(gitSystem("status", dir)),
+              "\n<b>Remotes:</b>\n",escape(gitSystem("remote -v", dir)), obj=obj)
+  ## showMessage(paste("<big>Info about '", escape(action$path), "':</big>\n", sep=""),
+  ##             "\n<b>Status:</b>\n",escape(gitSystem("status", dir)),
+  ##             "\n<b>Remote:</b>\n",escape(gitSystem("remote -v", dir)), obj=obj)
 }

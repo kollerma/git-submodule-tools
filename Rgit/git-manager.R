@@ -179,6 +179,10 @@ setRefClass("gitManager",
               position = "list"
               ),
             methods = list(
+              getWindow = function() {
+                'Return gtkWindow object'
+                w@widget@widget
+              },
               getGTree = function() {
                 'Return GTree object'
                 tr@widget
