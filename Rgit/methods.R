@@ -85,7 +85,10 @@ gitSystemLong <- function(args, dir, statusOnly=FALSE, stopOnError=FALSE) {
   ## run command
   res <- systemWithSleep("git", args=args, separateStderr=TRUE)
   ## restore working dir
-  if (!missing(dir)) setwd(ldir)
+  if (!missing(dir)) {
+    setwd(ldir)
+    attr(res, "dir") <- dir
+  }
   if (stopOnError && attr(res, "exitcode") != 0) {
     stop("tried git ", args, "\nBut got the status", attr(res, "exitcode"),
          "and the following error message:\n",
@@ -367,6 +370,17 @@ gitListTags <- function(dir) {
   gitSystem("tag", dir)
 }
 
+##' Git Log
+##'
+##' Retrieve git log
+##' @param dir repository directory
+##' @param n number of commits to show
+##' @param stat whether to add --stat argument
+##' @return vector of lines
+gitLog <- function(dir, n=10, stat=TRUE) {
+  cmd <- paste("log -",n,if (stat) " --stat" else c(), sep="")
+  gitSystem(cmd, dir)
+}
 
 ##' Get a list of targets from a Makefile
 ##'

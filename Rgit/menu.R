@@ -172,6 +172,7 @@ menu <- function(type, h, ...) {
   val <- switch(type,
                 Info = showInfo(h$action),
                 LastGitOutput = showGitOutput(obj),
+                Log = showGitLog(path, obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
                 Refresh = obj$status("Refreshing..."),
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
@@ -232,6 +233,7 @@ menu <- function(type, h, ...) {
 ##' @param string to escape
 ##' @return escaped string
 escape <- function(string) {
+  ## FIXME: escape all non ascii codes as well
   gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", string)))
 }
 
@@ -260,9 +262,22 @@ showGitOutput <- function(obj) {
     showMessage("No git output available yet.", obj=obj)
     return()
   }
-  output <- c("<b>Command:</b>\n", escape(attr(obj$lastout, "cmd")),
+  output <- c("<b>Command:</b>\n",
+              paste(escape(attr(obj$lastout, "cmd")), "(in",
+                    escape(attr(obj$lastout, "dir")), ")"),
               "\n<b>Stdout:</b>\n", escape(obj$lastout),
               "\n<b>Stderr:</b>\n", escape(attr(obj$lastout, "stderr")),
               paste("\n<b>Exit code:</b>", attr(obj$lastout, "exitcode")))
   showMessageNewWindow(output, title="Last git output", obj=obj)
+}
+
+##' Display git log
+##'
+##' Displays a nicely formatted git log in a separate window
+##' @param dir repository directory
+##' @param obj gitManager object
+showGitLog <- function(dir, obj) {
+  message <- gitLog(dir)
+  showMessageNewWindow(escape(message), title=paste("Git log of", dir),
+                       use.scrollwindow=TRUE, obj=obj)
 }

@@ -9,22 +9,37 @@
 ##' @param handler (optional) handler to attach to the ok button
 ##' @param obj gitManager object
 showMessageNewWindow <- function(..., title = "Message", icon="info",
-                        handler=function(h,...) dispose(window), obj) {
-  window <- gwindow(title)
-  window$setResizable(FALSE)
+                                 use.scrollwindow = FALSE, resizable = use.scrollwindow,
+                                 handler=function(h,...) dispose(window),
+                                 obj) {
+  window <- gwindow(title, visible=FALSE)
   group <- ggroup(container = window, spacing=10)
   imggroup <- ggroup(horizontal=FALSE, container = group)
   gimage(icon, dirname="stock", size="dialog", container=imggroup)
   ## A group for the message and buttons
-  inner.group <- ggroup(horizontal=FALSE, container = group)
-  glabel(paste(unlist(list(...)), collapse="\n"), container=inner.group,
-         markup=TRUE, expand=TRUE)
+  inner.group <- ggroup(horizontal=FALSE, container = group, expand=TRUE)
+  inner.group2 <-
+    if (use.scrollwindow) ggroup(horizontal=FALSE, container = inner.group,
+                                 use.scrollwindow = use.scrollwindow,
+                                 expand = TRUE)
+    else gframe(horizontal = FALSE, container = inner.group, expand=TRUE)
+  inner.group2$modifyBg("normal", "white") ## FIXME: this does not work
+  label <- glabel(paste(unlist(list(...)), collapse="\n"), container=inner.group2,
+                  markup=TRUE, expand=TRUE) 
   ## A group to organize the buttons
   button.group <- ggroup(container = inner.group)
   ## Push buttons to right
   addSpring(button.group)
   gbutton("close", handler=handler,
           container=button.group)
+  ## if the window is not resizable, so make it just a little bit larger
+  if (!resizable) {
+    req <- window$sizeRequest()$requisition
+    window$setSizeRequest(req$width+10, req$height+10)
+  } else window$resize(650, 600)
+  window$setResizable(resizable)
+  visible(window) <- TRUE
+  label$setSelectable(TRUE)
   return()
 }
 ## alternative using gmessage (markup does not work):

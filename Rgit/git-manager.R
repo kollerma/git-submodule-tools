@@ -282,6 +282,8 @@ createGUI <- function(path=getwd()) {
 
   ## set status
   obj$status("Initialized.")
+  ## resize window
+  w$resize(1000, 600)
   ## now show it
   visible(obj$w) <- TRUE
   obj
