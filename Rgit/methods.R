@@ -50,9 +50,9 @@ systemWithSleep <- function(cmd, args = c(), env = c(), separateStderr = TRUE) {
     codefile <- tempfile()
     on.exit(unlink(c(errfile, outfile, codefile)))
     ## open pipe
-    con <- pipe(paste(env, shQuote(cmd), args, ">", outfile,
+    con <- pipe(paste(c(env, shQuote(cmd), args, ">", outfile,
                       if (separateStderr) "2>" else "2>&1", errfile,
-                      "&& wait $!; echo $? >", codefile), "r")
+                      "&& wait $!; echo $? >", codefile), collapse=" "), "r")
     ## test whether it is still running
     while(!file.exists(codefile)) Sys.sleep(0.01)
     ## get exit code
@@ -304,7 +304,7 @@ gitStatus2Str <- function(status) {
 ##' @param directory repository directory
 ##' @param submodules requested submodules
 gitSubmoduleStatus <- function(directory, submodules) {
-  str <- gitSystem(paste("status",submodules,collapse=" "), directory)
+  str <- gitSystem(paste("status",shQuote(submodules),collapse=" "), directory)
   ret <- character(0)
   ## get all lines in question
   for (submodule in submodules) {
@@ -370,7 +370,7 @@ gitListTags <- function(dir) {
   gitSystem("tag", dir)
 }
 
-##' Git Log
+##' Git log
 ##'
 ##' Retrieve git log
 ##' @param dir repository directory
@@ -380,6 +380,37 @@ gitListTags <- function(dir) {
 gitLog <- function(dir, n=10, stat=TRUE) {
   cmd <- paste("log -",n,if (stat) " --stat" else c(), sep="")
   gitSystem(cmd, dir)
+}
+
+##' Git add
+##'
+##' Add a file to the staging area.
+##' @param file to add
+##' @param dir repository directory
+##' @return exit code
+gitAdd <- function(file, dir) {
+  gitSystem(c("add", shQuote(file)), dir, statusOnly=TRUE)
+}
+
+##' Git unadd
+##'
+##' Remove a file from the staging area.
+##' @param file file to unadd
+##' @param dir repository directory
+##' @return exit code
+gitUnadd <- function(file, dir) {
+  gitSystem(c("reset HEAD", shQuote(file)), dir, statusOnly=TRUE)
+}
+
+##' Git add submodule
+##'
+##' Add a submodule.
+##' @param url submodule url
+##' @param dir repository directory
+##' @param path submodule path (optional)
+##' @return git output
+gitSubmoduleAdd <- function(url, dir, path = c()) {
+  gitSystemLong(c("submodule add", shQuote(c(url, path))), dir)
 }
 
 ##' Get a list of targets from a Makefile
