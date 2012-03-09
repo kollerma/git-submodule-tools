@@ -30,8 +30,10 @@ readRepo <- function(dir=getwd()) {
     files <- rbind(files,
                    data.frame(tag = "", mode = NA, object = "", stage = NA,
                               file = with(status, file[XY == "!!"])))
+  ## FIXME: what to do with deleted files?
   ## add directories
-  ## FIXME: what to do with untracked directories? (orphaned submodules)
+  ## FIXME: what to do with untracked directories (and contents)?
+  ## FIXME: what to do with orphaned submodules?
   files$directory = sub("/[^/]*$", "", files$file)
   files <- within(files, directory[directory == file] <- "")
   dirs <- unique(files$directory)

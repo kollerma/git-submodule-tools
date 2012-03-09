@@ -63,7 +63,7 @@ systemWithSleep <- function(cmd, args = c(), env = c(), separateStderr = TRUE) {
     ret <- readLines(outfile)
     if (separateStderr) attr(ret, "stderr") <- readLines(errfile)
     attr(ret, "exitcode") <- exitcode
-    attr(ret, "cmd") <- paste(env, shQuote(cmd), args)
+    attr(ret, "cmd") <- paste(c(env, shQuote(cmd), args), collapse=" ")
     ret
 }
 
@@ -402,6 +402,16 @@ gitUnadd <- function(file, dir) {
   gitSystem(c("reset HEAD", shQuote(file)), dir, statusOnly=TRUE)
 }
 
+##' Git rm
+##'
+##' Delete a file from the work tree.
+##' @param file file to delete
+##' @param dir repository directory
+##' @return exit code
+gitRm <- function(file, dir) {
+  gitSystem(c("rm", shQuote(file)), dir, statusOnly=TRUE)
+}
+
 ##' Git add submodule
 ##'
 ##' Add a submodule.
@@ -411,6 +421,16 @@ gitUnadd <- function(file, dir) {
 ##' @return git output
 gitSubmoduleAdd <- function(url, dir, path = c()) {
   gitSystemLong(c("submodule add", shQuote(c(url, path))), dir)
+}
+
+##' Git rm submodule
+##'
+##' Remove a submodule.
+##' @param path submodule path
+##' @param dir repository directory
+##' @return git output
+gitSubmoduleRm <- function(path, dir) {
+  gitSystemLong(c("rm-submodule", shQuote(path)), dir)
 }
 
 ##' Get a list of targets from a Makefile

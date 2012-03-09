@@ -175,6 +175,11 @@ menu <- function(type, h, ...) {
                 Add = gitAdd(h$action$file, dir),
                 AddSubmodule = showAddSubmodule(obj),
                 Info = showInfo(h$action),
+                Delete = if (!is.na(h$action$mode) && h$action$mode == 40000) {
+                  gconfirm(sprintf("Really delete '%s' and all contained files?", rpath))
+                } else {
+                  gconfirm(sprintf("Really delete '%s'?", rpath))
+                },
                 LastGitOutput = showGitOutput(obj),
                 Log = showGitLog(path, obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
@@ -207,6 +212,19 @@ menu <- function(type, h, ...) {
                     gitSubmoduleAdd(val["url"], path, val["path"])
                   } else obj$status("Aborting submodule add.")
                 },
+                Delete = {
+                  if (isTRUE(val)) {
+                    obj$status("Removing", rpath, "...")
+                    switch(as.character(h$action$mode),
+                           `40000`=,
+                           `NA`= try(unlink(path, recursive=TRUE)),
+                           `160000`= { ## submodule
+                             gitSubmoduleRm(h$action$filename, dir)
+                           }, ## else
+                           gitRm(h$action$filename, dir)
+                           )
+                  } else obj$status("Aborting.")
+                },
                 LongTest = systemWithSleep("sleep", "10"),
                 Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
@@ -223,7 +241,7 @@ menu <- function(type, h, ...) {
                   if (val == 0) obj$status("Reset file", h$action$file, "sucessfully in", dir)
                   else obj$status("Error resetting file", h$action$file, "in", dir)
                   })
-  if (!is.null(ret)) obj$lastout <- ret
+  if (!is.null(ret) && is.character(ret)) obj$lastout <- ret
   ## fetch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
     showMessage("<b>Git Error</b>\n",
@@ -231,11 +249,21 @@ menu <- function(type, h, ...) {
                 obj=obj)
     obj$status("Error")
     return()
+  } else if (is(ret, "try-error")) {
+    showMessage("<b>Error</b>\n",
+                escape(ret), type="error",
+                obj=obj)
+    obj$status("Error")
+    return()
   }
   ## update status
   switch(type,
          AddSubmodule = if (!is.null(val["url"])) {
-           obj$status("Submodule", val["path"], "sucessfully added.")
+           obj$status("Submodule", val["path"], "successfully added.")
+         },
+         Delete = if (isTRUE(val) && !is.null(ret) &&
+           (ret == 0 || !is.null(attr(ret, "exitcode")))) {
+           obj$status("Removed", rpath, "successfully.")
          },
          LongTest = obj$status("Test successful."),
          Refresh = obj$status("Refreshed."),
