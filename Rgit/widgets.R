@@ -1,4 +1,6 @@
-## Some commonly used widgets
+#######################################################
+## Some commonly used widgets and helper functions   ##
+#######################################################
 
 ##' Show a message
 ##'
@@ -70,31 +72,20 @@ showMessage <- function(..., type = "info", obj = obj) {
 setRefClass("choice",
             fields = list(choice = "character"))
 
-##' Widget to select branch or tag
+##' Escape a string
 ##'
-##' Displays a tree view with two branches:
-##' branches and tags.
-##' @param dir repository directory
-##' @param obj gitManager obj
-##' @return selected branch or NULL (on cancel)
-selectBranchTag <- function(dir, obj) {
-  branches <- gitListBranches(dir, remote=TRUE)
-  active = attr(branches, "active")
-  if (length(branches) > 1) branches <- mixedsort(branches)
-  tags <- gitListTags(dir)
-  if (length(tags) > 1) tags <- mixedsort(tags)
-  gp <- ggroup(horizontal=FALSE, expand=TRUE)
-  glabel("Select branch or tag to checkout:", container=gp, anchor=c(0,1))
-  scrollwindow <- ggroup(horizontal=FALSE, container=gp,
-                         use.scrollwindow = TRUE, expand=TRUE)
-  rb <- gradio(c(branches, tags),
-               selected = which(branches == active),
-               container=scrollwindow, expand=TRUE)
-  sel <- new("choice")
-  ret <- gbasicdialog(title="Rcheckout", widget=gp, parent=obj$w,
-                      handler = function(h, ...) sel$choice <- svalue(rb))
-  if (ret) return(sel$choice) else return()
+##' Escapes a string for display within message that is
+##' in Pango text markup language format.
+##' @param string to escape
+##' @return escaped string
+escape <- function(string) {
+  ## FIXME: escape all non ascii codes as well
+  gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", string)))
 }
+
+#######################################################
+## Widgets used to get user input / show output      ##
+#######################################################
 
 ##' Add submodule dialog
 ##'
@@ -122,4 +113,75 @@ showAddSubmodule <- function(obj) {
   add(dialog, grp)
   test <- visible(dialog, set=TRUE)
   if (test) return(t$choice) else return(NULL)
+}
+
+##' Widget to select branch or tag
+##'
+##' Displays a tree view with two branches:
+##' branches and tags.
+##' @param dir repository directory
+##' @param obj gitManager obj
+##' @return selected branch or NULL (on cancel)
+selectBranchTag <- function(dir, obj) {
+  branches <- gitListBranches(dir, remote=TRUE)
+  active = attr(branches, "active")
+  if (length(branches) > 1) branches <- mixedsort(branches)
+  tags <- gitListTags(dir)
+  if (length(tags) > 1) tags <- mixedsort(tags)
+  gp <- ggroup(horizontal=FALSE, expand=TRUE)
+  glabel("Select branch or tag to checkout:", container=gp, anchor=c(0,1))
+  scrollwindow <- ggroup(horizontal=FALSE, container=gp,
+                         use.scrollwindow = TRUE, expand=TRUE)
+  rb <- gradio(c(branches, tags),
+               selected = which(branches == active),
+               container=scrollwindow, expand=TRUE)
+  sel <- new("choice")
+  ret <- gbasicdialog(title="Rcheckout", widget=gp, parent=obj$w,
+                      handler = function(h, ...) sel$choice <- svalue(rb))
+  if (ret) return(sel$choice) else return()
+}
+
+##' Show Info about repository
+##'
+##' Shows basic info about a repository in a separate window.
+##' @param action action list containing obj
+showInfo <- function(action) {
+  obj <- action$obj
+  dir <- obj$absPath(action$path)
+  showMessageNewWindow(paste("<b>Info about '", escape(action$path), "':</b>\n", sep=""),
+              "\n<b>Status:</b>\n",escape(gitSystem("status", dir)),
+              "\n<b>Remotes:</b>\n",escape(gitSystem("remote -v", dir)), obj=obj)
+  ## showMessage(paste("<big>Info about '", escape(action$path), "':</big>\n", sep=""),
+  ##             "\n<b>Status:</b>\n",escape(gitSystem("status", dir)),
+  ##             "\n<b>Remote:</b>\n",escape(gitSystem("remote -v", dir)), obj=obj)
+}
+
+##' Display git log
+##'
+##' Displays a nicely formatted git log in a separate window
+##' @param dir repository directory
+##' @param obj gitManager object
+showGitLog <- function(dir, obj) {
+  message <- gitLog(dir)
+  showMessageNewWindow(escape(message), title=paste("Git log of", dir),
+                       use.scrollwindow=TRUE, obj=obj)
+}
+
+##' Display last git output
+##'
+##' Displays the output of the last git command in
+##' a separate window.
+##' @param obj gitManager object
+showGitOutput <- function(obj) {
+  if (length(obj$lastout) == 0 && is.null(attributes(obj$lastout))) {
+    showMessage("No git output available yet.", obj=obj)
+    return()
+  }
+  output <- c("<b>Command:</b>\n",
+              paste(escape(attr(obj$lastout, "cmd")), "(in",
+                    escape(attr(obj$lastout, "dir")), ")"),
+              "\n<b>Stdout:</b>\n", escape(obj$lastout),
+              "\n<b>Stderr:</b>\n", escape(attr(obj$lastout, "stderr")),
+              paste("\n<b>Exit code:</b>", attr(obj$lastout, "exitcode")))
+  showMessageNewWindow(output, title="Last git output", obj=obj)
 }
