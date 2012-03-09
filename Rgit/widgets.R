@@ -95,3 +95,31 @@ selectBranchTag <- function(dir, obj) {
                       handler = function(h, ...) sel$choice <- svalue(rb))
   if (ret) return(sel$choice) else return()
 }
+
+##' Add submodule dialog
+##'
+##' Displays the dialog for adding submodules and
+##' returns the url and the path of the submodules.
+##' @param obj gitManager object
+##' @return vector with url and path (or NULL if cancelled)
+showAddSubmodule <- function(obj) {
+  grp <- ggroup(horizontal = FALSE)
+  glabel("Please enter the submodule url and the path where it should be added.",
+         container = grp)
+  grp1 <- ggroup(container = grp)
+  glabel("Url:", container = grp1)
+  addSpring(grp1)
+  url <- gedit(container = grp1, width=50)
+  grp2 <- ggroup(container = grp)
+  glabel("Path:", container = grp2)
+  path <- gedit(container = grp2, width=50)
+  addHandlerFocus(path, handler = function(h, ...) if(nchar(svalue(h$obj)) == 0) {
+    svalue(h$obj) <- sub("\\.git$", "", sub(".*/", "", svalue(url)))
+  })
+  t <- new("choice")
+  dialog <- gbasicdialog("Add submodule", parent=obj$w,
+                         handler = function(...) t$choice <- c(url=svalue(url), path=svalue(path)))
+  add(dialog, grp)
+  test <- visible(dialog, set=TRUE)
+  if (test) return(t$choice) else return(NULL)
+}

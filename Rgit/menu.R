@@ -173,15 +173,7 @@ menu <- function(type, h, ...) {
   ## and set the status for all other
   val <- switch(type,
                 Add = gitAdd(h$action$file, dir),
-                AddSubmodule = {
-                  url <- ginput("Please enter url of submodule to add",
-                                title = "Add a submodule", parent = obj$w)
-                  if (!is.na(url) && nchar(url) > 0) { 
-                    ginput("Please enter desired name of submodule",
-                           text = sub("\\.git$", "", sub(".*/", "", url)),
-                           title = "Name the submodule", parent = obj$w)
-                  } else url
-                },
+                AddSubmodule = showAddSubmodule(obj),
                 Info = showInfo(h$action),
                 LastGitOutput = showGitOutput(obj),
                 Log = showGitLog(path, obj),
@@ -210,9 +202,9 @@ menu <- function(type, h, ...) {
                   else obj$status("Error adding file", h$action$file, "in", dir)
                 },
                 AddSubmodule = {
-                  if (!is.na(val) && nchar(val) > 0) {
-                    obj$status("Adding submodule", val, "in", rpath, "...")
-                    gitSubmoduleAdd(url, path, val)
+                  if (!is.null(val["url"])) {
+                    obj$status("Adding submodule", val["path"], "in", rpath, "...")
+                    gitSubmoduleAdd(val["url"], path, val["path"])
                   } else obj$status("Aborting submodule add.")
                 },
                 LongTest = systemWithSleep("sleep", "10"),
@@ -242,7 +234,9 @@ menu <- function(type, h, ...) {
   }
   ## update status
   switch(type,
-         AddSubmodule = if (!is.na(val)) obj$status("Submodule", val, "sucessfully added."),
+         AddSubmodule = if (!is.null(val["url"])) {
+           obj$status("Submodule", val["path"], "sucessfully added.")
+         },
          LongTest = obj$status("Test successful."),
          Refresh = obj$status("Refreshed."),
          Rfetch = obj$status("Rfetch in", rpath, "sucessfully finished."),
