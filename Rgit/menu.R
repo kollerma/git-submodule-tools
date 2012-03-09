@@ -171,10 +171,20 @@ menu <- function(type, h, ...) {
   dir <- sub("[^/]*$", "", path)
   ## first treat types that do not require a loading animation,
   ## and set the status for all other
+  status <- "Aborted"
   val <- switch(type,
                 Add = gitAdd(h$action$file, dir),
                 AddSubmodule = showAddSubmodule(obj),
                 Info = showInfo(h$action),
+                Clean = {
+                  msg <- gitSystem("clean -n -d", path)
+                  if (length(msg) > 0) {
+                    gconfirm(paste(c("Git clean...\n", msg), collapse="\n"))
+                  } else {
+                    status <- "Nothing to clean"
+                    FALSE
+                  }
+                },
                 Delete = if (!is.na(h$action$mode) && h$action$mode == 40000) {
                   gconfirm(sprintf("Really delete '%s' and all contained files?", rpath))
                 } else {
@@ -196,6 +206,10 @@ menu <- function(type, h, ...) {
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
   if (type %in% c("Quit", "LastGitOutput", "Log", "Info")) return()
+  if (!is.null(val) && is.logical(val) && !val) {
+    obj$status(status)
+    return()
+  }
   ## other types need a loading animation
   obj$hide()
   on.exit({ obj$refresh(); obj$show() })
@@ -207,42 +221,38 @@ menu <- function(type, h, ...) {
                   else obj$status("Error adding file", h$action$file, "in", dir)
                 },
                 AddSubmodule = {
-                  if (!is.null(val["url"])) {
-                    obj$status("Adding submodule", val["path"], "in", rpath, "...")
-                    gitSubmoduleAdd(val["url"], path, val["path"])
-                  } else obj$status("Aborting submodule add.")
+                  obj$status("Adding submodule", val["path"], "in", rpath, "...")
+                  gitSubmoduleAdd(val["url"], path, val["path"])
+                },
+                Clean = {
+                  obj$status("Running git clean...")
+                  gitSystemLong("clean -d -f -f", path)
                 },
                 Delete = {
-                  if (isTRUE(val)) {
-                    obj$status("Removing", rpath, "...")
-                    switch(as.character(h$action$mode),
-                           `40000`=,
-                           `NA`= try(unlink(path, recursive=TRUE)),
-                           `160000`= { ## submodule
-                             gitSubmoduleRm(h$action$filename, dir)
-                           }, ## else
-                           gitRm(h$action$filename, dir)
-                           )
-                  } else obj$status("Aborting.")
+                  obj$status("Removing", rpath, "...")
+                  switch(as.character(h$action$mode),
+                         `40000`=,
+                         `NA`= try(unlink(path, recursive=TRUE)),
+                         `160000`= { ## submodule
+                           gitSubmoduleRm(h$action$filename, dir)
+                         }, ## else
+                         gitRm(h$action$filename, dir)
+                         )
                 },
                 LongTest = systemWithSleep("sleep", "10"),
                 Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
                 Rpush = gitSystemLong("rpush", path),
                 Rcheckout = {
-                  if (!is.null(val)) {
-                    obj$status("Checking out", val, "...")
-                    gitSystemLong(paste("rcheckout", val), path)
-                  } else {
-                    obj$status("Rcheckout cancelled")
-                  }
+                  obj$status("Checking out", val, "...")
+                  gitSystemLong(paste("rcheckout", val), path)
                 },
                 Unadd = {
                   if (val == 0) obj$status("Reset file", h$action$file, "sucessfully in", dir)
                   else obj$status("Error resetting file", h$action$file, "in", dir)
                   })
   if (!is.null(ret) && is.character(ret)) obj$lastout <- ret
-  ## fetch errors
+  ## catch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
     showMessage("<b>Git Error</b>\n",
                 escape(attr(ret, "stderr")), type="error",
@@ -258,10 +268,9 @@ menu <- function(type, h, ...) {
   }
   ## update status
   switch(type,
-         AddSubmodule = if (!is.null(val["url"])) {
-           obj$status("Submodule", val["path"], "successfully added.")
-         },
-         Delete = if (isTRUE(val) && !is.null(ret) &&
+         AddSubmodule = obj$status("Submodule", val["path"], "successfully added."),
+         Clean = obj$status("Cleaned repository successfully."),
+         Delete = if (!is.null(ret) &&
            (ret == 0 || !is.null(attr(ret, "exitcode")))) {
            obj$status("Removed", rpath, "successfully.")
          },
@@ -270,9 +279,7 @@ menu <- function(type, h, ...) {
          Rfetch = obj$status("Rfetch in", rpath, "sucessfully finished."),
          Rpull = obj$status("Rpull in", rpath, "successfully finished."),
          Rpush = obj$status("Rpush in", rpath, "successfully finished."),
-         Rcheckout = {
-           if (!is.null(val)) obj$status("Rcheckout successful.")
-         })
+         Rcheckout = obj$status("Rcheckout successful."))
   return()
 }
 

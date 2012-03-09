@@ -112,7 +112,7 @@ showAddSubmodule <- function(obj) {
                          handler = function(...) t$choice <- c(url=svalue(url), path=svalue(path)))
   add(dialog, grp)
   test <- visible(dialog, set=TRUE)
-  if (test) return(t$choice) else return(NULL)
+  if (test) return(t$choice) else return(FALSE)
 }
 
 ##' Widget to select branch or tag
@@ -138,7 +138,7 @@ selectBranchTag <- function(dir, obj) {
   sel <- new("choice")
   ret <- gbasicdialog(title="Rcheckout", widget=gp, parent=obj$w,
                       handler = function(h, ...) sel$choice <- svalue(rb))
-  if (ret) return(sel$choice) else return()
+  if (ret) return(sel$choice) else return(FALSE)
 }
 
 ##' Show Info about repository
