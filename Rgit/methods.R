@@ -112,6 +112,11 @@ gitStatus <- function(dir=getwd(),
                       untracked = c("all", "no", "normal"),
                       ignoreSubmodules = c("none", "untracked", "dirty", "all"),
                       ignored = FALSE) {
+  ## get toplevel directory (show only subdirectory if dir is not tl)
+  tl <- gitToplevel(dir)
+  ## convert dir into an absolute path
+  if (!grepl("^/", dir)) dir <- paste(getwd(), dir, sep="/")
+  rdir <- sub("^/", "", sub(tl, "", dir)) ## now use the relative path to filter for files
   ## match arguments
   untracked <- match.arg(untracked)
   ignoreSubmodules <- match.arg(ignoreSubmodules)
@@ -120,6 +125,12 @@ gitStatus <- function(dir=getwd(),
     untracked, ignoreSubmodules, if (ignored) " --ignored" else "")
   ## get status
   status <- gitSystem(args, dir)
+  ## filter
+  if (nchar(rdir) > 0) {
+    filter <- sprintf(" %s/", rdir)
+    status <- grep(filter, status, value=TRUE)
+    status <- gsub(filter, " ", status)
+  }
   if (length(status) == 0) return(data.frame())
   ## convert into data.frame
   lclean <- function(lst) {

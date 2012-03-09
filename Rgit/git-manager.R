@@ -42,7 +42,7 @@ readRepo <- function(dir=getwd()) {
     files <- rbind(files,
                    data.frame(tag = "", mode = 040000, object = "", stage = NA,
                               file = dirs,
-                              directory = sub("(/?)[^/]+/?", "\\1", dirs)))
+                              directory = sub("/?[^/]+/?$", "", dirs)))
   ## add status
   files$was <- files$status <- ""
   for (file in status$file) {
@@ -54,7 +54,7 @@ readRepo <- function(dir=getwd()) {
   ## sort by directory, filename
   if (nrow(files) > 1) files <- files[with(files, mixedorder(file)),]
   ## remove directory from filename
-  files$filename <- sub(".*/([^/]+/?)$", "\\1", files$file)
+  files$filename <- sub(".*/", "", files$file)
   files
 }
 
