@@ -116,7 +116,8 @@ gitStatus <- function(dir=getwd(),
   tl <- gitToplevel(dir)
   ## convert dir into an absolute path
   if (!grepl("^/", dir)) dir <- paste(getwd(), dir, sep="/")
-  rdir <- sub("^/", "", sub(tl, "", dir)) ## now use the relative path to filter for files
+  ## and the relative path (to filter for files)
+  rdir <- sub("/$", "", sub("^/", "", sub(tl, "", dir))) 
   ## match arguments
   untracked <- match.arg(untracked)
   ignoreSubmodules <- match.arg(ignoreSubmodules)
@@ -213,6 +214,7 @@ gitLsFiles <- function(dir=getwd(),
     } else "",
     if (!missing(file)) sprintf(" -- %s", paste(file, collapse=" ")) else "")
   res <- gitSystem(args, dir)
+  if (length(res) == 0) return(data.frame())
   ## build data.frame if --stage was used
   if ("stage" %in% what) {
     ## split into [<tag> ]<mode> <object> <stage> <file>

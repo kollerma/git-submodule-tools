@@ -22,17 +22,19 @@ readRepo <- function(dir=getwd()) {
   ## get status (also shows ignored and untracked files)
   status <- gitStatus(dir, ignored=TRUE)
   ## add ignored and untracked files to files
-  if ("??" %in% status$XY)
-    files <- rbind(files,
-                   data.frame(tag = "", mode = NA, object = "", stage = NA,
-                              file = with(status, file[XY == "??"])))
-  if ("!!" %in% status$XY)
-    files <- rbind(files,
-                   data.frame(tag = "", mode = NA, object = "", stage = NA,
-                              file = with(status, file[XY == "!!"])))
+  if ("??" %in% status$XY) {
+    tmp <- data.frame(tag = "", mode = NA, object = "", stage = NA,
+                      file = with(status, file[XY == "??"]))
+    files <- if (nrow(files) > 0) rbind(files, tmp) else tmp
+  }
+  if ("!!" %in% status$XY) {
+    tmp <- data.frame(tag = "", mode = NA, object = "", stage = NA,
+                      file = with(status, file[XY == "!!"]))
+    files <- if (nrow(files) > 0) rbind(files,tmp) else tmp
+  }
+  if (nrow(files) == 0) return(data.frame())
   ## FIXME: what to do with deleted files?
   ## add directories
-  ## FIXME: what to do with untracked directories (and contents)?
   ## FIXME: what to do with orphaned submodules?
   files$directory = sub("/[^/]*$", "", files$file)
   files <- within(files, directory[directory == file] <- "")
@@ -81,7 +83,7 @@ offspring <- function(path, user.data, ...) {
   
   files <- readRepo(directory)
   ## drop all files in directories
-  files <- files[files$directory == "", ]
+  files <- files[files$directory == "", ,drop=FALSE]
   ## get branch name
   Branch <- rep("", nrow(files))
   idx <- !is.na(files$mode) & files$mode == 160000
@@ -111,7 +113,7 @@ offspring <- function(path, user.data, ...) {
                        ifelse(grepl("\\-", Upstream[idx]), "unpulled commits", ""), sep=", ")
   ## clean status
   Status <- sub(", $", "", sub("^, ", "", gsub(", , ", ", ", Status)))
-  data.frame(Filename=files$filename, mode = files$mode,
+  data.frame(Filename=files$filename, mode = as.numeric(files$mode),
              Staged = Staged, Modified = Modified, Upstream = Upstream,
              Branch = Branch, Status = Status, Mode=gitMode2Str(files$mode))
 }
