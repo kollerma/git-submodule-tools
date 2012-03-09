@@ -175,7 +175,6 @@ menu <- function(type, h, ...) {
   val <- switch(type,
                 Add = gitAdd(h$action$file, dir),
                 AddSubmodule = showAddSubmodule(obj),
-                Info = showInfo(h$action),
                 Clean = {
                   msg <- gitSystem("clean -n -d", path)
                   if (length(msg) > 0) {
@@ -190,6 +189,8 @@ menu <- function(type, h, ...) {
                 } else {
                   gconfirm(sprintf("Really delete '%s'?", rpath))
                 },
+                Ignore = obj$status(sprintf("Adding '%s' to .gitignore...", rpath)),
+                Info = showInfo(h$action),
                 LastGitOutput = showGitOutput(obj),
                 Log = showGitLog(path, obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
@@ -239,6 +240,7 @@ menu <- function(type, h, ...) {
                          gitRm(h$action$filename, dir)
                          )
                 },
+                Ignore = gitIgnore(path),
                 LongTest = systemWithSleep("sleep", "10"),
                 Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
@@ -274,6 +276,7 @@ menu <- function(type, h, ...) {
            (ret == 0 || !is.null(attr(ret, "exitcode")))) {
            obj$status("Removed", rpath, "successfully.")
          },
+         Ignore = obj$status("Added", rpath, "to .gitignore"),
          LongTest = obj$status("Test successful."),
          Refresh = obj$status("Refreshed."),
          Rfetch = obj$status("Rfetch in", rpath, "sucessfully finished."),

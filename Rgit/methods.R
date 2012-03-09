@@ -433,6 +433,25 @@ gitSubmoduleRm <- function(path, dir) {
   gitSystemLong(c("rm-submodule", shQuote(path)), dir)
 }
 
+##' Get repository root
+##'
+##' Returns the toplevel directory of the given repository.
+##' @param dir repository directory
+gitToplevel <- function(dir) {
+  gitSystem("rev-parse --show-toplevel", dir)
+}
+
+##' Ignore a .gitignore
+##'
+##' Adds the given file to .gitignore in the repository's
+##' toplevel directory. Give an absolute path.
+##' @param path to add to .gitignore
+gitIgnore <- function(path) {
+  dir <- if (file.info(path)$isdir) path else sub("[^/]*$", "", path)
+  tl <- gitToplevel(dir)
+  try(cat("\n",sub(dir, "", path), file=paste(tl, ".gitignore", sep="/"), append=TRUE,sep=""))
+}
+
 ##' Get a list of targets from a Makefile
 ##'
 ##' Reads the makefile and returns a vector of targets.
