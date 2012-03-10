@@ -123,8 +123,10 @@ genContextMenulist <- function(obj) {
     if (modified && mode != 0) {
       menulist <- c(menulist, "Rcommit")
     }
-    menulist <- c(menulist, "Rcheckout", "Clean", "Add submodule", "Log", "Info")
+    menulist <- c(menulist, "Rcheckout", "Clean", "Log", "Info")
   }
+  if (!is.na(mode) && (mode %in% c(0, 160000, 40000)))
+    menulist <- c(menulist, "Add submodule")
   menulist <- .genMenulist(menulist, action)
   ## try to find a Makefile
   if (!is.na(mode) && (mode %in% c(0, 160000, 40000))) {

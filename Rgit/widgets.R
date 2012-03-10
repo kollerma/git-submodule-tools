@@ -105,7 +105,7 @@ showAddSubmodule <- function(obj) {
   glabel("Path:", container = grp2)
   path <- gedit(container = grp2, width=50)
   addHandlerFocus(path, handler = function(h, ...) if(nchar(svalue(h$obj)) == 0) {
-    svalue(h$obj) <- sub("\\.git$", "", sub(".*/", "", svalue(url)))
+    svalue(h$obj) <- sub("\\.git$", "", sub(".*(:|/)", "", svalue(url)))
   })
   t <- new("choice")
   dialog <- gbasicdialog("Add submodule", parent=obj$w,
