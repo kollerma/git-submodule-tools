@@ -221,7 +221,7 @@ gitLsFiles <- function(dir=getwd(),
     ## remove tag, mode and file
     tmp = sub("^[^ ]*? ?\\d{6} (.*?)\\t.*$", "\\1", res)
     res <- data.frame(tag = sub("^([^ ]*?) ?\\d{6}.*", "\\1", res),
-                      mode = sub(".*?(\\d{6}).*", "\\1", res),
+                      mode = sub(".*?(\\d{6}) .*", "\\1", res),
                       object = sub(" \\d*", "", tmp),
                       stage = sub(".* (\\d*)", "\\1", tmp),
                       file = sub(".*\\t", "", res),
