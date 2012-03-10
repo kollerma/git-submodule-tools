@@ -79,7 +79,6 @@ setRefClass("choice",
 ##' @param string to escape
 ##' @return escaped string
 escape <- function(string) {
-  ## FIXME: escape all non ascii codes as well
   gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", string)))
 }
 
@@ -162,8 +161,10 @@ showInfo <- function(action) {
 ##' @param dir repository directory
 ##' @param obj gitManager object
 showGitLog <- function(dir, obj) {
-  message <- gitLog(dir)
-  showMessageNewWindow(escape(message), title=paste("Git log of", dir),
+  message <- escape(gitLog(dir))
+  ## format log
+  message <- sub("^(commit [a-z0-9]+)$", '<span foreground="brown">\\1</span>', message)
+  showMessageNewWindow(message, title=paste("Git log of", dir),
                        use.scrollwindow=TRUE, obj=obj)
 }
 
