@@ -97,14 +97,16 @@ genContextMenulist <- function(obj) {
   mode <- sel$model$getValue(sel$iter, 2)$value
   staged <- sel$model$getValue(sel$iter, 3)$value
   modified <- sel$model$getValue(sel$iter, 4)$value
+  status <- sel$model$getValue(sel$iter, 7)$value
   action <- list(obj=obj, path=path, filename=filename,
-                 mode=mode, staged=staged, modified=modified)
+                 mode=mode, staged=staged, modified=modified,
+                 status = status)
   
   menulist <- "Open"
   if (!is.na(mode) && mode != 0)
     menulist <- c(menulist, "Delete")
   if (is.na(mode)) { ## an untracked file
-    menulist <- c(menulist, "Ignore", "Delete")
+    menulist <- c(menulist, "Ignore", "Delete", "Move")
   }
   if (is.na(mode) || (modified && mode != 0)) { ## a modified or untracked file
     menulist <- c(menulist, "Add")
@@ -196,6 +198,8 @@ menu <- function(type, h, ...) {
                 LastGitOutput = showGitOutput(obj),
                 Log = showGitLog(path, obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
+                Move = ginput("Please enter new name", text=h$action$filename,
+                  title="Move", icon="question", parent=obj$w),
                 Refresh = obj$status("Refreshing..."),
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
                 Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
@@ -209,7 +213,7 @@ menu <- function(type, h, ...) {
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
   if (type %in% c("Quit", "LastGitOutput", "Log", "Info")) return()
-  if (!is.null(val) && is.logical(val) && !val) {
+  if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()
   }
@@ -234,8 +238,12 @@ menu <- function(type, h, ...) {
                 Delete = {
                   obj$status("Removing", rpath, "...")
                   switch(as.character(h$action$mode),
-                         `40000`=,
-                         `NA`= try(unlink(path, recursive=TRUE)),
+                         `40000`= { ## remove only untracked dir by unlink()
+                           if (grepl(gitStatus2Str("??"), h$action$status))
+                             try(unlink(path, recursive=TRUE))
+                           else gitRm(h$action$filename, dir, recursive=TRUE)
+                           },
+                         `NA`= try(unlink(path)),
                          `160000`= { ## submodule
                            gitSubmoduleRm(h$action$filename, dir)
                          }, ## else
@@ -244,6 +252,27 @@ menu <- function(type, h, ...) {
                 },
                 Ignore = gitIgnore(path),
                 LongTest = systemWithSleep("sleep", "10"),
+                Move = {
+                  if (val == h$action$file) {
+                    obj$status("Aborted")
+                    return()
+                  } else if (file.exists(paste(dir, val, sep="/"))) {
+                    try(stop("Error, file '", val, "' exists already"))
+                  } else {
+                    obj$status(sprintf("Moving '%s' to '%s'...", h$action$filename, val))
+                    switch(as.character(h$action$mode),
+                           `40000`= { ## move only untracked dir by file.rename()
+                             if (grepl(gitStatus2Str("??"), h$action$status))
+                               try(file.rename(path,paste(dir, val, sep="/")))
+                             else gitMv(h$action$filename, val, dir)
+                           },
+                           `NA` = try(file.rename(path,paste(dir, val, sep="/"))),
+                           `160000`= { ## submodule
+                             gitSubmoduleMv(h$action$filename, val, dir)
+                           }, ## else
+                           gitMv(h$action$filename, val, dir))
+                  }
+                },
                 Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
                 Rpush = gitSystemLong("rpush", path),
@@ -255,7 +284,7 @@ menu <- function(type, h, ...) {
                   if (val == 0) obj$status("Reset file", h$action$file, "sucessfully in", dir)
                   else obj$status("Error resetting file", h$action$file, "in", dir)
                   })
-  if (!is.null(ret) && is.character(ret)) obj$lastout <- ret
+  if (!is.null(ret) && is.character(ret)) obj$lastout <- ret[]
   ## catch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
     showMessage("<b>Git Error</b>\n",
@@ -280,8 +309,9 @@ menu <- function(type, h, ...) {
          },
          Ignore = obj$status("Added", rpath, "to .gitignore"),
          LongTest = obj$status("Test successful."),
+         Move = obj$status(sprintf("Moved '%s' to '%s' successfully.", h$action$filename, val)),
          Refresh = obj$status("Refreshed."),
-         Rfetch = obj$status("Rfetch in", rpath, "sucessfully finished."),
+         Rfetch = obj$status("Rfetch in", rpath, "successfully finished."),
          Rpull = obj$status("Rpull in", rpath, "successfully finished."),
          Rpush = obj$status("Rpush in", rpath, "successfully finished."),
          Rcheckout = obj$status("Rcheckout successful."))

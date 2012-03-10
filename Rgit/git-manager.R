@@ -53,6 +53,16 @@ readRepo <- function(dir=getwd()) {
     files$status[idx2] <- status$XY[idx1]
     files$was[idx2] <- status$was[idx1]
   }
+  ## add status for directories
+  for (dir in dirs) {
+    statuses <- subset(files, directory == dir)$status
+    ## if a directory only contains untracked files, mark it as untracked
+    if (all(statuses == "??"))
+      files$status[files$file == dir] <- "??"
+    ## if a directory contains only renamed files, mark it as renamed
+    if (all(grepl("R.", statuses)))
+      files$status[files$file == dir] <- "R "
+  }
   ## sort by directory, filename
   if (nrow(files) > 1) files <- files[with(files, mixedorder(file)),]
   ## remove directory from filename
@@ -92,6 +102,7 @@ offspring <- function(path, user.data, ...) {
                                 sep = .Platform$file.sep), gitBranch)
   ## get Status
   Status <- gitStatus2Str(files$status)
+  print(Status)
   Staged <- grepl("(to|in) index", Status)
   Modified <- grepl("in work tree", Status)
   if (any(idx))

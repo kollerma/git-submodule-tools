@@ -128,9 +128,9 @@ gitStatus <- function(dir=getwd(),
   status <- gitSystem(args, dir)
   ## filter
   if (nchar(rdir) > 0) {
-    filter <- sprintf(" %s/", rdir)
+    filter <- sprintf("( |\")%s/", rdir)
     status <- grep(filter, status, value=TRUE)
-    status <- gsub(filter, " ", status)
+    status <- gsub(filter, "\\1", status)
   }
   if (length(status) == 0) return(data.frame())
   ## convert into data.frame
@@ -420,9 +420,10 @@ gitUnadd <- function(file, dir) {
 ##' Delete a file from the work tree.
 ##' @param file file to delete
 ##' @param dir repository directory
+##' @param recursive remove recursively
 ##' @return exit code
-gitRm <- function(file, dir) {
-  gitSystem(c("rm", shQuote(file)), dir, statusOnly=TRUE)
+gitRm <- function(file, dir, recursive=FALSE) {
+  gitSystem(c("rm", shQuote(file), if (recursive) "-r" else c()), dir, statusOnly=TRUE)
 }
 
 ##' Git add submodule
@@ -446,6 +447,17 @@ gitSubmoduleRm <- function(path, dir) {
   gitSystemLong(c("rm-submodule", shQuote(path)), dir)
 }
 
+##' Git mv submodule
+##'
+##' Move a submodule.
+##' @param source from
+##' @param destination to
+##' @param repository directory
+##' @return git output
+gitSubmoduleMv <- function(source, dest, dir) {
+  gitSystemLong(c("mv-submodule", shQuote(source), shQuote(dest)), dir)
+}
+
 ##' Get repository root
 ##'
 ##' Returns the toplevel directory of the given repository.
@@ -463,6 +475,16 @@ gitIgnore <- function(path) {
   dir <- if (file.info(path)$isdir) path else sub("[^/]*$", "", path)
   tl <- gitToplevel(dir)
   try(cat("\n",sub(dir, "", path), file=paste(tl, ".gitignore", sep="/"), append=TRUE,sep=""))
+}
+
+##' Git mv
+##'
+##' Move a file or a directory
+##' @param source from
+##' @param destination to
+##' @param dir repository directory
+gitMv <- function(source, dest, dir) {
+  gitSystem(c("mv", shQuote(source), shQuote(dest)), dir)
 }
 
 ##' Get a list of targets from a Makefile
