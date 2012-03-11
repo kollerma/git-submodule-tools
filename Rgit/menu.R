@@ -202,6 +202,7 @@ menu <- function(type, h, ...) {
                   title="Move", icon="question", parent=obj$w),
                 Open = system2("open", path, wait=FALSE), ## FIXME: not portable
                 Refresh = obj$status("Refreshing..."),
+                Reset = showGitReset(obj),
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
                 Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
                 Rpush = obj$status("Running 'git rpush' in", rpath, "..."),
@@ -274,6 +275,10 @@ menu <- function(type, h, ...) {
                            gitMv(h$action$filename, val, dir))
                   }
                 },
+                Reset = {
+                  obj$status("Resetting", rpath, "to", val["commit"], "...")
+                  gitReset(val["commit"], val["mode"], path)
+                },
                 Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
                 Rpush = gitSystemLong("rpush", path),
@@ -312,6 +317,7 @@ menu <- function(type, h, ...) {
          LongTest = obj$status("Test successful."),
          Move = obj$status(sprintf("Moved '%s' to '%s' successfully.", h$action$filename, val)),
          Refresh = obj$status("Refreshed."),
+         Reset = obj$status("Reset successful."),
          Rfetch = obj$status("Rfetch in", rpath, "successfully finished."),
          Rpull = obj$status("Rpull in", rpath, "successfully finished."),
          Rpush = obj$status("Rpush in", rpath, "successfully finished."),

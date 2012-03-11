@@ -186,3 +186,25 @@ showGitOutput <- function(obj) {
               paste("\n<b>Exit code:</b>", attr(obj$lastout, "exitcode")))
   showMessageNewWindow(output, title="Last git output", obj=obj)
 }
+
+##' Display reset dialog
+##'
+##' Displays dialog to choose how to call git reset.
+##' @param obj gitManager object
+showGitReset <- function(obj) {
+  grp <- ggroup(horizontal=FALSE)
+  glabel("Please enter commit to reset HEAD to.", container=grp)
+  lay <- glayout(container=grp)
+  lay[1,1] <- "Commit:"
+  lay[1,2] <- gedit("HEAD~1", container=lay)
+  lay[2,1] <- "Mode:"
+  lay[2,2] <- gdroplist(c("soft", "mixed", "hard", "merge", "keep"), selected=1,
+                        container=lay)
+  t <- new("choice")
+  dialog <- gbasicdialog("Reset HEAD", parent=obj$w,
+                         handler = function(...)
+                         t$choice <- c(commit=svalue(lay[1,2]), mode=svalue(lay[2,2])))
+  add(dialog, grp)
+  test <- visible(dialog, set=TRUE)
+  if (test) return(t$choice) else return(FALSE) 
+}

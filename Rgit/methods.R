@@ -415,6 +415,21 @@ gitUnadd <- function(file, dir) {
   gitSystem(c("reset -q HEAD", shQuote(file)), dir, statusOnly=TRUE)
 }
 
+##' Git reset
+##'
+##' Reset current branch HEAD to \code{commit} and possibly
+##' updates the index and work-tree depending on \code{mode}.
+##' @param commit to reset HEAD to
+##' @param mode of reset
+##' @param dir repository directory
+##' @param git output
+gitReset <- function(commit, mode = c("soft", "mixed", "hard", "merge", "keep"),
+                     dir) {
+  mode <- match.arg(mode)
+  ## using gitSystemLong to get better error handling
+  gitSystemLong(c("reset", paste("--", mode, sep=""), commit), dir)
+}
+
 ##' Git rm
 ##'
 ##' Delete a file from the work tree.
