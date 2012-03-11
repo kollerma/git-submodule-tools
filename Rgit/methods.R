@@ -412,7 +412,7 @@ gitAdd <- function(file, dir) {
 ##' @param dir repository directory
 ##' @return exit code
 gitUnadd <- function(file, dir) {
-  gitSystem(c("reset HEAD", shQuote(file)), dir, statusOnly=TRUE)
+  gitSystem(c("reset -q HEAD", shQuote(file)), dir, statusOnly=TRUE)
 }
 
 ##' Git rm

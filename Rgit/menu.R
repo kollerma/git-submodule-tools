@@ -200,6 +200,7 @@ menu <- function(type, h, ...) {
                 LongTest = obj$status("Calling systemWithSleep..."),
                 Move = ginput("Please enter new name", text=h$action$filename,
                   title="Move", icon="question", parent=obj$w),
+                Open = system2("open", path, wait=FALSE), ## FIXME: not portable
                 Refresh = obj$status("Refreshing..."),
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
                 Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
@@ -212,7 +213,7 @@ menu <- function(type, h, ...) {
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
-  if (type %in% c("Quit", "LastGitOutput", "Log", "Info")) return()
+  if (type %in% c("Quit", "LastGitOutput", "Log", "Info", "Open")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()
@@ -281,7 +282,7 @@ menu <- function(type, h, ...) {
                   gitSystemLong(paste("rcheckout", val), path)
                 },
                 Unadd = {
-                  if (val == 0) obj$status("Reset file", h$action$file, "sucessfully in", dir)
+                  if (val == 0) obj$status("Reset file", h$action$file, "successfully in", dir)
                   else obj$status("Error resetting file", h$action$file, "in", dir)
                   })
   if (!is.null(ret) && is.character(ret)) obj$lastout <- ret[]
