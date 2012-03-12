@@ -167,7 +167,7 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
   }
 }
 
-##' gitManager reference class
+##' gitR reference class
 ##'
 ##' Contains all information about a git manager window.
 ##' @slot path directory containing repository
@@ -181,7 +181,7 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' @slot s gStatus
 ##' @slot position window position
 ##' @slot lastout output of last git command
-setRefClass("gitManager",
+setRefClass("gitR",
             fields = list(
               path = "character",
               repo = "character",
@@ -244,11 +244,11 @@ setRefClass("gitManager",
 ##' Opens the window, adds all gui elements and
 ##' handlers.
 ##' @param path path to repo
-##' @return gitManager object
+##' @return gitR object
 createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
-  w <- gwindow("git manager", visible=FALSE)
-  obj <- new("gitManager", w=w,
+  w <- gwindow("gitR", visible=FALSE)
+  obj <- new("gitR", w=w,
              path = sub("(.*)/[^/]+/?$", "\\1", path),
              repo = sub(".*/([^/]+)/?$", "\\1", path))
   ## add basic menu

@@ -70,7 +70,7 @@
 ##' Generate menulist for regular menu
 ##'
 ##' File menu, etc
-##' @param obj gitManager object
+##' @param obj gitR object
 genMenulist <- function(obj) {
   action <- list(obj=obj)
   list(File=.genMenulist(c("Open another repository", "Refresh", "Quit"), action),
@@ -88,7 +88,7 @@ genToolbar <- function(obj) {
 ##' Generate menulist for context menu
 ##'
 ##' Depending on type of file, generate a different context menu.
-##' @param obj gitManager object
+##' @param obj gitR object
 genContextMenulist <- function(obj) {
   tr <- obj$tr
   path <- paste(tr[], collapse=.Platform$file.sep)

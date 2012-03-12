@@ -9,7 +9,7 @@
 ##' @param title of window
 ##' @param icon to show
 ##' @param handler (optional) handler to attach to the ok button
-##' @param obj gitManager object
+##' @param obj gitR object
 showMessageNewWindow <- function(..., title = "Message", icon="info",
                                  use.scrollwindow = FALSE, resizable = use.scrollwindow,
                                  handler=function(h,...) dispose(window),
@@ -57,7 +57,7 @@ showMessageNewWindow <- function(..., title = "Message", icon="info",
 ##' Shows a dbraialog while blocking the input to the parent window.
 ##' @param ... marked up message to display
 ##' @param type of message, e.g., "info", "error", ...
-##' @param obj gitManager object
+##' @param obj gitR object
 showMessage <- function(..., type = "info", obj = obj) {
   dialog <- gtkMessageDialogNewWithMarkup(obj$getWindow(),
                                           "destroy-with-parent",
@@ -90,7 +90,7 @@ escape <- function(string) {
 ##'
 ##' Displays the dialog for adding submodules and
 ##' returns the url and the path of the submodules.
-##' @param obj gitManager object
+##' @param obj gitR object
 ##' @param where to be put into title.
 ##' @return vector with url and path (or NULL if cancelled)
 showAddSubmodule <- function(obj, where) {
@@ -120,7 +120,7 @@ showAddSubmodule <- function(obj, where) {
 ##' Displays a tree view with two branches:
 ##' branches and tags.
 ##' @param dir repository directory
-##' @param obj gitManager obj
+##' @param obj gitR obj
 ##' @param where to be put into title.
 ##' @return selected branch or NULL (on cancel)
 selectBranchTag <- function(dir, obj, where) {
@@ -161,7 +161,7 @@ showInfo <- function(action) {
 ##'
 ##' Displays a nicely formatted git log in a separate window
 ##' @param dir repository directory
-##' @param obj gitManager object
+##' @param obj gitR object
 showGitLog <- function(dir, obj) {
   message <- escape(gitLog(dir))
   ## format log
@@ -174,7 +174,7 @@ showGitLog <- function(dir, obj) {
 ##'
 ##' Displays the output of the last git command in
 ##' a separate window.
-##' @param obj gitManager object
+##' @param obj gitR object
 showGitOutput <- function(obj) {
   if (length(obj$lastout) == 0 && is.null(attributes(obj$lastout))) {
     showMessage("No git output available yet.", obj=obj)
@@ -192,7 +192,7 @@ showGitOutput <- function(obj) {
 ##' Display reset dialog
 ##'
 ##' Displays dialog to choose how to call git reset.
-##' @param obj gitManager object
+##' @param obj gitR object
 ##' @param where to be put into title.
 showGitReset <- function(obj, where) {
   grp <- ggroup(horizontal=FALSE)
@@ -216,7 +216,7 @@ showGitReset <- function(obj, where) {
 ##' Display commit dialog
 ##'
 ##' Enter a commit message and commit options.
-##' @param obj gitManager object
+##' @param obj gitR object
 ##' @param where to be put into title.
 showGitCommit <- function(obj, where) {
   grp <- ggroup(horizontal=FALSE)
