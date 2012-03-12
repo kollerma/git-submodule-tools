@@ -200,6 +200,13 @@ menu <- function(type, h, ...) {
                 LastGitOutput = showGitOutput(obj),
                 Log = showGitLog(path, obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
+                Make = {
+                  obj$status("Running make", h$action$target,"in the background.")
+                  ldir <- getwd()
+                  setwd(if (file.info(path)$isdir) path else dir)
+                  system2("make", args=h$action$target, wait=FALSE)
+                  setwd(ldir)
+                },
                 Move = ginput("Please enter new name", text=h$action$filename,
                   title="Move", icon="question", parent=obj$w),
                 Open = system2("open", path, wait=FALSE), ## FIXME: not portable
@@ -217,7 +224,7 @@ menu <- function(type, h, ...) {
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
-  if (type %in% c("Quit", "LastGitOutput", "Log", "Info", "Open")) return()
+  if (type %in% c("Quit", "LastGitOutput", "Log", "Info", "Open", "Make")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()
