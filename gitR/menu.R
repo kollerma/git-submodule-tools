@@ -6,7 +6,10 @@
 ##' @param action action list to append to the actions
 ##' @return list that can be used in gmenu, etc.
 .genMenulist <- function(what, action)
-  list(Add=gaction("Add", tooltip = "Add to staging area",
+  list(`About gitR`=gaction("About gitR", tooltip = "About gitR",
+         icon = "about",
+         handler = function(...) menu("About", ...), action = action),
+       Add=gaction("Add", tooltip = "Add to staging area",
          icon = "add",
          handler = function(...) menu("Add", ...), action = action),
        `Add submodule`=gaction("Add submodule", tooltip = "Add a submodule",
@@ -74,7 +77,7 @@
 genMenulist <- function(obj) {
   action <- list(obj=obj)
   list(File=.genMenulist(c("Open another repository", "Refresh", "Quit"), action),
-       Help=.genMenulist(c("Last git output"), action))
+       Help=.genMenulist(c("Last git output", "About gitR"), action))
 }
 
 ##' Generate menulist for toolbar
@@ -181,6 +184,7 @@ menu <- function(type, h, ...) {
   ## and set the status for all other
   status <- "Aborted"
   val <- switch(type,
+                About = showAbout(obj),
                 Add = gitAdd(h$action$file, dir),
                 AddSubmodule = showAddSubmodule(obj, rpath),
                 Clean = {
@@ -231,7 +235,7 @@ menu <- function(type, h, ...) {
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
-  if (type %in% c("Quit", "LastGitOutput", "Log", "Info", "Open", "Make")) return()
+  if (type %in% c("About", "Quit", "LastGitOutput", "Log", "Info", "Open", "Make")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()

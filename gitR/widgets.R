@@ -212,7 +212,6 @@ showGitReset <- function(obj, where) {
   if (test) return(t$choice) else return(FALSE) 
 }
 
-
 ##' Display commit dialog
 ##'
 ##' Enter a commit message and commit options.
@@ -238,4 +237,17 @@ showGitCommit <- function(obj, where) {
   out$all <- as.logical(t$choice["all"])
   out$recursive <- as.logical(t$choice["rrecursive"])
   if (test) return(out) else return(FALSE)
+}
+
+##' About gitR
+##'
+##' Show about gitR window.
+##' @param obj gitR object
+showAbout <- function(obj) {
+  showMessageNewWindow("<b>About gitR</b>
+
+gitR is an open-source graphical git client with focus on active development in submodules.
+
+Licence: GPL v2
+Copyright (c) 2012 Manuel Koller", title="About gitR")
 }
