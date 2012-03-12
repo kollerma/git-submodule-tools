@@ -69,6 +69,13 @@ showMessage <- function(..., type = "info", obj = obj) {
   dialog$destroy()
 }
 
+##' Choice
+##'
+##' Simple reference class to retrieve input in a dialog box
+##' more easily.
+##' @name choice-class
+##' @rdname choice-class
+##' @slot choice character vector of input
 setRefClass("choice",
             fields = list(choice = "character"))
 

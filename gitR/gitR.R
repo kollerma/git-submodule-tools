@@ -170,6 +170,8 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' gitR reference class
 ##'
 ##' Contains all information about a git manager window.
+##' @name gitR-class
+##' @rdname gitR-class
 ##' @slot path directory containing repository
 ##' @slot repo name of repository
 ##' @slot w gWindow
@@ -245,6 +247,7 @@ setRefClass("gitR",
 ##' handlers.
 ##' @param path path to repo
 ##' @return gitR object
+##' @export
 createGUI <- function(path=getwd()) {
   ## open the window, add a gtree, add handlers
   w <- gwindow("gitR", visible=FALSE)
