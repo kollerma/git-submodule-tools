@@ -91,8 +91,9 @@ escape <- function(string) {
 ##' Displays the dialog for adding submodules and
 ##' returns the url and the path of the submodules.
 ##' @param obj gitManager object
+##' @param where to be put into title.
 ##' @return vector with url and path (or NULL if cancelled)
-showAddSubmodule <- function(obj) {
+showAddSubmodule <- function(obj, where) {
   grp <- ggroup(horizontal = FALSE)
   glabel("Please enter the submodule url and the path where it should be added.",
          container = grp)
@@ -107,7 +108,7 @@ showAddSubmodule <- function(obj) {
     svalue(h$obj) <- sub("\\.git$", "", sub(".*(:|/)", "", svalue(url)))
   })
   t <- new("choice")
-  dialog <- gbasicdialog("Add submodule", parent=obj$w,
+  dialog <- gbasicdialog(paste("Add submodule in", where), parent=obj$w,
                          handler = function(...) t$choice <- c(url=svalue(url), path=svalue(path)))
   add(dialog, grp)
   test <- visible(dialog, set=TRUE)
@@ -120,8 +121,9 @@ showAddSubmodule <- function(obj) {
 ##' branches and tags.
 ##' @param dir repository directory
 ##' @param obj gitManager obj
+##' @param where to be put into title.
 ##' @return selected branch or NULL (on cancel)
-selectBranchTag <- function(dir, obj) {
+selectBranchTag <- function(dir, obj, where) {
   branches <- gitListBranches(dir, remote=TRUE)
   active = attr(branches, "active")
   if (length(branches) > 1) branches <- mixedsort(branches)
@@ -135,7 +137,7 @@ selectBranchTag <- function(dir, obj) {
                selected = which(branches == active),
                container=scrollwindow, expand=TRUE)
   sel <- new("choice")
-  ret <- gbasicdialog(title="Rcheckout", widget=gp, parent=obj$w,
+  ret <- gbasicdialog(title=paste("Rcheckout in", where), widget=gp, parent=obj$w,
                       handler = function(h, ...) sel$choice <- svalue(rb))
   if (ret) return(sel$choice) else return(FALSE)
 }
@@ -191,7 +193,8 @@ showGitOutput <- function(obj) {
 ##'
 ##' Displays dialog to choose how to call git reset.
 ##' @param obj gitManager object
-showGitReset <- function(obj) {
+##' @param where to be put into title.
+showGitReset <- function(obj, where) {
   grp <- ggroup(horizontal=FALSE)
   glabel("Please enter commit to reset HEAD to.", container=grp)
   lay <- glayout(container=grp)
@@ -201,10 +204,38 @@ showGitReset <- function(obj) {
   lay[2,2] <- gdroplist(c("soft", "mixed", "hard", "merge", "keep"), selected=1,
                         container=lay)
   t <- new("choice")
-  dialog <- gbasicdialog("Reset HEAD", parent=obj$w,
+  dialog <- gbasicdialog(paste("Reset HEAD in", where), parent=obj$w,
                          handler = function(...)
                          t$choice <- c(commit=svalue(lay[1,2]), mode=svalue(lay[2,2])))
   add(dialog, grp)
   test <- visible(dialog, set=TRUE)
   if (test) return(t$choice) else return(FALSE) 
+}
+
+
+##' Display commit dialog
+##'
+##' Enter a commit message and commit options.
+##' @param obj gitManager object
+##' @param where to be put into title.
+showGitCommit <- function(obj, where) {
+  grp <- ggroup(horizontal=FALSE)
+  glabel("Please enter a commit message.", container=grp)
+  msg <- gtext(height=100, expand=TRUE, container=grp)
+  all <- gcheckbox("Automatically stage modified and delete files.",
+                   checked=TRUE, container=grp)
+  rec <- gcheckbox("Commit recursively in any submodules.",
+                   checked=TRUE, container=grp)
+  t <- new("choice")
+  dialog <- gbasicdialog(paste("Commit in", where), parent=obj$w,
+                         handler = function(...)
+                         t$choice <- c(message=svalue(msg), all=svalue(all),
+                                       rrecursive=svalue(rec)))
+  add(dialog, grp)
+  test <- visible(dialog, set=TRUE)
+  out <- list()
+  out$message <- unname(t$choice["message"])
+  out$all <- as.logical(t$choice["all"])
+  out$recursive <- as.logical(t$choice["rrecursive"])
+  if (test) return(out) else return(FALSE)
 }

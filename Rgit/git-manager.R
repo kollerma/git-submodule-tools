@@ -102,7 +102,6 @@ offspring <- function(path, user.data, ...) {
                                 sep = .Platform$file.sep), gitBranch)
   ## get Status
   Status <- gitStatus2Str(files$status)
-  print(Status)
   Staged <- grepl("(to|in) index", Status)
   Modified <- grepl("in work tree", Status)
   if (any(idx))

@@ -15,6 +15,9 @@
        Clean=gaction("Clean", tooltip = "Remove untracked files",
          icon = "clear",
          handler = function(...) menu("Clean", ...), action = action),
+       Commit=gaction("Commit", tooltip = "Commit (recursively)",
+         icon = "apply",
+         handler = function(...) menu("Commit", ...), action = action),
        Delete=gaction("Delete", tooltip = "Delete in work tree",
          icon = "delete",
          handler = function(...) menu("Delete", ...), action = action),
@@ -48,9 +51,6 @@
        Rcheckout=gaction("Rcheckout",
          tooltip = "Checkout another branch/tag",
          handler=function(...) menu("Rcheckout", ...), action = action),
-       Rcommit=gaction("Rcommit", tooltip = "Commit, recursively",
-         icon = "apply",
-         handler = function(...) menu("Rcommit", ...), action = action),
        Rfetch=gaction("Rfetch", tooltip = "Fetch updates from server",
          icon = "goto-bottom",
          handler = function(...) menu("Rfetch", ...), action=action),
@@ -80,7 +80,7 @@ genMenulist <- function(obj) {
 ##' Toolbar with repo wide tasks
 genToolbar <- function(obj) {
   action <- list(obj=obj)
-  .genMenulist(c("Rfetch", "Rpull", "Rpush", "Refresh", "Quit"), action)
+  .genMenulist(c("Commit", "Rfetch", "Rpull", "Rpush", "Refresh", "Quit"), action)
 }
 
 ##' Generate menulist for context menu
@@ -103,32 +103,34 @@ genContextMenulist <- function(obj) {
                  status = status)
   
   menulist <- "Open"
-  if (!is.na(mode) && mode != 0)
-    menulist <- c(menulist, "Delete")
   if (is.na(mode)) { ## an untracked file
-    menulist <- c(menulist, "Ignore", "Delete", "Move")
+    menulist <- c(menulist, "Add", "Ignore", "Delete", "Move")
   }
-  if (is.na(mode) || (modified && mode != 0)) { ## a modified or untracked file
+  if (is.na(mode) && (modified && mode != 0)) { ## a modified file or submodule
     menulist <- c(menulist, "Add")
   }
   if (!is.na(mode) && mode != 0) { ## a tracked file
     if (staged) {
       menulist <- c(menulist, "Unadd")
     }
+  }
+  if (!is.na(mode) && mode %in% c(0, 160000)) { ## repo or submodule
+    if (modified) {
+      menulist <- c(menulist, "Commit")
+    }
+    menulist <- c(menulist, "Rpull", "Rpush", "Rcheckout", "Clean")
+  }
+  if (!is.na(mode) && mode != 0) { ## a tracked file
     if (modified) {
       menulist <- c(menulist, "Reset")
     }
-    menulist <- c(menulist, "Move")
-  }
-  if (!is.na(mode) && mode %in% c(0, 160000)) { ## repo or submodule
-    menulist <- c(menulist, "Rpull", "Rpush")
-    if (modified && mode != 0) {
-      menulist <- c(menulist, "Rcommit")
-    }
-    menulist <- c(menulist, "Rcheckout", "Clean", "Log", "Info")
+    menulist <- c(menulist, "Move", "Delete")
   }
   if (!is.na(mode) && (mode %in% c(0, 160000, 40000)))
     menulist <- c(menulist, "Add submodule")
+  if (!is.na(mode) && mode %in% c(0, 160000)) { ## repo or submodule
+    menulist <- c(menulist, "Log", "Info")
+  }
   menulist <- .genMenulist(menulist, action)
   ## try to find a Makefile
   if (!is.na(mode) && (mode %in% c(0, 160000, 40000))) {
@@ -178,7 +180,7 @@ menu <- function(type, h, ...) {
   status <- "Aborted"
   val <- switch(type,
                 Add = gitAdd(h$action$file, dir),
-                AddSubmodule = showAddSubmodule(obj),
+                AddSubmodule = showAddSubmodule(obj, rpath),
                 Clean = {
                   msg <- gitSystem("clean -n -d", path)
                   if (length(msg) > 0) {
@@ -202,14 +204,15 @@ menu <- function(type, h, ...) {
                   title="Move", icon="question", parent=obj$w),
                 Open = system2("open", path, wait=FALSE), ## FIXME: not portable
                 Refresh = obj$status("Refreshing..."),
-                Reset = showGitReset(obj),
+                Reset = showGitReset(obj, rpath),
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
                 Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
                 Rpush = obj$status("Running 'git rpush' in", rpath, "..."),
                 Rcheckout = {
                   obj$status("Select branch or tag to checkout...")
-                  selectBranchTag(path, obj)
+                  selectBranchTag(path, obj, rpath)
                 },
+                Commit = showGitCommit(obj, rpath),
                 Quit = dispose(obj$w),
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
@@ -236,6 +239,10 @@ menu <- function(type, h, ...) {
                 Clean = {
                   obj$status("Running git clean...")
                   gitSystemLong("clean -d -f -f", path)
+                },
+                Commit = {
+                  obj$status("Running git rcommit...")
+                  gitCommit(val$message, dir, all=t$all, recursive=t$recursive)
                 },
                 Delete = {
                   obj$status("Removing", rpath, "...")
@@ -313,6 +320,7 @@ menu <- function(type, h, ...) {
            (ret == 0 || !is.null(attr(ret, "exitcode")))) {
            obj$status("Removed", rpath, "successfully.")
          },
+         Commit = obj$status("Commit successful."),
          Ignore = obj$status("Added", rpath, "to .gitignore"),
          LongTest = obj$status("Test successful."),
          Move = obj$status(sprintf("Moved '%s' to '%s' successfully.", h$action$filename, val)),
