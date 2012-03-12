@@ -502,6 +502,19 @@ gitMv <- function(source, dest, dir) {
   gitSystem(c("mv", shQuote(source), shQuote(dest)), dir)
 }
 
+##' Git commit
+##'
+##' Commit (recursively) in directory.
+##' @param msg commit message
+##' @param dir repository directory
+##' @param all whether to commit all modified and deleted files.
+##' @param recursive whether to commit in all submodules as well.
+gitCommit <- function(msg, dir, all=FALSE, recursive=FALSE) {
+  gitSystemLong(c(if (recursive) "rcommit" else "commit",
+                  if (all) "--all" else c(),
+                  "-m", shQuote(msg)), dir)
+}
+
 ##' Get a list of targets from a Makefile
 ##'
 ##' Reads the makefile and returns a vector of targets.

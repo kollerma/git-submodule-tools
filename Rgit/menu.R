@@ -39,6 +39,8 @@
        Open=gaction("Open", tooltip = "Open using external program",
            icon = "open",
          handler = function(...) menu("Open", ...), action = action),
+       `Open another repository`=gaction("Open another repository", icon = "open",
+         handler = function(...) menu("OpenRepo", ...), action = action),
        Quit = gaction("Quit", tooltip = "Quit git manager",
          icon = "quit",
          handler = function(...) menu("Quit", ...), action = action),
@@ -71,8 +73,8 @@
 ##' @param obj gitManager object
 genMenulist <- function(obj) {
   action <- list(obj=obj)
-  list(File=.genMenulist(c("Refresh", "Quit"), action),
-       Debug=.genMenulist(c("LongCMD", "Last git output"), action))
+  list(File=.genMenulist(c("Open another repository", "Refresh", "Quit"), action),
+       Help=.genMenulist(c("Last git output"), action))
 }
 
 ##' Generate menulist for toolbar
@@ -106,10 +108,10 @@ genContextMenulist <- function(obj) {
   if (is.na(mode)) { ## an untracked file
     menulist <- c(menulist, "Add", "Ignore", "Delete", "Move")
   }
-  if (is.na(mode) && (modified && mode != 0)) { ## a modified file or submodule
-    menulist <- c(menulist, "Add")
-  }
-  if (!is.na(mode) && mode != 0) { ## a tracked file
+  if (!is.na(mode) && mode != 0) { ## a tracked file or submodule
+    if (modified) {
+      menulist <- c(menulist, "Add")
+    }
     if (staged) {
       menulist <- c(menulist, "Unadd")
     }
@@ -172,7 +174,7 @@ genContextMenulist <- function(obj) {
 menu <- function(type, h, ...) {
   obj <- h$action$obj
   #str(h$action, 1)
-  rpath <- if (is.null(h$action$path)) gui$repo else h$action$path
+  rpath <- if (is.null(h$action$path)) obj$repo else h$action$path
   path <- obj$absPath(rpath)
   dir <- sub("[^/]*$", "", path)
   ## first treat types that do not require a loading animation,
@@ -210,6 +212,11 @@ menu <- function(type, h, ...) {
                 Move = ginput("Please enter new name", text=h$action$filename,
                   title="Move", icon="question", parent=obj$w),
                 Open = system2("open", path, wait=FALSE), ## FIXME: not portable
+                OpenRepo = {
+                  dir <- gfile("Select repository to open.", type="selectdir",
+                               parent=obj$w)
+                  createGUI(dir)
+                },
                 Refresh = obj$status("Refreshing..."),
                 Reset = showGitReset(obj, rpath),
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
@@ -249,7 +256,7 @@ menu <- function(type, h, ...) {
                 },
                 Commit = {
                   obj$status("Running git rcommit...")
-                  gitCommit(val$message, dir, all=t$all, recursive=t$recursive)
+                  gitCommit(val$message, path, all=val$all, recursive=val$recursive)
                 },
                 Delete = {
                   obj$status("Removing", rpath, "...")
