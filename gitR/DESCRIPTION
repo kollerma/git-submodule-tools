@@ -1,0 +1,21 @@
+Package: gitR
+Type: Package
+Title: Graphical git interface with focus on submodules
+Version: 1.0
+Date: 2012-03-12
+Author: Manuel Koller
+Maintainer: Manuel Koller <koller.manuel@gmail.com>
+Description: More about what it does (maybe more than one line)
+License: GPL v2
+Depends:
+    methods,
+    gWidgets,
+    gWidgetsRGtk2,
+    gtools,
+    RGtk2
+Collate:
+    'gitR.R'
+    'gWidgetsRGtk2-hacks.R'
+    'menu.R'
+    'methods.R'
+    'widgets.R'
