@@ -7,6 +7,7 @@
 ##' @param statusOnly only check the status of the command
 ##' @param stopOnError whether to stop on error
 ##' @return vector of output
+##' @export
 gitSystem <- function(args, dir, statusOnly=FALSE, stopOnError=!statusOnly) {
   ## preserve working directory
   if (!missing(dir)) {
@@ -44,6 +45,7 @@ gitSystem <- function(args, dir, statusOnly=FALSE, stopOnError=!statusOnly) {
 ##' @param separateStderr whether to separate stderr from stdout
 ##' @return vector of strings (stdout) with attribute exitcode that contains
 ##'   the exit code of the cmd and stderr attribute (if not separated).
+##' @export
 systemWithSleep <- function(cmd, args = c(), env = c(), separateStderr = TRUE) {
     outfile <- tempfile()
     errfile <- if (separateStderr) tempfile() else c()
@@ -76,6 +78,7 @@ systemWithSleep <- function(cmd, args = c(), env = c(), separateStderr = TRUE) {
 ##' @param statusOnly only check the status of the command
 ##' @param stopOnError whether to stop on error
 ##' @return vector of output
+##' @export
 gitSystemLong <- function(args, dir, statusOnly=FALSE, stopOnError=FALSE) {
   ## preserve working directory
   if (!missing(dir)) {
@@ -108,6 +111,7 @@ gitSystemLong <- function(args, dir, statusOnly=FALSE, stopOnError=FALSE) {
 ##' @param ignored show ignored files (see git status documentation)
 ##' @return data.frame with three columns:
 ##'   XY (status code), file, was (original name in case of rename)
+##' @export
 gitStatus <- function(dir=getwd(),
                       untracked = c("all", "no", "normal"),
                       ignoreSubmodules = c("none", "untracked", "dirty", "all"),
@@ -152,6 +156,7 @@ gitStatus <- function(dir=getwd(),
 ##' Checks if a repository is dirty.
 ##' @param dir directory to check
 ##' @return TRUE or FALSE
+##' @export
 gitIsDirty <- function(dir) {
   gitSystem("diff --no-ext-diff --quiet --exit-code", dir, statusOnly = TRUE) > 0
 }
@@ -163,6 +168,7 @@ gitIsDirty <- function(dir) {
 ##' @param dir directory of respository
 ##' @param describe try to describe (like master~3)?
 ##' @return string
+##' @export
 gitBranch <- function(dir, describe=FALSE) {
   if (describe)
     return(gitSystem("describe --contains --always --all HEAD", dir))
@@ -189,6 +195,7 @@ gitBranch <- function(dir, describe=FALSE) {
 ##' @return vector of filenames,
 ##'   if "stage" is requested, then a data.frame
 ##'   with additional information is returned.
+##' @export
 gitLsFiles <- function(dir=getwd(),
                        what=c("cached", "deleted", "modified", "others",
                          "ignored","stage", "unmerged", "killed"),
@@ -239,6 +246,7 @@ gitLsFiles <- function(dir=getwd(),
 ##' Convert file mode to a string.
 ##' @param mode vector of mode to convert.
 ##' @return vector of strings.
+##' @export
 gitMode2Str <- function(mode) {
   sapply(mode, function(x) switch(sprintf("%06i", as.integer(x)),
                                   `040000` = "Directory",
@@ -256,6 +264,7 @@ gitMode2Str <- function(mode) {
 ##' Convert status code (XZ) to a human readable string.
 ##' @param status vector of status codes to convert.
 ##' @return vector of strings.
+##' @export
 gitStatus2Str <- function(status) {
   ## from the git documentation (man git-status)
   ##   X          Y     Meaning
@@ -316,6 +325,7 @@ gitStatus2Str <- function(status) {
 ##' Get informative submodule status string from git status
 ##' @param directory repository directory
 ##' @param submodules requested submodules
+##' @export
 gitSubmoduleStatus <- function(directory, submodules) {
   str <- gitSystem(paste("status",shQuote(submodules),collapse=" "), directory)
   ret <- character(0)
@@ -333,6 +343,7 @@ gitSubmoduleStatus <- function(directory, submodules) {
 ##' Return number of unpushed and unpulled commits
 ##' @param dir repository directory
 ##' @return string like in git completion bash
+##' @export
 gitUpstream <- function(dir) {
   count <- gitSystem("rev-list --count --left-right \\@{upstream}...HEAD",
                      dir, stopOnError=FALSE)
@@ -356,6 +367,7 @@ gitUpstream <- function(dir) {
 ##' @param dir repository directory
 ##' @param remote whether to show remote-tracking branches as well
 ##' @return vector of branch names
+##' @export
 gitListBranches <- function(dir, remote=FALSE) {
   branches <- gitSystem(paste("branch", if (remote) "-a" else c()), dir)
   if (remote) {
@@ -379,6 +391,7 @@ gitListBranches <- function(dir, remote=FALSE) {
 ##' Calls git tag
 ##' @param dir repository directory
 ##' @return vector of tag names
+##' @export
 gitListTags <- function(dir) {
   gitSystem("tag", dir)
 }
@@ -390,6 +403,7 @@ gitListTags <- function(dir) {
 ##' @param n number of commits to show
 ##' @param stat whether to add --stat argument
 ##' @return vector of lines
+##' @export
 gitLog <- function(dir, n=10, stat=TRUE) {
   cmd <- paste("log -",n,if (stat) " --stat" else c(), sep="")
   gitSystem(cmd, dir)
@@ -401,6 +415,7 @@ gitLog <- function(dir, n=10, stat=TRUE) {
 ##' @param file to add
 ##' @param dir repository directory
 ##' @return exit code
+##' @export
 gitAdd <- function(file, dir) {
   gitSystem(c("add", shQuote(file)), dir, statusOnly=TRUE)
 }
@@ -411,6 +426,7 @@ gitAdd <- function(file, dir) {
 ##' @param file file to unadd
 ##' @param dir repository directory
 ##' @return exit code
+##' @export
 gitUnadd <- function(file, dir) {
   gitSystem(c("reset -q HEAD", shQuote(file)), dir, statusOnly=TRUE)
 }
@@ -423,6 +439,7 @@ gitUnadd <- function(file, dir) {
 ##' @param mode of reset
 ##' @param dir repository directory
 ##' @param git output
+##' @export
 gitReset <- function(commit, mode = c("soft", "mixed", "hard", "merge", "keep"),
                      dir) {
   mode <- match.arg(mode)
@@ -437,6 +454,7 @@ gitReset <- function(commit, mode = c("soft", "mixed", "hard", "merge", "keep"),
 ##' @param dir repository directory
 ##' @param recursive remove recursively
 ##' @return exit code
+##' @export
 gitRm <- function(file, dir, recursive=FALSE) {
   gitSystem(c("rm", shQuote(file), if (recursive) "-r" else c()), dir, statusOnly=TRUE)
 }
@@ -448,6 +466,7 @@ gitRm <- function(file, dir, recursive=FALSE) {
 ##' @param dir repository directory
 ##' @param path submodule path (optional)
 ##' @return git output
+##' @export
 gitSubmoduleAdd <- function(url, dir, path = c()) {
   gitSystemLong(c("submodule add", shQuote(c(url, path))), dir)
 }
@@ -458,6 +477,7 @@ gitSubmoduleAdd <- function(url, dir, path = c()) {
 ##' @param path submodule path
 ##' @param dir repository directory
 ##' @return git output
+##' @export
 gitSubmoduleRm <- function(path, dir) {
   gitSystemLong(c("rm-submodule", shQuote(path)), dir)
 }
@@ -469,6 +489,7 @@ gitSubmoduleRm <- function(path, dir) {
 ##' @param destination to
 ##' @param repository directory
 ##' @return git output
+##' @export
 gitSubmoduleMv <- function(source, dest, dir) {
   gitSystemLong(c("mv-submodule", shQuote(source), shQuote(dest)), dir)
 }
@@ -477,6 +498,7 @@ gitSubmoduleMv <- function(source, dest, dir) {
 ##'
 ##' Returns the toplevel directory of the given repository.
 ##' @param dir repository directory
+##' @export
 gitToplevel <- function(dir) {
   gitSystem("rev-parse --show-toplevel", dir)
 }
@@ -486,6 +508,7 @@ gitToplevel <- function(dir) {
 ##' Adds the given file to .gitignore in the repository's
 ##' toplevel directory. Give an absolute path.
 ##' @param path to add to .gitignore
+##' @export
 gitIgnore <- function(path) {
   dir <- if (file.info(path)$isdir) path else sub("[^/]*$", "", path)
   tl <- gitToplevel(dir)
@@ -498,6 +521,7 @@ gitIgnore <- function(path) {
 ##' @param source from
 ##' @param destination to
 ##' @param dir repository directory
+##' @export
 gitMv <- function(source, dest, dir) {
   gitSystem(c("mv", shQuote(source), shQuote(dest)), dir)
 }
@@ -509,6 +533,7 @@ gitMv <- function(source, dest, dir) {
 ##' @param dir repository directory
 ##' @param all whether to commit all modified and deleted files.
 ##' @param recursive whether to commit in all submodules as well.
+##' @export
 gitCommit <- function(msg, dir, all=FALSE, recursive=FALSE) {
   gitSystemLong(c(if (recursive) "rcommit" else "commit",
                   if (all) "--all" else c(),

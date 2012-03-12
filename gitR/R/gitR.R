@@ -58,6 +58,8 @@ readRepo <- function(dir=getwd()) {
   if (nrow(files) > 1) files <- files[with(files, mixedorder(file)),]
   ## remove directory from filename
   files$filename <- sub(".*/", "", files$file)
+  ## remove files starting with .#
+  files <- files[!grepl("^\\.#", files$file),]
   files
 }
 
@@ -240,6 +242,7 @@ setRefClass("gitR",
 ##' @return gitR object
 ##' @export
 createGUI <- function(path=getwd()) {
+  path <- gitToplevel(path)
   ## open the window, add a gtree, add handlers
   w <- gwindow("gitR", visible=FALSE)
   obj <- new("gitR", w=w,
