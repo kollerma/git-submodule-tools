@@ -23,13 +23,12 @@ readRepo <- function(dir=getwd()) {
                       file = with(status, file[XY == "!!"]))
     files <- if (nrow(files) > 0) rbind(files,tmp) else tmp
   }
-  if (any(idx <- grepl("(D[ M]|[ MARC]D)", status$XY))) {
+  if ("D " %in% status$XY) {
     tmp <- data.frame(tag = "", mode = NA, object = "", stage = NA,
-                      file = with(status, file[idx]))
+                      file = with(status, file[XY == "D "]))
     files <- if (nrow(files) > 0) rbind(files,tmp) else tmp
   }
   if (nrow(files) == 0) return(data.frame())
-  ## FIXME: what to do with deleted files?
   ## add directories
   ## FIXME: what to do with orphaned submodules?
   files$directory = sub("/[^/]*$", "", files$file)

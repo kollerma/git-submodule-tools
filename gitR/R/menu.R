@@ -131,7 +131,12 @@ genContextMenulist <- function(obj) {
       menulist <- c(menulist, "Reset")
     }
   }
-  menulist <- c(menulist, "Move", "Delete")
+  if (!grepl(paste("(", gitStatus2Str(c("D ", " D")), ")", collapse="|", sep=""),
+             status)) { ## not a deleted file
+    menulist <- c(menulist, "Move", "Delete")
+  } else {
+     menulist <- unique(c(menulist, "Reset"))
+  }
   if (!is.na(mode) && (mode %in% c(0, 160000, 40000)))
     menulist <- c(menulist, "Add submodule")
   if (!is.na(mode) && mode %in% c(0, 160000)) { ## repo or submodule
@@ -187,7 +192,13 @@ menu <- function(type, h, ...) {
   status <- "Aborted"
   val <- switch(type,
                 About = showAbout(obj),
-                Add = gitAdd(h$action$file, dir),
+                Add = {
+                  if (grepl(gitStatus2Str(" D"), h$action$status))
+                    ## need to use git rm, not git add
+                    gitRm(h$action$file, dir, statusOnly=TRUE, stopOnError=TRUE) 
+                  else
+                    gitAdd(h$action$file, dir)
+                },
                 AddSubmodule = showAddSubmodule(obj, rpath),
                 Clean = {
                   msg <- gitSystem("clean -n -d", path)
@@ -231,7 +242,13 @@ menu <- function(type, h, ...) {
                   createGUI(dir)
                 },
                 Refresh = obj$status("Refreshing..."),
-                Reset = showGitReset(obj, rpath),
+                Reset = {
+                  if (!is.na(h$action$mode) && h$action$mode %in% c(160000, 0)) {
+                    showGitReset(obj, rpath)
+                  } else {
+                    obj$status("Resetting", rpath, "...")
+                  }
+                },
                 Rfetch = obj$status("Running 'git rfetch' in", rpath, "..."),
                 Rpull = obj$status("Running 'git rpull' in", rpath, "..."),
                 Rpush = obj$status("Running 'git rpush' in", rpath, "..."),
@@ -311,8 +328,13 @@ menu <- function(type, h, ...) {
                   }
                 },
                 Reset = {
-                  obj$status("Resetting", rpath, "to", val["commit"], "...")
-                  gitReset(val["commit"], val["mode"], path)
+                  if (!is.na(h$action$mode) && h$action$mode %in% c(160000, 0)) {
+                    obj$status("Resetting", rpath, "to", val["commit"], "...")
+                    gitReset(val["commit"], val["mode"], path)
+                  } else {
+                    gitSystem(c("reset HEAD", shQuote(h$action$file)), dir, statusOnly=TRUE)
+                    gitSystemLong(c("checkout", shQuote(h$action$file)), dir)
+                  }
                 },
                 Rfetch = gitSystemLong("rfetch", path),
                 Rpull = gitSystemLong("rpull", path),
@@ -344,10 +366,7 @@ menu <- function(type, h, ...) {
   switch(type,
          AddSubmodule = obj$status("Submodule", val["path"], "successfully added."),
          Clean = obj$status("Cleaned repository successfully."),
-         Delete = if (!is.null(ret) &&
-           (ret == 0 || !is.null(attr(ret, "exitcode")))) {
-           obj$status("Removed", rpath, "successfully.")
-         },
+         Delete = obj$status("Removed", rpath, "successfully."),
          Commit = obj$status("Commit successful."),
          Ignore = obj$status("Added", rpath, "to .gitignore"),
          LongTest = obj$status("Test successful."),

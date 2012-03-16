@@ -462,9 +462,11 @@ gitReset <- function(commit, mode = c("soft", "mixed", "hard", "merge", "keep"),
 ##' @param force removal
 ##' @return exit code
 ##' @export
-gitRm <- function(file, dir, recursive=FALSE, force=FALSE, stopOnError=FALSE) {
+gitRm <- function(file, dir, recursive=FALSE, force=FALSE,
+                  statusOnly=FALSE, stopOnError=FALSE) {
   gitSystem(c("rm", shQuote(file), if (recursive) "-r" else c(),
-              if (force) "-f" else c()), dir, stopOnError=stopOnError)
+              if (force) "-f" else c()), dir,
+            statusOnly=statusOnly, stopOnError=stopOnError)
 }
 
 ##' Git add submodule
