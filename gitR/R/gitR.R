@@ -23,6 +23,11 @@ readRepo <- function(dir=getwd()) {
                       file = with(status, file[XY == "!!"]))
     files <- if (nrow(files) > 0) rbind(files,tmp) else tmp
   }
+  if (any(idx <- grepl("(D[ M]|[ MARC]D)", status$XY))) {
+    tmp <- data.frame(tag = "", mode = NA, object = "", stage = NA,
+                      file = with(status, file[idx]))
+    files <- if (nrow(files) > 0) rbind(files,tmp) else tmp
+  }
   if (nrow(files) == 0) return(data.frame())
   ## FIXME: what to do with deleted files?
   ## add directories
@@ -128,6 +133,9 @@ icon.FUN <- function(children,user.data=NULL, ...) {
   x[children$mode == 0] <- "about"
   x[children$mode == 160000] <- "jump-to"
   x[children$mode == 40000] <- "directory"
+  x[is.na(children$mode)] <- "missing-image"
+  x[grepl(paste("(", gitStatus2Str(c("D ", " D")), ")", collapse="|", sep=""),
+          children$Status)] <- "delete"
   return(x)
 }
 
