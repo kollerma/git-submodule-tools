@@ -24,15 +24,21 @@ gitSystem <- function(args, dir, statusOnly=FALSE, stopOnError=!statusOnly) {
   ## if args contain --exit-code, then return exit code
   if (statusOnly) {
     if (is(res, "simpleWarning")) {
-      return(as.numeric(sub(".*(\\d+)$", "\\1", res$message)))
+      return(as.numeric(sub(".*?(\\d+)$", "\\1", res$message)))
     } else return(0)
   } else {
     if (is(res, "simpleWarning")) {
       if (stopOnError) {
         stop("tried git ", args, "\nBut got the following error:\n",
              res$message)
-      } else return()
-    } else return(res)
+      } else {
+        res <- res$message
+        attr(res, "exitcode") <- as.numeric(sub(".*?(\\d+)$", "\\1", res))
+      }
+    }
+    attr(res, "dir") <- dir
+    attr(res, "cmd") <- paste(c(shQuote("git"), args), collapse=" ")
+    return(res)
   }
 }
 
@@ -453,10 +459,12 @@ gitReset <- function(commit, mode = c("soft", "mixed", "hard", "merge", "keep"),
 ##' @param file file to delete
 ##' @param dir repository directory
 ##' @param recursive remove recursively
+##' @param force removal
 ##' @return exit code
 ##' @export
-gitRm <- function(file, dir, recursive=FALSE) {
-  gitSystem(c("rm", shQuote(file), if (recursive) "-r" else c()), dir, statusOnly=TRUE)
+gitRm <- function(file, dir, recursive=FALSE, force=FALSE, stopOnError=FALSE) {
+  gitSystem(c("rm", shQuote(file), if (recursive) "-r" else c(),
+              if (force) "-f" else c()), dir, stopOnError=stopOnError)
 }
 
 ##' Git add submodule

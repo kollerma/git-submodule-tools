@@ -105,11 +105,10 @@ genContextMenulist <- function(obj) {
   status <- sel$model$getValue(sel$iter, 7)$value
   action <- list(obj=obj, path=path, filename=filename,
                  mode=mode, staged=staged, modified=modified,
-                 status = status)
-  
+                 status = status)  
   menulist <- "Open"
-  if (is.na(mode)) { ## an untracked file
-    menulist <- c(menulist, "Add", "Ignore", "Delete", "Move")
+  if (is.na(mode) && status == gitStatus2Str("??")) { ## an untracked file
+    menulist <- c(menulist, "Add", "Ignore")
   }
   if (!is.na(mode) && mode != 0) { ## a tracked file or submodule
     if (modified) {
@@ -129,8 +128,8 @@ genContextMenulist <- function(obj) {
     if (modified) {
       menulist <- c(menulist, "Reset")
     }
-    menulist <- c(menulist, "Move", "Delete")
   }
+  menulist <- c(menulist, "Move", "Delete")
   if (!is.na(mode) && (mode %in% c(0, 160000, 40000)))
     menulist <- c(menulist, "Add submodule")
   if (!is.na(mode) && mode %in% c(0, 160000)) { ## repo or submodule
@@ -182,6 +181,7 @@ menu <- function(type, h, ...) {
   dir <- sub("[^/]*$", "", path)
   ## first treat types that do not require a loading animation,
   ## and set the status for all other
+  force <- FALSE
   status <- "Aborted"
   val <- switch(type,
                 About = showAbout(obj),
@@ -198,6 +198,13 @@ menu <- function(type, h, ...) {
                 },
                 Delete = if (!is.na(h$action$mode) && h$action$mode == 40000) {
                   gconfirm(sprintf("Really delete '%s' and all contained files?", rpath))
+                } else if (!is.na(h$action$mode) &&
+                           grepl(paste("(", gitStatus2Str(c("M ", " M", "A ")), ")",
+                                       collapse="|", sep=""),
+                                 h$action$status)) {
+                  force <- TRUE
+                  gconfirm(sprintf("Really delete '%s'?\n Local modifications will be lost!",
+                                   rpath))
                 } else {
                   gconfirm(sprintf("Really delete '%s'?", rpath))
                 },
@@ -268,13 +275,14 @@ menu <- function(type, h, ...) {
                          `40000`= { ## remove only untracked dir by unlink()
                            if (grepl(gitStatus2Str("??"), h$action$status))
                              try(unlink(path, recursive=TRUE))
-                           else gitRm(h$action$filename, dir, recursive=TRUE)
+                           else gitRm(h$action$filename, dir, recursive=TRUE, force=force,
+                                      stopOnError=FALSE)
                            },
                          `NA`= try(unlink(path)),
                          `160000`= { ## submodule
                            gitSubmoduleRm(h$action$filename, dir)
                          }, ## else
-                         gitRm(h$action$filename, dir)
+                         gitRm(h$action$filename, dir, force=force, stopOnError=FALSE)
                          )
                 },
                 Ignore = gitIgnore(path),
@@ -318,9 +326,9 @@ menu <- function(type, h, ...) {
   if (!is.null(ret) && is.character(ret)) obj$lastout <- ret[]
   ## catch errors
   if (!is.null(attr(ret, "exitcode")) && attr(ret, "exitcode") != 0) {
-    showMessage("<b>Git Error</b>\n",
-                escape(attr(ret, "stderr")), type="error",
-                obj=obj)
+    err <- attr(ret, "stderr")
+    if (is.null(err)) err <- ret
+    showMessage("<b>Git Error</b>\n", escape(err), type="error", obj=obj)
     obj$status("Error")
     return()
   } else if (is(ret, "try-error")) {
