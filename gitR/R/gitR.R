@@ -251,7 +251,7 @@ createGUI <- function(path=getwd()) {
   ## add basic menu
   obj$m <- gmenu(genMenulist(obj), container=w)
   ## add basic toolbar
-  obj$tb <- gtoolbar(genToolbar(obj), style="icons", container=w)
+  obj$tb <- gtoolbar(genToolbar(obj), style="both", container=w)
   ## create ggroup that will hold tree view and loading animation
   obj$grp <- ggroup(horizontal=FALSE, spacing=0, container=w)
   ## create loadingAnimation but do not display yet

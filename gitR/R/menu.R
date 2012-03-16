@@ -65,6 +65,7 @@
        Rpush=gaction("Rpush", tooltip = "Push commits to server, recursively",
          icon = "go-up",
          handler = function(...) menu("Rpush", ...), action = action),
+       Separator=list(separator=TRUE),
        Unadd=gaction("Unadd", tooltip = "Remove from stagin area",
          icon = "remove",
          handler = function(...) menu("Unadd", ...), action = action)
@@ -85,7 +86,8 @@ genMenulist <- function(obj) {
 ##' Toolbar with repo wide tasks
 genToolbar <- function(obj) {
   action <- list(obj=obj)
-  .genMenulist(c("Commit", "Rfetch", "Rpull", "Rpush", "Refresh", "Quit"), action)
+  .genMenulist(c("Commit", "Separator", "Rfetch", "Rpull", "Rpush",
+                 "Separator", "Refresh", "Quit"), action)
 }
 
 ##' Generate menulist for context menu
