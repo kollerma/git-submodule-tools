@@ -99,7 +99,7 @@ offspring <- function(path, user.data, ...) {
                                 sep = .Platform$file.sep), gitBranch)
   ## get Status
   Status <- gitStatus2Str(files$status)
-  Staged <- grepl("(to|in) index", Status)
+  Staged <- grepl("(from|to|in) index", Status)
   Modified <- grepl("in work tree", Status)
   if (any(idx))
     Status[idx] <- ifelse(nchar(Branch[idx]) == 0, "detached HEAD", "")
