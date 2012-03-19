@@ -108,6 +108,7 @@
 genMenulist <- function(obj) {
   action <- list(obj=obj)
   list(File=.genMenulist(c("Open another repository", "Refresh", "Quit"), action),
+       Preferences=genPrefMenu(obj),
        Help=c(list(`Git Help`=.genGitManMenu(obj)),
               .genMenulist(c("Last git output", "About gitR"), action)))
 }
@@ -268,6 +269,7 @@ menu <- function(type, h, ...) {
                 Man = showMan(h$action$man),
                 Move = ginput("Please enter new name", text=h$action$filename,
                   title="Move", icon="question", parent=obj$w),
+                Prefs = togglePref(h$action),
                 Open = system2("open", path, wait=FALSE), ## FIXME: not portable
                 OpenRepo = {
                   dir <- gfile("Select repository to open.", type="selectdir",
@@ -291,7 +293,7 @@ menu <- function(type, h, ...) {
                   selectBranchTag(path, obj, rpath)
                 },
                 Commit = showGitCommit(obj, rpath),
-                Quit = dispose(obj$w),
+                Quit = obj$quit(),
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed

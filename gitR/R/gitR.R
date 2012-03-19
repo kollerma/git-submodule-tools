@@ -119,10 +119,19 @@ offspring <- function(path, user.data, ...) {
                        ifelse(grepl("\\+", Upstream[idx]), "unpushed commits", ""),
                        ifelse(grepl("\\-", Upstream[idx]), "unpulled commits", ""), sep=", ")
   ## clean status
-  Status <- sub(", $", "", sub("^, ", "", gsub(", , ", ", ", Status)))
-  data.frame(Filename=files$filename, mode = as.numeric(files$mode),
-             Staged = Staged, Modified = Modified, Upstream = Upstream,
-             Branch = Branch, Status = Status, Mode=gitMode2Str(files$mode))
+  Status <- sub(", $", "", sub("^, ", "", gsub(", , ", ", ", Status)))  
+  ret <- data.frame(Filename=files$filename, mode = as.numeric(files$mode),
+                    Staged = Staged, Modified = Modified, Upstream = Upstream,
+                    Branch = Branch, Status = Status, Mode=gitMode2Str(files$mode))
+  ## remove files that we do not want to be shown (according to preferences)
+  idx <- rep(TRUE, nrow(ret))
+  if (obj$preferences["hiddenFiles"] == "hide")
+    idx <- idx & !grepl("^\\.", ret$Filename)
+  if (obj$preferences["untrackedFiles"] == "hide")
+    idx <- idx & files$status != "??"
+  if (obj$preferences["ignoredFiles"] == "hide")
+    idx <- idx & files$status != "!!"
+  ret[idx, ]
 }
 hasOffspring <- function(children,user.data=NULL, ...) {
   return(children$mode %in% c(0, 160000, 40000))
@@ -183,6 +192,8 @@ contextMenu <- function(h, widget, event, action=NULL, ...) {
 ##' @slot s gStatus
 ##' @slot position window position
 ##' @slot lastout output of last git command
+##' @slot preferences gitR preferences
+##' @slot prefMenu list of gaction objects that constitute the preferences menu
 setRefClass("gitR",
             fields = list(
               path = "character",
@@ -195,7 +206,9 @@ setRefClass("gitR",
               tr = "gTree",
               s = "gStatusbar",
               position = "list",
-              lastout = "character"
+              lastout = "character",
+              preferences = "character",
+              prefMenu = "list"
               ),
             methods = list(
               getWindow = function() {
@@ -238,6 +251,12 @@ setRefClass("gitR",
                   rPath <- repo
                 } else paste(paths, collapse=.Platform$file.sep)
                 paste(path, rPath, sep=.Platform$file.sep)
+              },
+              quit = function(...) {
+                ## save preferences
+                saveRDS(preferences, file="~/.gitR")
+                ## close window
+                dispose(w)
               }
               ))
 
@@ -256,7 +275,8 @@ createGUI <- function(path=getwd()) {
              path = sub("(.*)/[^/]+/?$", "\\1", path),
              repo = sub(".*/([^/]+)/?$", "\\1", path))
   ## add basic menu
-  obj$m <- gmenu(genMenulist(obj), container=w)
+  obj$m <- gmenu(menulist <- genMenulist(obj), container=w)
+  obj$prefMenu <- menulist$Preferences
   ## add basic toolbar
   obj$tb <- gtoolbar(genToolbar(obj), style="both", container=w)
   ## create ggroup that will hold tree view and loading animation

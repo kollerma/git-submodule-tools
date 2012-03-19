@@ -19,3 +19,4 @@ Collate:
     'menu.R'
     'methods.R'
     'widgets.R'
+    'preferences.R'
