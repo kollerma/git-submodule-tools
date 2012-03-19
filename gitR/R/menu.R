@@ -74,6 +74,33 @@
          handler = function(...) menu("Unadd", ...), action = action)
        )[what]
 
+##' Generate git manual pages menu
+##'
+##' Generates a submenu to access the git man pages.
+##' @param obj gitR object
+.genGitManMenu <- function(obj) {
+  all <- .genMenulist(action=list())
+  gitMan <-  list(Add="git-add",
+                  `Add submodule`="git-submodule",
+                  Clean="git-clean",
+                  Commit="git-commit",
+                  Delete="git-rm",
+                  Log="git-log",
+                  Move="git-mv",
+                  Rdiff="git-rdiff",
+                  Reset="git-reset",
+                  Rcheckout="git-rcheckout",
+                  Rfetch="git-rfetch",
+                  Rpull="git-rpull",
+                  Rpush="git-rpush",
+                  Unadd="git-reset")
+  ret <- lapply(names(gitMan), function(x)
+                gaction(x, handler=function(...) menu("Man", ...),
+                        action = list(obj=obj, man=gitMan[[x]])))
+  names(ret) <- names(gitMan)
+  ret
+}
+
 ##' Generate menulist for regular menu
 ##'
 ##' File menu, etc
@@ -81,7 +108,8 @@
 genMenulist <- function(obj) {
   action <- list(obj=obj)
   list(File=.genMenulist(c("Open another repository", "Refresh", "Quit"), action),
-       Help=.genMenulist(c("Last git output", "About gitR"), action))
+       Help=c(list(`Git Help`=.genGitManMenu(obj)),
+              .genMenulist(c("Last git output", "About gitR"), action)))
 }
 
 ##' Generate menulist for toolbar
@@ -237,6 +265,7 @@ menu <- function(type, h, ...) {
                   system2("make", args=h$action$target, wait=FALSE)
                   setwd(ldir)
                 },
+                Man = showMan(h$action$man),
                 Move = ginput("Please enter new name", text=h$action$filename,
                   title="Move", icon="question", parent=obj$w),
                 Open = system2("open", path, wait=FALSE), ## FIXME: not portable
@@ -267,7 +296,7 @@ menu <- function(type, h, ...) {
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
   if (type %in% c("About", "Quit", "LastGitOutput", "Rdiff",
-                  "Log", "Info", "Open", "Make")) return()
+                  "Log", "Info", "Open", "Make", "Man")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()

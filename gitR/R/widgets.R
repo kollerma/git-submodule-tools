@@ -266,3 +266,14 @@ Copyright (c) 2012 Manuel Koller", title="About gitR")
 showRdiff <- function(obj)
   showMessageNewWindow(gitSystem("rdiff", obj$absPath()),
                        title=sprintf("Rdiff in %s", obj$repo))
+
+##' Show man page
+##'
+##' Shows a man page in a separate window.
+##' @param man what man page
+showMan <- function(man) {
+  cmd <- paste(c("man", shQuote(man), "| col -b"), collapse=" ")
+  showMessageNewWindow(escape(system(cmd, intern=TRUE)),
+                       title=sprintf("man %s", man),
+                       use.scrollwindow = TRUE)
+}
