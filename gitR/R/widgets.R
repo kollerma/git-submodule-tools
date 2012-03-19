@@ -258,3 +258,11 @@ gitR is an open-source graphical git client with focus on active development in 
 Licence: GPL v2
 Copyright (c) 2012 Manuel Koller", title="About gitR")
 }
+
+##' Show Rdiff output
+##'
+##' Show Rdiff output for the current repository in a separate window.
+##' @param obj gitR object.
+showRdiff <- function(obj)
+  showMessageNewWindow(gitSystem("rdiff", obj$absPath()),
+                       title=sprintf("Rdiff in %s", obj$repo))

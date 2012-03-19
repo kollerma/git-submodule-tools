@@ -47,6 +47,9 @@
        Quit = gaction("Quit", tooltip = "Quit git manager",
          icon = "quit",
          handler = function(...) menu("Quit", ...), action = action),
+       Rdiff = gaction("Rdiff", tooltip = "Show recursive diff",
+         icon = "find",
+         handler = function(...) menu("Rdiff", ...), action = action),
        Refresh = gaction("Refresh", tooltip = "Refresh view",
          icon = "refresh",
          handler = function(...) menu("Refresh", ...), action = action),
@@ -86,7 +89,8 @@ genMenulist <- function(obj) {
 ##' Toolbar with repo wide tasks
 genToolbar <- function(obj) {
   action <- list(obj=obj)
-  .genMenulist(c("Commit", "Separator", "Rfetch", "Rpull", "Rpush",
+  .genMenulist(c("Rpull", "Commit", "Rpush", "Separator",
+                 "Rfetch", "Rdiff",
                  "Separator", "Refresh", "Quit"), action)
 }
 
@@ -241,6 +245,7 @@ menu <- function(type, h, ...) {
                                parent=obj$w)
                   createGUI(dir)
                 },
+                Rdiff = showRdiff(obj),
                 Refresh = obj$status("Refreshing..."),
                 Reset = {
                   if (!is.na(h$action$mode) && h$action$mode %in% c(160000, 0)) {
@@ -261,7 +266,8 @@ menu <- function(type, h, ...) {
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
-  if (type %in% c("About", "Quit", "LastGitOutput", "Log", "Info", "Open", "Make")) return()
+  if (type %in% c("About", "Quit", "LastGitOutput", "Rdiff",
+                  "Log", "Info", "Open", "Make")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()
