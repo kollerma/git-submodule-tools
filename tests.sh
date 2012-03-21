@@ -5,12 +5,17 @@
 ####
 
 ## set current directory as working directory
-wd=`pwd`
+wd=`pwd`/test
+if test -d $wd
+then
+  rm -rf $wd
+fi
+mkdir -p $wd
 
 ####
 ## setup
 ####
- 
+
 ## stop on error
 set -e
 
