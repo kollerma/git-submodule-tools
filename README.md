@@ -1,11 +1,18 @@
-Git submodule helper scripts
-============================
+Git submodule helper scripts & gui
+==================================
 
 A collection of scripts that should help make life with git submodules
 easier. They are aimed at the case with a central repository. The
 submodules are thought not only as quasi static repositories, but as
 something where active development happens. The scripts support two levels
 of submodules, but most scripts do not support more than that.
+
+gitR is a simple graphical interface that should make working with
+submodules even easier. It only covers the basic functionality
+required for an average user. The main advantage in working with the
+graphical interface lies in the way the status of the repository is
+presented: the user always sees the full status of the repository and
+the submodules without the need to actively query for it.
 
 How to use
 ----------
@@ -122,6 +129,24 @@ Other Stuff
 * Update hook `hooks/update` can be used to prevent pushing of commits 
   containing references to submodule commits which have not been pushed.
 
+Installation
+------------
+
+The scripts can be placed anywhere in `$PATH`, e.g., `/usr/local/bin`.
+
+gitR requires an current R installation (http://www.r-project.org) and
+requires the R-package (contained in gitR-package/) to be installed.
+Before installing the package, make sure to have installed the R-packages
+* gWidgets,
+* gWidgetsRGtk2,
+* gtools,
+* RGtk2.
+For example by running the R-command: 
+`install.packages(c("gWidgetsRGtk2", "gtools"), dependencies="Depends")`
+After that, the gitR-package can be installed by running
+`R CMD install gitR-package`
+in the root of this repository.
+
 Known Problems
 --------------
 
@@ -129,14 +154,15 @@ Known Problems
   .gitmodules files lie. Otherwise the scripts might incorrectly assume
   that there are not submodules.
 * Scripts are slow. 
+* Scripts are currently broken on OS X, this because `xargs` there does not 
+  allow for an -r argument.
 * When invoking `git rcommit` without giving the message, the shell somehow
   breaks afterwards and has to be restarted.
 * The scripts were tested for git version 1.7.3.4 but not for any other
   version.
-* The scripts do not report errors to STDERR but just to STDOUT.
 
 Copyright/License
 -----------------
 
-License: GPL v2 Copyright (c) 2011 Manuel Koller
+License: GPL v2 Copyright (c) 2012 Manuel Koller
 
