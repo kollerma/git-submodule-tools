@@ -274,7 +274,8 @@ menu <- function(type, h, ...) {
                 OpenRepo = {
                   dir <- gfile("Select repository to open.", type="selectdir",
                                parent=obj$w)
-                  createGUI(dir)
+                  if (!is.na(dir))
+                    createGUI(dir)
                 },
                 Rdiff = showRdiff(obj),
                 Refresh = obj$status("Refreshing..."),
