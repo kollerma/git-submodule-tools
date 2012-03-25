@@ -99,8 +99,10 @@ escape <- function(string) {
 ##' returns the url and the path of the submodules.
 ##' @param obj gitR object
 ##' @param where to be put into title.
+##' @param dir absolute path to directory where the submodule
+##'   should be added (ignored).
 ##' @return vector with url and path (or NULL if cancelled)
-showAddSubmodule <- function(obj, where) {
+showAddSubmodule <- function(obj, where, ...) {
   grp <- ggroup(horizontal = FALSE)
   glabel("Please enter the submodule url and the path where it should be added.",
          container = grp)

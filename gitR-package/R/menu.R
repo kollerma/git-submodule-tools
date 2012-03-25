@@ -232,7 +232,7 @@ menu <- function(type, h, ...) {
                   else
                     gitAdd(h$action$file, dir)
                 },
-                AddSubmodule = showAddSubmodule(obj, rpath),
+                AddSubmodule = showAddSubmodule(obj, rpath, path),
                 Clean = {
                   msg <- gitSystem("clean -n -d", path)
                   if (length(msg) > 0) {
