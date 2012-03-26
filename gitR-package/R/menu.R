@@ -299,7 +299,7 @@ menu <- function(type, h, ...) {
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
   if (type %in% c("About", "Quit", "LastGitOutput", "Rdiff",
-                  "Log", "Info", "Open", "Make", "Man")) return()
+                  "Log", "Info", "Open", "OpenRepo", "Make", "Man")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)
     return()
