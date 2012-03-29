@@ -255,6 +255,12 @@ setRefClass("gitR",
               quit = function(...) {
                 ## save preferences
                 saveRDS(preferences, file="~/.gitR")
+                ## decreate gitR-windows counter
+                assign(".gitR.windows",
+                       get(".gitR.windows",
+                           envir=.GlobalEnv,
+                           mode="numeric") - 1,
+                       envir=.GlobalEnv)
                 ## close window
                 dispose(w)
               }
@@ -324,6 +330,13 @@ createGUI <- function(path=getwd()) {
   w$resize(1000, 600)
   ## now show it
   visible(obj$w) <- TRUE
+  ## register the window in global env
+  .gitR.windows <- if (!exists(".gitR.windows", envir=.GlobalEnv)) {
+      0
+  } else {
+      get(".gitR.windows", envir=.GlobalEnv, mode="numeric")
+  }
+  assign(".gitR.windows", .gitR.windows + 1, envir=.GlobalEnv)
   obj
 }
   

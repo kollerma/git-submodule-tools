@@ -1,11 +1,14 @@
 #!/usr/local/bin/Rscript
 
+require(RGtk2, "~/R/x86_64-unknown-linux-gnu-library/all/")
+require(gWidgets, "~/R/x86_64-unknown-linux-gnu-library/all/")
+require(gWidgetsRGtk2, "~/R/x86_64-unknown-linux-gnu-library/all/")
 require(gitR)
 options(guiToolkit="RGtk2")
 createGUI()
 ## now loop until window is closed
 repeat {
-       if (length(gtkWindowListToplevels()) <= 1) break
+       if (length(gtkWindowListToplevels()) < 1 || .gitR.windows < 1) break
        Sys.sleep(0.1)
 }
 print("exiting...")
