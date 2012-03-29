@@ -32,8 +32,10 @@ gitSystem <- function(args, dir, statusOnly=FALSE, stopOnError=!statusOnly) {
         stop("tried git ", args, "\nBut got the following error:\n",
              res$message)
       } else {
-        res <- res$message
-        attr(res, "exitcode") <- as.numeric(sub(".*?(\\d+)$", "\\1", res))
+        msg <- res$message
+        res <- ""
+        attr(res, "stderr") <- msg
+        attr(res, "exitcode") <- as.numeric(sub(".*?(\\d+)$", "\\1", msg))
       }
     }
     attr(res, "dir") <- dir
