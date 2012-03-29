@@ -255,12 +255,6 @@ setRefClass("gitR",
               quit = function(...) {
                 ## save preferences
                 saveRDS(preferences, file="~/.gitR")
-                ## decreate gitR-windows counter
-                assign(".gitR.windows",
-                       get(".gitR.windows",
-                           envir=.GlobalEnv,
-                           mode="numeric") - 1,
-                       envir=.GlobalEnv)
                 ## close window
                 dispose(w)
               }
@@ -280,6 +274,15 @@ createGUI <- function(path=getwd()) {
   }
   ## open the window, add a gtree, add handlers
   w <- gwindow("gitR", visible=FALSE)
+  ## add destroy handler
+  addHandlerDestroy(w, handler=function(...) {
+      ## decrease gitR-windows counter
+      assign(".gitR.windows",
+             get(".gitR.windows",
+                 envir=.GlobalEnv,
+                 mode="numeric") - 1,
+             envir=.GlobalEnv)
+  })
   obj <- new("gitR", w=w,
              path = sub("(.*)/[^/]+/?$", "\\1", path),
              repo = sub(".*/([^/]+)/?$", "\\1", path))
