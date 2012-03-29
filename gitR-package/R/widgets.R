@@ -265,9 +265,16 @@ Copyright (c) 2012 Manuel Koller", title="About gitR")
 ##'
 ##' Show Rdiff output for the current repository in a separate window.
 ##' @param obj gitR object.
-showRdiff <- function(obj)
-  showMessageNewWindow(gitSystem("rdiff", obj$absPath()),
-                       title=sprintf("Rdiff in %s", obj$repo))
+showRdiff <- function(obj) {
+  diff <- gitSystem("rdiff", obj$absPath(), stopOnError=FALSE)
+  if (length(diff) == 0 ||
+      (!is.null(attr(diff, "exitcode")) && attr(diff, "exitcode") != 0)) {
+    obj$status("No diff to show.")
+  } else {
+    showMessageNewWindow(diff,
+                         title=sprintf("Rdiff in %s", obj$repo))
+  }
+}
 
 ##' Show man page
 ##'
