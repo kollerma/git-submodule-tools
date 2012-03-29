@@ -260,7 +260,8 @@ menu <- function(type, h, ...) {
                 Log = showGitLog(path, obj),
                 LongTest = obj$status("Calling systemWithSleep..."),
                 Make = {
-                  obj$status("Running make", h$action$target,"in the background.")
+                  obj$status("Running make", h$action$target,
+                             "in the background (hit refresh to see the result).")
                   ldir <- getwd()
                   setwd(if (file.info(path)$isdir) path else dir)
                   system2("make", args=h$action$target, wait=FALSE)
