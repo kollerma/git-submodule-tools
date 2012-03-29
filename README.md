@@ -144,7 +144,7 @@ Before installing the package, make sure to have installed the R-packages
 For example by running the R-command: 
 `install.packages(c("gWidgetsRGtk2", "gtools"), dependencies="Depends")`
 After that, the gitR-package can be installed by running
-`R CMD install gitR-package`
+`R CMD INSTALL gitR-package`
 in the root of this repository.
 
 Known Problems
