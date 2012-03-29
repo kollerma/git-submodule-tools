@@ -270,7 +270,7 @@ menu <- function(type, h, ...) {
                 Move = ginput("Please enter new name", text=h$action$filename,
                   title="Move", icon="question", parent=obj$w),
                 Prefs = togglePref(h$action),
-                Open = system2("open", path, wait=FALSE), ## FIXME: not portable
+                Open = system2("xdg-open", path, wait=FALSE), ## FIXME: not portable
                 OpenRepo = {
                   dir <- gfile("Select repository to open.", type="selectdir",
                                parent=obj$w)
