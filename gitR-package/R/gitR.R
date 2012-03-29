@@ -274,7 +274,10 @@ setRefClass("gitR",
 ##' @return gitR object
 ##' @export
 createGUI <- function(path=getwd()) {
-  path <- gitToplevel(path)
+  path <- try(gitToplevel(path))
+  if (is(path, "try-error")) {
+      return("This is not a git repository.")
+  }
   ## open the window, add a gtree, add handlers
   w <- gwindow("gitR", visible=FALSE)
   obj <- new("gitR", w=w,
