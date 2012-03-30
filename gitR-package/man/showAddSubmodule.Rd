@@ -2,12 +2,15 @@
 \alias{showAddSubmodule}
 \title{Add submodule dialog}
 \usage{
-  showAddSubmodule(obj, where)
+  showAddSubmodule(obj, where, ...)
 }
 \arguments{
   \item{obj}{gitR object}
 
   \item{where}{to be put into title.}
+
+  \item{dir}{absolute path to directory where the submodule
+  should be added (ignored).}
 }
 \value{
   vector with url and path (or NULL if cancelled)
