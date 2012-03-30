@@ -8,5 +8,5 @@ repeat {
        if (length(gtkWindowListToplevels()) < 1 || .gitR.windows < 1) break
        Sys.sleep(0.1)
 }
-print("exiting...")
+cat("quitting gitR.\n")
 quit()
