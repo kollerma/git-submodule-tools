@@ -24,6 +24,9 @@
        Delete=gaction("Delete", tooltip = "Delete in work tree",
          icon = "delete",
          handler = function(...) menu("Delete", ...), action = action),
+       `General help`=gaction("General Help", tooltip = "General help about gitR",
+         icon = "help",
+         handler = function(...) menu("Help", ...), action = action),
        Ignore=gaction("Ignore", tooltip = "Add to .gitignore",
          icon = "stop",
          handler = function(...) menu("Ignore", ...), action = action),
@@ -109,7 +112,8 @@ genMenulist <- function(obj) {
   action <- list(obj=obj)
   list(File=.genMenulist(c("Open another repository", "Refresh", "Quit"), action),
        Preferences=genPrefMenu(obj),
-       Help=c(list(`Git Help`=.genGitManMenu(obj)),
+       Help=c(.genMenulist("General help", action),
+              list(`Git Help`=.genGitManMenu(obj)),
               .genMenulist(c("Last git output", "About gitR"), action)))
 }
 
@@ -254,6 +258,7 @@ menu <- function(type, h, ...) {
                 } else {
                   gconfirm(sprintf("Really delete '%s'?", rpath))
                 },
+                Help = showHelp("gitR-package"),
                 Ignore = obj$status(sprintf("Adding '%s' to .gitignore...", rpath)),
                 Info = showInfo(h$action),
                 LastGitOutput = showGitOutput(obj),
@@ -299,7 +304,7 @@ menu <- function(type, h, ...) {
                 Unadd = gitUnadd(h$action$file, dir),
                 stop("Unknown action type: ", type))
   ## exit if no loading animation needed
-  if (type %in% c("About", "Quit", "LastGitOutput", "Rdiff",
+  if (type %in% c("About", "Help", "Quit", "LastGitOutput", "Rdiff",
                   "Log", "Info", "Open", "OpenRepo", "Make", "Man")) return()
   if (!is.null(val) && ((is.logical(val) && !val) || is.na(val))) {
     obj$status(status)

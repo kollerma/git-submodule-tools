@@ -1,5 +1,5 @@
-\name{rlmer-Package}
-\alias{rlmer-Package}
+\name{gitR-package}
+\alias{gitR-package}
 \docType{package}
 \title{
   gitR
@@ -28,5 +28,45 @@
 
  To have a good overview on the state of the repository, several columns
  of data are shown. The most important are described below.
- 
+
+ \itemize{
+   \item \emph{Staged}: An active/selected radio button indicates that the file
+   has been staged (using `git add`).
+   \item \emph{Modified}: An active radio button indicates that there are
+   unstaged modifications to the file.
+   \item \emph{Upstream}: This is an indicator on the upstream status of
+   the repository (or submodule). \code{u=} indicates that the local and
+   upstream repository are equal. \code{u+1} indicates that there is one
+   local commit that has not been pushed to upstream. \code{u-1} shows
+   that there is one commit in the upstream repository that has not been
+   pulled to the local repository yet (using \code{fetch} one can update
+   this count).
+   \item \emph{Branch}: shows the branch that is currently checked out,
+   detached HEADs are indicated by \code{(detached HEAD)}.
+   \item \emph{Status}: Shows the status of a file in
+   words. \emph{Index} is a synonym for \emph{staging area} while
+   \emph{work tree} describes the set of files currently checked out.   
+ }
+
+ The status bar at the very bottom of the \code{gitR} window displays
+ simple status messages. The full output of the last command run can be
+ accessed using the menu \code{Help > Last git output}.
+
+ The preferences menu can be used to show and hide certain file types
+ (hidden files starting with a ., untracked and ignored files). Note that
+ hidden files are are not shown also if they contain local
+ modifications. The preferences are stored in the file \code{~/.gitR}. 
+}
+\author{
+  Manuel Koller <koller.manuel@gmail.com>
+}
+\keyword{ git }
+\keyword{ gui }
+\keyword{ submodule }
+\keyword{ gitR }
+\seealso{
+  \emph{Git submodule tools} at \url{https://github.com/kollerma/git-submodule-tools}.
+}
+\examples{
+\dontrun{createGUI()}
 }

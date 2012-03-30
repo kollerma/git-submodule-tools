@@ -253,12 +253,13 @@ showGitCommit <- function(obj, where) {
 ##' Show about gitR window.
 ##' @param obj gitR object
 showAbout <- function(obj) {
-  showMessageNewWindow("<b>About gitR</b>
+  showMessageNewWindow(sprintf("<b>About gitR</b> (Version %s)
 
 gitR is an open-source graphical git client with focus on active development in submodules.
 
 Licence: GPL v2
-Copyright (c) 2012 Manuel Koller", title="About gitR")
+Copyright (c) 2012 Manuel Koller", packageDescription("gitR")$Version),
+                       title="About gitR")
 }
 
 ##' Show Rdiff output
@@ -285,4 +286,23 @@ showMan <- function(man) {
   showMessageNewWindow(escape(system(cmd, intern=TRUE)),
                        title=sprintf("man %s", man),
                        use.scrollwindow = TRUE)
+}
+
+##' Show general help
+##'
+##' Shows a R-help page. Code Taken from gWidgets
+##' \code{example(ghelp)}
+##' @param topic help topic to be shown
+showHelp <- function(topic = NULL) {
+    w <- gwindow("Help browser", visible=FALSE)
+    g <- ggroup(horizontal=FALSE, cont=w)
+    g1 <- ggroup(cont=g)
+    addSpring(g1)
+    glabel("Help on:", cont=g1)
+    e <- gedit("", cont=g1)
+    helpWidget <- ghelp(topic = topic, cont = g, expand=TRUE)
+    addHandlerChanged(e, handler=function(h,...) {
+        add(helpWidget, svalue(h$obj))
+    })
+    visible(w) <- TRUE
 }
