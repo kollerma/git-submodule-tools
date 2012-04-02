@@ -27,13 +27,14 @@ output=""
 while read line; do
     if [[ "${line:0:5}" == "Fetch" ]]; then
 	last="$line"
-    elif [[ "$last" == "_start_" && "${line:0:4}" == "From" ]]; then
-	output="${output}There are updates available for the current repository.
+    elif [[ "${line:0:4}" == "From" ]]; then
+	if [[ "$last" == "_start_" ]]; then
+	    output="${output}There are updates available for the current repository.
 "
-	last=""
-    elif [[ "$last" != "" ]]; then
-	output="${output}There are updates available for ${last:19}.
+	elif [[ "$last" != "" ]]; then
+	    output="${output}There are updates available for ${last:19}.
 "
+	fi
 	last=""
     fi
 done <<< "$tmp"
