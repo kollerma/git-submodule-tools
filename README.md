@@ -154,8 +154,8 @@ Known Problems
   .gitmodules files lie. Otherwise the scripts might incorrectly assume
   that there are not submodules.
 * Scripts are slow. 
-* Scripts are currently broken on OS X, this because `xargs` there does not 
-  allow for an -r argument.
+* Scripts of master branch do not work on OS X, this because `xargs` there
+  does not allow for an -r argument (use `no xargs`-branch).
 * When invoking `git rcommit` without giving the message, the shell somehow
   breaks afterwards and has to be restarted.
 * The scripts were tested for git version 1.7.3.4 but not for any other
