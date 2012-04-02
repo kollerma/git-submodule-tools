@@ -1,74 +1,45 @@
 #!/bin/bash -e
-## Check for updates, does a bfetch (dry-run) and reports
-## the changes. This is just for convenience.
-## Argument --dry-run just runs fetch --dry-run
+## Check for updates, is an alias for
+## git fetch --recurse-submodule=yes
+## with some modifications of the output.
 
 ## read input, display help if necessary
 if [[ "$@" == *--help* ]]; then
     cat<<EOF
  Recursive fetch
 
- This command recursively fetches changes from origin. 
+ This command recursively fetches changes from origin.
+ (it is equal to git fetch --recurse-submodules=yes
 
  Usage:
-    git rfetch [--dry-run]
+    git rfetch ...
 
-    --dry-run: show what would be done without making
-       any changes. 
+    ...: same arguments as git fetch
 EOF
     exit 0;
 fi
 
-if [[ "$1" ]]; then
-    if [[ "$1" == "--dry-run" ]]; then
-	dryrun="--dry-run"
-    else 
-	echo >&2 "Error: rfetch does only accept the argument --dry-run,
-    nothing else."
+## run fetch
+tmp=`git fetch --recurse-submodules=yes "$@" 2>&1`
+## and process output
+last="_start_"
+output=""
+while read line; do
+    if [[ "${line:0:5}" == "Fetch" ]]; then
+	last="$line"
+    elif [[ "$last" == "_start_" && "${line:0:4}" == "From" ]]; then
+	output="${output}There are updates available for the current repository.
+"
+	last=""
+    elif [[ "$last" != "" ]]; then
+	output="${output}There are updates available for ${last:19}.
+"
+	last=""
     fi
-fi
-
-## ensure we are in the toplevel directory
-cdup=$(git rev-parse --show-toplevel) &&
-cd "$cdup" || {
-    echo >&2 "Cannot chdir to $cdup, the toplevel of the working tree"
-    exit 1
-}
-
-## check the super repository
-if [[ $(git fetch $dryrun 2>&1) != '' ]]; then
-    output="There are updates available for the current repository.
-"
-fi
-
-## check the submodules
-if [ -f .gitmodules ]; then
-    tmp=`git submodule foreach --recursive git bfetch $dryrun 2>&1`
-    while read line; do
-        ## Ok, just check line by line
-        ## This looks like...
-        ## Entering 'r-tutorial'
-        ## Entering 'serie1'
-        ## Entering 'serie1/aufgabe1'
-        ## Entering 'serie1/aufgabe2'
-        ## ...if there is nothing to fetch
-	if [[ "${line:0:10}" == "Entering '" ]]; then
-	    lline=${line:10:$((${#line}-11))}
-	    printed=0
-	    ##echo "$lline"
-	else
-	    if [[ $printed -eq 0 ]]; then
-		output="${output}There are updates available for $lline.
-"
-		printed=1
-	    fi
-	fi	
-    done <<< "$tmp"
-fi
-
+done <<< "$tmp"
 
 if [[ "$output" ]]; then
-    if [[ "$dryrun" == "--dry-run" ]]; then
+    if [[ "$@" == "--dry-run" ]]; then
 	cat<<EOF 
 ${output}Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
