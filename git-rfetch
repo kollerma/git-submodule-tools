@@ -9,7 +9,8 @@ if [[ "$@" == *--help* ]]; then
  Recursive fetch
 
  This command recursively fetches changes from origin.
- (it is equal to git fetch --recurse-submodules=yes
+ (Up to output it is equal to running 
+    git fetch --recurse-submodules=yes.)
 
  Usage:
     git rfetch ...
