@@ -45,8 +45,8 @@ cd "$cdup" || {
 
 ## check for unpushed commits in submodules
 if [ -f .gitmodules ]; then
-    #unpushed=`git submodule --quiet foreach --recursive git check-unpushed -p`
-    unpushed=`git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | xargs -r -n1 -P5 bash -c 'cd "$1"; git check-unpushed -p' xargs`
+    unpushed=`git submodule --quiet foreach --recursive git check-unpushed -p`
+    # unpushed=`git submodule --quiet foreach --recursive 'echo "$toplevel/$path"' | xargs -r -n1 -P5 bash -c 'cd "$1"; git check-unpushed -p' xargs`
     if [[ "$unpushed" != "" ]]; then
 	cat >&2 <<EOF 
  Error: Unpushed commits in submodules.

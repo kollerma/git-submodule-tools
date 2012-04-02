@@ -60,7 +60,7 @@ fi
 
 ## check for differences in submodules
 if [ -f .gitmodules ]; then
-    #git submodule --quiet foreach git rdiff
-    git submodule --quiet foreach 'echo "$toplevel/$path"' | 
-    xargs -r -n1 -P5 bash -c 'cd "$1"; git rdiff' xargs
+    git submodule --quiet foreach git rdiff
+    # git submodule --quiet foreach 'echo "$toplevel/$path"' | 
+    # xargs -r -n1 -P5 bash -c 'cd "$1"; git rdiff' xargs
 fi

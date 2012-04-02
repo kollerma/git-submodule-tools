@@ -29,10 +29,11 @@ args=$@
 ## commit in submodules first
 if [[ "$args" != *--non-recursive* ]]; then
     if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
-        #git submodule --quiet foreach "git rcommit \"$COMMIT_ARGS\"" || exit 1
-	CMD='cd "$1"; git rcommit '"$args"
-	git submodule --quiet foreach 'echo "$toplevel/$path"' | 
-	xargs -r -n1 -P1 bash -c "$CMD" xargs || exit 1
+	CMD='git rcommit '"$args"
+        git submodule --quiet foreach "$CMD" || exit 1
+	# CMD='cd "$1"; git rcommit '"$args"
+	# git submodule --quiet foreach 'echo "$toplevel/$path"' | 
+	# xargs -r -n1 -P1 bash -c "$CMD" xargs || exit 1
     fi
 else 
     ## remove --non-recursive from $args

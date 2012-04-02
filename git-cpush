@@ -23,10 +23,11 @@ fi
 
 ## push submodules first
 if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
-    CMD='cd "$1"; git cpush '"$@"
-    #git submodule --quiet foreach git cpush "$@" || exit 1
-    git submodule --quiet foreach 'echo "$toplevel/$path"' | 
-    xargs -r -n1 -P5 bash -c "$CMD" xargs || exit 1
+    CMD='git cpush '"$@"
+    git submodule --quiet foreach "$CMD" || exit 1
+    # CMD='cd "$1"; git cpush '"$@"
+    # git submodule --quiet foreach 'echo "$toplevel/$path"' | 
+    # xargs -r -n1 -P5 bash -c "$CMD" xargs || exit 1
 fi
 
 tmp=`git branch --no-color -vv 2> /dev/null`
