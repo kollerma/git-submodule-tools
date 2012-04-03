@@ -127,6 +127,18 @@ genToolbar <- function(obj) {
                  "Separator", "Refresh", "Quit"), action)
 }
 
+##' Double click handler
+##'
+##' Executes menu action open
+##' @param h handler list
+doubleClickHandler <- function(h, ...) {
+    obj <- h$action$actualobj
+    tr <- obj$tr
+    action <- list(obj=obj,
+                   path=paste(tr[], collapse=.Platform$file.sep))
+    menu("Open", list(action=action))
+}
+
 ##' Generate menulist for context menu
 ##'
 ##' Depending on type of file, generate a different context menu.

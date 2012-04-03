@@ -302,10 +302,9 @@ createGUI <- function(path=getwd()) {
                   offspring.data = list(obj = obj), expand=TRUE)
   obj$s <- gstatusbar("Initializing...", container=w)
   ## add basic doubleclick handler
-  addHandlerDoubleclick(obj$getGTree(), handler=function(h, ...) {
-    print(svalue(h$obj))		     # the key
-    print(paste(h$obj[], collapse="/")) # vector of keys
-  }, action=list(actualobj=obj))
+  addHandlerDoubleclick(obj$getGTree(),
+                        handler=doubleClickHandler,
+                        action=list(actualobj=obj))
   ## add Context Menu
   addHandler(obj$getGTree(), signal="button-press-event",
              handler=contextMenu, action=list(actualobj=obj))
