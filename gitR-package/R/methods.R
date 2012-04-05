@@ -124,6 +124,7 @@ gitStatus <- function(dir=getwd(),
                       untracked = c("all", "no", "normal"),
                       ignoreSubmodules = c("none", "untracked", "dirty", "all"),
                       ignored = FALSE) {
+  if (dir == "./") dir <- getwd()
   ## get toplevel directory (show only subdirectory if dir is not tl)
   tl <- gitToplevel(dir)
   ## convert dir into an absolute path
@@ -140,7 +141,7 @@ gitStatus <- function(dir=getwd(),
   status <- gitSystem(args, dir)
   ## filter
   if (nchar(rdir) > 0) {
-    filter <- sprintf("( |\")%s/", rdir)
+    filter <- sprintf("( |\")%s/.+", rdir)
     status <- grep(filter, status, value=TRUE)
     status <- gsub(filter, "\\1", status)
   }
