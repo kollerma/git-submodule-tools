@@ -124,6 +124,7 @@ gitStatus <- function(dir=getwd(),
                       untracked = c("all", "no", "normal"),
                       ignoreSubmodules = c("none", "untracked", "dirty", "all"),
                       ignored = FALSE) {
+  if (dir == "./") dir <- getwd()
   ## get toplevel directory (show only subdirectory if dir is not tl)
   tl <- gitToplevel(dir)
   ## convert dir into an absolute path
@@ -140,7 +141,7 @@ gitStatus <- function(dir=getwd(),
   status <- gitSystem(args, dir)
   ## filter
   if (nchar(rdir) > 0) {
-    filter <- sprintf("( |\")%s/", rdir)
+    filter <- sprintf("( |\")%s/.+", rdir)
     status <- grep(filter, status, value=TRUE)
     status <- gsub(filter, "\\1", status)
   }
@@ -480,7 +481,12 @@ gitRm <- function(file, dir, recursive=FALSE, force=FALSE,
 ##' @return git output
 ##' @export
 gitSubmoduleAdd <- function(url, dir, path = c()) {
-  gitSystemLong(c("submodule add", shQuote(c(url, path))), dir)
+  ## need to create submodule in toplevel directory
+  tl <- gitToplevel(dir)
+  subdir <- sub("/$", "", sub("^/", "", sub(tl, "", dir)))
+  if (nchar(subdir) > 0)
+    path <- paste(subdir, path, sep=.Platform$file.sep)
+  gitSystemLong(c("submodule add", shQuote(c(url, path))), tl)
 }
 
 ##' Git rm submodule
@@ -503,7 +509,14 @@ gitSubmoduleRm <- function(path, dir) {
 ##' @return git output
 ##' @export
 gitSubmoduleMv <- function(source, dest, dir) {
-  gitSystemLong(c("mv-submodule", shQuote(source), shQuote(dest)), dir)
+  ## need to move submodule in toplevel directory
+  tl <- gitToplevel(dir)
+  subdir <- sub("/$", "", sub("^/", "", sub(tl, "", dir)))
+  if (nchar(subdir) > 0) {
+    source <- paste(subdir, source, sep=.Platform$file.sep)
+    dest <- paste(subdir, dest, sep=.Platform$file.sep)
+  }
+  gitSystemLong(c("mv-submodule", shQuote(source), shQuote(dest)), tl)
 }
 
 ##' Get repository root

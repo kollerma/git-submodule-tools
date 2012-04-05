@@ -24,10 +24,37 @@ EOF
     exit 0;
 fi
 
-args=$@
+args=""
+recursive=1
+a=0
+## build quoted $args and check non-recursive and [-a|--all] args
+for arg in "$@"
+do 
+    ## skip --non-recursive
+    if [[ "$arg" != "--non-recursive" ]]; then
+	args="$args '$arg'"
+    else 
+	recursive=0
+    fi
+    ## check for -a or --all
+    case "$arg" in
+	-a|--all)
+	    a=1
+	    ;;
+	--)
+	    ;;
+	--*) 
+	    ;;
+	-*) ## option like -qa
+	    if [[ "$arg" == *a* ]]; then
+		a=1
+	    fi
+	    ;;
+    esac
+done
 
 ## commit in submodules first
-if [[ "$args" != *--non-recursive* ]]; then
+if [[ $recursive -eq 1 ]]; then
     if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
 	CMD='git rcommit '"$args"
         git submodule --quiet foreach "$CMD" || exit 1
@@ -35,34 +62,7 @@ if [[ "$args" != *--non-recursive* ]]; then
 	# git submodule --quiet foreach 'echo "$toplevel/$path"' | 
 	# xargs -r -n1 -P1 bash -c "$CMD" xargs || exit 1
     fi
-else 
-    ## remove --non-recursive from $args
-    args=${args//--non-recursive/}
 fi
-
-## check for --all or -a argument
-a=0
-while test $# != 0
-do
-    case "$1" in
-	-a|--all)
-	    a=1
-	    break
-	    ;;
-	--)
-	    break
-	    ;;
-	--*) 
-	    ;;
-	-*) ## option like -qa
-	    if [[ "$1" == *a* ]]; then
-		a=1
-		break
-	    fi
-	    ;;
-    esac
-    shift
-done
 
 if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
     cat >&2 <<EOF 
@@ -87,7 +87,7 @@ EOF
     fi
 
     echo "Committing in $PWD..."
-    git commit -q "$args"
+    bash -c "git commit -q $args"
     
     if [ -f $(git rev-parse --show-toplevel)/.gitmodules ]; then
 	## Syncronize submodules if necessary
