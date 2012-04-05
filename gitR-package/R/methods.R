@@ -480,7 +480,12 @@ gitRm <- function(file, dir, recursive=FALSE, force=FALSE,
 ##' @return git output
 ##' @export
 gitSubmoduleAdd <- function(url, dir, path = c()) {
-  gitSystemLong(c("submodule add", shQuote(c(url, path))), dir)
+  ## need to create submodule in toplevel directory
+  tl <- gitToplevel(dir)
+  subdir <- sub("/$", "", sub("^/", "", sub(tl, "", dir)))
+  if (nchar(subdir) > 0)
+    path <- paste(subdir, path, sep=.Platform$file.sep)
+  gitSystemLong(c("submodule add", shQuote(c(url, path))), tl)
 }
 
 ##' Git rm submodule
@@ -503,7 +508,14 @@ gitSubmoduleRm <- function(path, dir) {
 ##' @return git output
 ##' @export
 gitSubmoduleMv <- function(source, dest, dir) {
-  gitSystemLong(c("mv-submodule", shQuote(source), shQuote(dest)), dir)
+  ## need to move submodule in toplevel directory
+  tl <- gitToplevel(dir)
+  subdir <- sub("/$", "", sub("^/", "", sub(tl, "", dir)))
+  if (nchar(subdir) > 0) {
+    source <- paste(subdir, source, sep=.Platform$file.sep)
+    dest <- paste(subdir, dest, sep=.Platform$file.sep)
+  }
+  gitSystemLong(c("mv-submodule", shQuote(source), shQuote(dest)), tl)
 }
 
 ##' Get repository root
