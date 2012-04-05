@@ -141,9 +141,9 @@ gitStatus <- function(dir=getwd(),
   status <- gitSystem(args, dir)
   ## filter
   if (nchar(rdir) > 0) {
-    filter <- sprintf("( |\")%s/.+", rdir)
+    filter <- sprintf("( |\")%s/(.)", rdir)
     status <- grep(filter, status, value=TRUE)
-    status <- gsub(filter, "\\1", status)
+    status <- gsub(filter, "\\1\\2", status)
   }
   if (length(status) == 0) return(data.frame())
   ## convert into data.frame
