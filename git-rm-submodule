@@ -50,7 +50,8 @@ git check-unpushed || exit 1
 ## check for local non-tracking-branches
 git check-non-tracking || exit 1
 ## find the real git-dir (might be git-file, for v.1.7.8 compatibility)
-gitdir=$(git rev-parse --git-dir)
+## git dir should be relative to current dir... but is it?
+gitdir=$(cd `git rev-parse --git-dir`; pwd)
 cd "$cdup"
 
 ## seems we're safe, so start removing
@@ -59,10 +60,10 @@ url=`git config --get submodule."$dir".url || echo "unknown"`
 ## remove config entries
 git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null || echo -n ""
 git config --remove-section submodule."$dir" 2>/dev/null || echo -n ""
-## remove git dir first (might git-file, for v.1.7.8 compatibility)
-rm -rf "$dir$gitdir"
 git rm --cached "$dir"
 rm -rf "$dir"
+## remove git dir as well (might git-file, for v.1.7.8 compatibility)
+rm -rf "$gitdir"
 ## commit changes
 if [[ ! "$nocommit" ]]; then
     git add .gitmodules

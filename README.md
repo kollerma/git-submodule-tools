@@ -158,8 +158,8 @@ Known Problems
   does not allow for an -r argument (use `no xargs`-branch).
 * When invoking `git rcommit` without giving the message, the shell somehow
   breaks afterwards and has to be restarted.
-* The scripts were tested for git version 1.7.3.4 but not for any other
-  version.
+* The scripts work fine for git versions 1.7.6.1, 1.7.7.3 and 1.7.10.1, but
+  there are some known problems with 1.7.8.4 and 1.7.9.4.
 
 Copyright/License
 -----------------
