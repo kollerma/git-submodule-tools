@@ -40,8 +40,13 @@ if [[ "$tmp" ]]; then
 	branch=`expr "$line" : '\** *\([^ ]*\)'`
 	##echo "$branch"
 	remote=`expr "$line" : '.*\[\(.*\)\]'` && continue
-	nontracking="$nontracking $branch is not a remote tracking branch and is not fully merged to HEAD.
+	## this might be a a non-tracking branch that is not fully merged to some other tracking branch
+	if git branch -vv --no-color --contains testbranch | grep \\[.*/.*\\] -q; then
+	    continue
+	else 
+	    nontracking="$nontracking $branch is not a remote tracking branch and is not fully merged any tracking branch.
 "
+	fi
     done <<< "$tmp"
 fi
 

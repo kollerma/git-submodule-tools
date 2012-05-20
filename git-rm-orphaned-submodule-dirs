@@ -39,11 +39,12 @@ while read key url; do
 	git check-unpushed || exit 1
 	git check-non-tracking || exit 1
         ## find the real git-dir (might be git-file, for v.1.7.8 compatibility)
-	gitdir=$(git rev-parse --git-dir)
+	## git dir should be relative to current dir... but is it?
+	gitdir=$(cd `git rev-parse --git-dir`; pwd)
 	cd "$tdir"
-        ## remove git dir first (might git-file, for v.1.7.8 compatibility)
-	rm -rf "$dir$gitdir"
 	rm -rf "$dir"
+        ## remove git dir as well (might git-file, for v.1.7.8 compatibility)
+	rm -rf "$gitdir"
     fi
 done
 
