@@ -62,25 +62,28 @@ while read line; do
     if [[ $url =~ $hostname ]]; then
 	repo="$repobase"${url#*:}
 	#echo "Repo: $repo"
-	if [[ -d "$repo" ]]; then
-	    ## The following should work, but doesn't on the server
-	    #GIT_DIR=$repo git rev-parse --quiet --verify $commit > /dev/null
-	    ## so do the following instead
-	    if [[ "$(GIT_DIR=$repo git merge-base $commit HEAD || echo FAIL)" == "FAIL" ]]; then
-		cat<<EOF
+    else
+        #url is relative to this repo
+        repo=$(cd "$GIT_DIR/$url"; pwd)          
+    fi
+    if [[ -d "$repo" ]]; then
+        ## The following should work, but doesn't on the server
+	#GIT_DIR=$repo git rev-parse --quiet --verify $commit > /dev/null
+	## so do the following instead
+	if [[ "$(GIT_DIR=$repo git merge-base $commit HEAD || echo FAIL)" == "FAIL" ]]; then
+	    cat<<EOF
  Error: Cannot find commit for submodule "$rpath".
  Did you use git push instead of git rpush?
  Try again with git rpush.
 EOF
 	    exit 1
-	    fi
-	else 
-	    cat<<EOF
+	fi
+    else 
+	cat<<EOF
  Error: Cannot find submodule repository "$rpath".
  The repository "$repo" does not exist.
 EOF
-	    exit 1
-	fi
+	exit 1
     fi
 done <<< "$commits"
 
