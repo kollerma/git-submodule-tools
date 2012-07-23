@@ -73,7 +73,7 @@ functionality that should simplify the work with submodules.
 * `git-rpull`: pull super repository and update submodules, initializes
   added and removes removes submodules. Attaches head if possible.
 * `git-rcheckout`: checkout super repository and update submodules,
-  initializes added and removes removes submodules. Attaches head if
+  initializes added and removes deleted submodules. Attaches head if
   possible. 
 * `git-rcommit`: runs the same commit command starting with the innermost
   submodules. This is thought to be used with -a so one can quickly create
