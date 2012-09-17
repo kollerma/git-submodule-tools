@@ -69,7 +69,7 @@ Warning in $PWD:
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
- the first commit automatically. Otherwise switch branches with 
+ the first branch automatically. Otherwise switch branches with 
  "git checkout <branchname>".
 EOF
 	fi

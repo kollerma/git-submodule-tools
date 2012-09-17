@@ -118,7 +118,7 @@ Warning in test/vorlesung4/serie2/aufgabe1:
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
- the first commit automatically. Otherwise switch branches with 
+ the first branch automatically. Otherwise switch branches with 
  "git checkout <branchname>".
 done.
 There are updates available for the current repository.
@@ -628,13 +628,13 @@ Warning in test/vorlesung5/serie1/aufgabe1:
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
- the first commit automatically. Otherwise switch branches with 
+ the first branch automatically. Otherwise switch branches with 
  "git checkout <branchname>".
 Warning in test/vorlesung5/serie2/aufgabe2: 
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
- the first commit automatically. Otherwise switch branches with 
+ the first branch automatically. Otherwise switch branches with 
  "git checkout <branchname>".
 done.
 Cloning into vorlesung6...
@@ -644,13 +644,13 @@ Warning in test/vorlesung6/serie1/aufgabe1:
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
- the first commit automatically. Otherwise switch branches with 
+ the first branch automatically. Otherwise switch branches with 
  "git checkout <branchname>".
 Warning in test/vorlesung6/serie2/aufgabe2: 
  Cannot attach HEAD. There are probably unmerged updates available. 
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
- the first commit automatically. Otherwise switch branches with 
+ the first branch automatically. Otherwise switch branches with 
  "git checkout <branchname>".
 done.
 Already up-to-date.
