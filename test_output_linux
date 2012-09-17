@@ -9,7 +9,7 @@ Cloning into aufgabe1...
 done.
 Cloning into aufgabe2...
 done.
-[master (root-commit) 166d91a] first commit
+[master (root-commit) b0f6d81] first commit
  3 files changed, 8 insertions(+), 0 deletions(-)
  create mode 100644 .gitmodules
  create mode 160000 aufgabe1
@@ -25,7 +25,7 @@ Cloning into aufgabe1...
 done.
 Cloning into aufgabe2...
 done.
-[master (root-commit) 386d889] first commit
+[master (root-commit) b1fab6c] first commit
  3 files changed, 8 insertions(+), 0 deletions(-)
  create mode 100644 .gitmodules
  create mode 160000 aufgabe1
@@ -43,7 +43,7 @@ Cloning into serie2...
 done.
 Cloning into r-tutorial...
 done.
-[master (root-commit) eb36b58] first commit
+[master (root-commit) 162cf9c] first commit
  4 files changed, 12 insertions(+), 0 deletions(-)
  create mode 100644 .gitmodules
  create mode 100644 README
@@ -66,7 +66,7 @@ Cloning into vorlesung3...
 done.
 Attaching heads of submodules...
 done.
-[master 0f01a8d] This is no problem
+[master 44f54c0] This is no problem
  1 files changed, 1 insertions(+), 0 deletions(-)
 Warning in test/vorlesung2/r-tutorial:
  Unstaged changes to files under version control.
@@ -89,21 +89,21 @@ Pushing test/vorlesung2.
 To test/remote/vorlesung.git
  * [new tag]         state-1 -> state-1
 From test/remote/vorlesung
-   eb36b58..f5f4b36  master     -> origin/master
+   162cf9c..cd1457d  master     -> origin/master
  * [new tag]         state-1    -> state-1
 Fetching submodule r-tutorial
 From test/remote/r-tutorial
-   905d4fc..35ccdea  master     -> origin/master
+   905d4fc..7932390  master     -> origin/master
 Fetching submodule serie1
 From test/remote/serie1
-   166d91a..2b1e373  master     -> origin/master
+   b0f6d81..17dc21a  master     -> origin/master
 Fetching submodule serie1/aufgabe1
 From test/remote/aufgabe1
-   60214c8..aaf44e0  master     -> origin/master
+   60214c8..3f75f9a  master     -> origin/master
 Fetching submodule serie1/aufgabe2
 From test/remote/aufgabe2
-   97d8f57..0f01a8d  master     -> origin/master
-Updating eb36b58..f5f4b36
+   97d8f57..44f54c0  master     -> origin/master
+Updating 162cf9c..cd1457d
 Fast-forward
  r-tutorial |    2 +-
  serie1     |    2 +-
@@ -202,10 +202,10 @@ rpush failed, as required.
 Diff in test/vorlesung3/r-tutorial:
   tutorial.Rnw |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
-Diff in test/vorlesung3/serie1/aufgabe2:
+Diff in test/vorlesung3/serie1/aufgabe1:
   ex.Rnw |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
-Diff in test/vorlesung3/serie1/aufgabe1:
+Diff in test/vorlesung3/serie1/aufgabe2:
   ex.Rnw |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
 Diff in test/vorlesung3/serie2/aufgabe1:
@@ -214,11 +214,11 @@ Diff in test/vorlesung3/serie2/aufgabe1:
 Auto-merging tutorial.Rnw
 CONFLICT (content): Merge conflict in tutorial.Rnw
 Automatic merge failed; fix conflicts and then commit the result.
-Updating 60214c8..aaf44e0
+Updating 60214c8..3f75f9a
 Fast-forward
  ex.Rnw |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
-Updating 97d8f57..0f01a8d
+Updating 97d8f57..44f54c0
 Fast-forward
  ex.Rnw |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
@@ -235,8 +235,8 @@ Committing in test/vorlesung3...
 Converging local and remote...
 done.
 Pushing test/vorlesung3/r-tutorial.
-Pushing test/vorlesung3/serie2/aufgabe1.
 Pushing test/vorlesung3/serie1.
+Pushing test/vorlesung3/serie2/aufgabe1.
 Pushing test/vorlesung3/serie2.
 Pushing test/vorlesung3.
  Warning: Untracked files in submodules. Add them to .gitignore
@@ -244,20 +244,20 @@ Pushing test/vorlesung3.
   Use "git status" to see where they are.
   Continuing anyway...
 From test/remote/vorlesung
-   f5f4b36..2283aef  master     -> origin/master
+   cd1457d..c485284  master     -> origin/master
 Fetching submodule r-tutorial
 From test/remote/r-tutorial
-   35ccdea..a0ec486  master     -> origin/master
+   7932390..9fb80fd  master     -> origin/master
 Fetching submodule serie1
 From test/remote/serie1
-   2b1e373..ae551e2  master     -> origin/master
+   17dc21a..74315d0  master     -> origin/master
 Fetching submodule serie2
 From test/remote/serie2
-   386d889..0d6dc99  master     -> origin/master
+   b1fab6c..a55a5ff  master     -> origin/master
 Fetching submodule serie2/aufgabe1
 From test/remote/aufgabe2
-   0f01a8d..92153fd  master     -> origin/master
-Updating f5f4b36..2283aef
+   44f54c0..e688a3a  master     -> origin/master
+Updating cd1457d..c485284
 Fast-forward
  r-tutorial |    2 +-
  serie1     |    2 +-
@@ -269,7 +269,7 @@ Then "git rpull" in the correct folder to merge updates.
 Diff in test/vorlesung/serie1/aufgabe2:
   ex.Rnw |    3 ---
  1 files changed, 0 insertions(+), 3 deletions(-)
-Updating 0f01a8d..92153fd
+Updating 44f54c0..e688a3a
 Fast-forward
  ex.Rnw |    3 ---
  1 files changed, 0 insertions(+), 3 deletions(-)
@@ -278,23 +278,23 @@ Committing in test/vorlesung...
 Pushing test/vorlesung/serie1.
 Pushing test/vorlesung.
 From test/remote/vorlesung
-   f5f4b36..4c1f828  master     -> origin/master
+   cd1457d..5a1f321  master     -> origin/master
 Fetching submodule r-tutorial
 From test/remote/r-tutorial
-   35ccdea..a0ec486  master     -> origin/master
+   7932390..9fb80fd  master     -> origin/master
 Fetching submodule serie1
 From test/remote/serie1
-   2b1e373..904815c  master     -> origin/master
+   17dc21a..5c74944  master     -> origin/master
 Fetching submodule serie1/aufgabe2
 From test/remote/aufgabe2
-   0f01a8d..92153fd  master     -> origin/master
+   44f54c0..e688a3a  master     -> origin/master
 Fetching submodule serie2
 From test/remote/serie2
-   386d889..0d6dc99  master     -> origin/master
+   b1fab6c..a55a5ff  master     -> origin/master
 Fetching submodule serie2/aufgabe1
 From test/remote/aufgabe2
-   97d8f57..92153fd  master     -> origin/master
-Updating f5f4b36..4c1f828
+   97d8f57..e688a3a  master     -> origin/master
+Updating cd1457d..5a1f321
 Fast-forward
  r-tutorial |    2 +-
  serie1     |    2 +-
@@ -316,25 +316,24 @@ do so (now or later) by using -b with the checkout command again. Example:
 
   git checkout -b new_branch_name
 
-HEAD is now at f5f4b36... I did something
+HEAD is now at cd1457d... I did something
 M	r-tutorial
 M	serie1
 M	serie2
-Previous HEAD position was f5f4b36... I did something
-HEAD is now at eb36b58... first commit
+Previous HEAD position was cd1457d... I did something
+HEAD is now at 162cf9c... first commit
 M	r-tutorial
 M	serie1
 Error in test/vorlesung2/r-tutorial:
  Refused to commit in detached head state. 
- Use "git rcheckout <branchname>" to attach HEAD. 
- List branches with "git branch -v".
+ See "git attach-head --help" for help on attaching the HEAD.
 rcommit failed as it should have
 Error in test/vorlesung2:
  There is modified content in submodules.
 rcheckout failed as it should have
 HEAD is now at 905d4fc I did something
-Previous HEAD position was eb36b58... first commit
-HEAD is now at 4c1f828... updated serie1/aufgabe2
+Previous HEAD position was 162cf9c... first commit
+HEAD is now at 5a1f321... updated serie1/aufgabe2
 M	r-tutorial
 M	serie1
 M	serie2
@@ -342,22 +341,22 @@ Error in test/vorlesung2/serie2/aufgabe2:
  There are untracked files not in .gitignore. Try "make clean" to remove temporary files.
 rm-submodule failed as it should have
 Switched to a new branch 'testbranch'
-[testbranch f9bbb3e] catch this!
+[testbranch 29207dc] catch this!
  1 files changed, 1 insertions(+), 0 deletions(-)
  create mode 100644 hallo
 Switched to branch 'master'
 Error in test/vorlesung2/serie2/aufgabe2:
  testbranch is not a remote tracking branch and is not fully merged any tracking branch.
 rm-submodule caught non-tracking-branch
-Updating 4169dd3..f9bbb3e
+Updating 4169dd3..29207dc
 Fast-forward
  hallo |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
  create mode 100644 hallo
 To test/remote/aufgabe3.git
-   4169dd3..f9bbb3e  master -> master
+   4169dd3..29207dc  master -> master
 rm 'aufgabe2'
-[master e9beeb0] removed submodule "aufgabe2" (url: test/remote/aufgabe3.git)
+[master 8af9aa1] removed submodule "aufgabe2" (url: test/remote/aufgabe3.git)
  2 files changed, 0 insertions(+), 4 deletions(-)
  delete mode 160000 aufgabe2
 Committing in test/vorlesung2...
@@ -372,9 +371,9 @@ do so (now or later) by using -b with the checkout command again. Example:
 
   git checkout -b new_branch_name
 
-HEAD is now at 4c1f828... updated serie1/aufgabe2
+HEAD is now at 5a1f321... updated serie1/aufgabe2
 M	serie2
-Previous HEAD position was 4c1f828... updated serie1/aufgabe2
+Previous HEAD position was 5a1f321... updated serie1/aufgabe2
 Switched to branch 'master'
 M	serie2
 Your branch is ahead of 'origin/master' by 1 commit.
@@ -389,8 +388,8 @@ There are updates available for serie2/aufgabe2.
 Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
 From test/remote/aufgabe3
-   4169dd3..f9bbb3e  master     -> origin/master
-Updating 4169dd3..f9bbb3e
+   4169dd3..29207dc  master     -> origin/master
+Updating 4169dd3..29207dc
 Fast-forward
  hallo |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
@@ -458,7 +457,7 @@ Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
 Cloning into aufgabe2...
 done.
-[master d13dbc6] added aufgabe1.git as aufgabe2
+[master 8ee0b4a] added aufgabe1.git as aufgabe2
  2 files changed, 4 insertions(+), 0 deletions(-)
  create mode 160000 aufgabe2
 Committing in test/vorlesung2...
@@ -488,12 +487,12 @@ There are updates available for serie2/aufgabe2.
 Use "git rfetch" to fetch updates.
 Then go to the innermost submodules and use "git rpull" to merge the updates.
 rm 'aufgabe2'
-[master 9ba9bb5] removed submodule "aufgabe2" (url: test/remote/aufgabe3.git)
+[master b87943e] removed submodule "aufgabe2" (url: test/remote/aufgabe3.git)
  2 files changed, 0 insertions(+), 4 deletions(-)
  delete mode 160000 aufgabe2
 Cloning into aufgabe2...
 done.
-[master d6450b0] added aufgabe1.git as aufgabe2
+[master a7452d8] added aufgabe1.git as aufgabe2
  2 files changed, 4 insertions(+), 0 deletions(-)
  create mode 160000 aufgabe2
 Committing in test/vorlesung...
@@ -531,7 +530,7 @@ Cloning into aufgabe2...
 done.
 Cloning into aufgabe3...
 done.
-[master cec6d72] added aufgabe1.git as aufgabe2, aufgabe3.git as aufgabe3
+[master 8c4bfcc] added aufgabe1.git as aufgabe2, aufgabe3.git as aufgabe3
  3 files changed, 8 insertions(+), 0 deletions(-)
  create mode 160000 aufgabe2
  create mode 160000 aufgabe3
@@ -548,11 +547,11 @@ done.
 Pushing test/vorlesung3/serie2.
 Pushing test/vorlesung3.
 From test/remote/vorlesung
-   77cacf3..91cdc34  master     -> origin/master
+   9ba8be2..dc1026b  master     -> origin/master
 Fetching submodule serie2
 From test/remote/serie2
-   5807cfe..348f1a6  master     -> origin/master
-Updating 77cacf3..91cdc34
+   f236293..92d3d62  master     -> origin/master
+Updating 9ba8be2..dc1026b
 Fast-forward
  serie2 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
@@ -561,7 +560,7 @@ Branch alternative set up to track remote branch alternative from origin.
 Switched to branch 'alternative'
 Committing in test/vorlesung/serie2...
 Committing in test/vorlesung...
-HEAD is now at bae8c07 some message
+HEAD is now at 8e5b968 some message
 Committing in test/vorlesung3/serie2...
 Committing in test/vorlesung3...
 Pushing test/vorlesung3/serie2.
@@ -582,11 +581,11 @@ done.
 Pushing test/vorlesung/serie2.
 Pushing test/vorlesung.
 From test/remote/vorlesung
-   db9f47a..29e5c1e  master     -> origin/master
+   0bb5314..e5248b6  master     -> origin/master
 Fetching submodule serie2
 From test/remote/serie2
-   f463163..a335cde  master     -> origin/master
-Updating db9f47a..29e5c1e
+   ca3a6c7..e1103b8  master     -> origin/master
+Updating 0bb5314..e5248b6
 Fast-forward
  serie2 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
@@ -595,33 +594,33 @@ Ok series2 exists already
 rm 'serie2'
 Cloning into serie3...
 done.
-[master 296b5bc] moved submodule "serie2" to "serie3" (url: test/remote/serie2.git)
+[master 0922f6d] moved submodule "serie2" to "serie3" (url: test/remote/serie2.git)
  2 files changed, 3 insertions(+), 3 deletions(-)
  rename serie2 => serie3 (100%)
 rm 'serie3'
 Cloning into serie2...
 done.
-[master d12b376] moved submodule "serie3" to "serie2" (url: test/remote/serie2.git)
+[master bf0a057] moved submodule "serie3" to "serie2" (url: test/remote/serie2.git)
  2 files changed, 2 insertions(+), 2 deletions(-)
  rename serie3 => serie2 (100%)
 Cloning into bare repository aufgabe4.git...
 done.
 Cloning into aufgabe1...
 done.
-[master 75d1187] first time adding more content to aufgabe1
+[master 8e094e3] first time adding more content to aufgabe1
  1 files changed, 1 insertions(+), 0 deletions(-)
-[master 35ddf72] second time adding more content to aufgabe1
+[master f7cd489] second time adding more content to aufgabe1
  1 files changed, 1 insertions(+), 0 deletions(-)
 To test/remote/aufgabe1.git
-   aaf44e0..35ddf72  master -> master
+   3f75f9a..f7cd489  master -> master
 Cloning into aufgabe4...
 done.
-[master e439b75] first time adding more content to aufgabe4
+[master ea03f7d] first time adding more content to aufgabe4
  1 files changed, 1 insertions(+), 0 deletions(-)
-[master 7843529] second time adding more content to aufgabe4
+[master dbd1d2b] second time adding more content to aufgabe4
  1 files changed, 1 insertions(+), 0 deletions(-)
 To test/remote/aufgabe4.git
-   aaf44e0..7843529  master -> master
+   3f75f9a..dbd1d2b  master -> master
 Cloning into vorlesung5...
 done.
 Attaching heads of submodules...
@@ -655,30 +654,27 @@ Warning in test/vorlesung6/serie2/aufgabe2:
  "git checkout <branchname>".
 done.
 Already up-to-date.
-Previous HEAD position was aaf44e0... I did something
+Previous HEAD position was 3f75f9a... I did something
 Switched to branch 'master'
 Committing in test/vorlesung5/serie1...
 Committing in test/vorlesung5...
 Warning in test/vorlesung5/serie2/aufgabe2:
  Detached head. This probably just mean that there are updates available
  that are not yet used. To update to the most recent version, use 
-   git checkout <branchname> 
- To list all branches, use 
-   git branch -a 
- Alternatively try to use "git attach-head" or "git rpull" to update submodule.
+   git attach-head -w
 Pushing test/vorlesung5/serie1.
 Pushing test/vorlesung5.
 From test/remote/vorlesung
-   29e5c1e..0434ea6  master     -> origin/master
+   e5248b6..ab56c61  master     -> origin/master
 Fetching submodule serie1
 From test/remote/serie1
-   904815c..7ecca63  master     -> origin/master
-Updating 29e5c1e..0434ea6
+   5c74944..542be1f  master     -> origin/master
+Updating e5248b6..ab56c61
 Fast-forward
  serie1 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 rm 'aufgabe1'
-[master 1685df3] removed submodule "aufgabe1" (url: test/remote/aufgabe1.git)
+[master a50062c] removed submodule "aufgabe1" (url: test/remote/aufgabe1.git)
  2 files changed, 0 insertions(+), 4 deletions(-)
  delete mode 160000 aufgabe1
 Cloning into aufgabe1...
@@ -688,21 +684,18 @@ Committing in test/vorlesung6...
 Warning in test/vorlesung6/serie2/aufgabe2:
  Detached head. This probably just mean that there are updates available
  that are not yet used. To update to the most recent version, use 
-   git checkout <branchname> 
- To list all branches, use 
-   git branch -a 
- Alternatively try to use "git attach-head" or "git rpull" to update submodule.
+   git attach-head -w
 Pushing test/vorlesung6/serie1.
 Pushing test/vorlesung6.
 From test/remote/vorlesung
-   0434ea6..d6be30a  master     -> origin/master
+   ab56c61..a64a86c  master     -> origin/master
 Fetching submodule serie1
 From test/remote/serie1
-   7ecca63..1f370b4  master     -> origin/master
-Updating 0434ea6..d6be30a
+   542be1f..175e860  master     -> origin/master
+Updating ab56c61..a64a86c
 Fast-forward
  serie1 |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
-* master                7843529 second time adding more content to aufgabe4
+* master                dbd1d2b second time adding more content to aufgabe4
   remotes/origin/HEAD   -> origin/master
-  remotes/origin/master 7843529 second time adding more content to aufgabe4
+  remotes/origin/master dbd1d2b second time adding more content to aufgabe4
