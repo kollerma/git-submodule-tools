@@ -80,8 +80,7 @@ then
 	cat >&2 <<EOF 
 Error in $PWD:
  Refused to commit in detached head state. 
- Use "git rcheckout <branchname>" to attach HEAD. 
- List branches with "git branch -v".
+ See "git attach-head --help" for help on attaching the HEAD.
 EOF
 	exit 1
     fi

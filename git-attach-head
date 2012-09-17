@@ -15,11 +15,16 @@ if [[ "$@" == *--help* ]]; then
  is checked out. If this is not the case, but the local branch can be
  fast forwarded, then the script does so. Prefers "master" over other
  branches.
+ The option -f runs the command
+   git branch -r --contains HEAD
+ to find branches that contain the current HEAD and checks out the
+ first one found.
 
  Usage:
-    git attach-head [-w]
+    git attach-head [-w] [-f]
 
     -w: warn if HEAD cannot be attached
+    -f: Guess branch name, and forward to a newer commit.
 EOF
     exit 0;
 fi
@@ -32,11 +37,15 @@ if git symbolic-ref -q HEAD > /dev/null ; then
 fi
 
 ## get arguments
-while getopts ":w" opt; do
+while getopts ":fw" opt; do
     case $opt in
 	w)
 	    w=1
 	    #echo "-f was triggered!" >&2
+	    ;;
+	f) 
+	    fopt=1
+	    ## echo "-f was triggered!" >&2
 	    ;;
 	\?)
 	    # ignore this
@@ -53,13 +62,30 @@ if [[ ! "$branch" ]]; then
     branch=`git show-ref | grep $HEAD | sed -e 's/.*refs\///' -e '/HEAD/ d' -e '/tags\// d' | sed -e '2,$ d'`
 fi
 if [[ ! "$branch" ]]; then
-    if [[ "$w" ]]; then
-	cat >&2 <<EOF 
+    if [[ ! "$fopt" ]]; then
+	if [[ "$w" ]]; then
+	    cat >&2 <<EOF 
 Warning in $PWD: 
  Cannot attach HEAD. There are probably unmerged updates available. 
- Go ("cd") there and use "git branch -v" list available branches. 
- Switch branches with "git checkout <branchname>".
+ Go ("cd") there and use "git -r --contains HEAD" list branches that
+ contain the current commit. Use "git attach-head -f" to attach to 
+ the first commit automatically. Otherwise switch branches with 
+ "git checkout <branchname>".
 EOF
+	fi
+    else
+	candidate=`git branch -r --contains HEAD | grep -m 1 -v HEAD`
+	## remove remote prefix
+	candidate=${candidate#*/}
+	if [[ "$w" ]]; then
+	    cat >&2 <<EOF
+Warning in $PWD:
+ Forwarding from commit $HEAD 
+ to newest version in branch "$candidate". Please make sure that this
+ is the correct branch and commit the change in the supermodules.
+EOF
+	fi
+	git rcheckout "$candidate"
     fi
 else 
     ## try to attach head now

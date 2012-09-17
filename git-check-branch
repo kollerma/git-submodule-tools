@@ -34,10 +34,7 @@ cat >&2 <<EOF
 Warning in $PWD:
  Detached head. This probably just mean that there are updates available
  that are not yet used. To update to the most recent version, use 
-   git checkout <branchname> 
- To list all branches, use 
-   git branch -a 
- Alternatively try to use "git attach-head" or "git rpull" to update submodule.
+   git attach-head -w
 EOF
     exit 0
 fi
