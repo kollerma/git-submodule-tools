@@ -70,7 +70,7 @@ Warning in $PWD:
  Go ("cd") there and use "git -r --contains HEAD" list branches that
  contain the current commit. Use "git attach-head -f" to attach to 
  the first branch automatically. Otherwise switch branches with 
- "git checkout <branchname>".
+ "git rcheckout <branchname>".
 EOF
 	fi
     else
