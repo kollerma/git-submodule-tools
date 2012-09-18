@@ -1,5 +1,19 @@
 #!/bin/bash
 
+## read input, display help if necessary
+if [[ "$@" == *--help* ]]; then
+    cat<<EOF
+ Recursive status
+
+ This command shows a brief summary about the status of 
+ the repository and all the submodules.
+
+ Usage:
+    git rstatus
+EOF
+    exit 0;
+fi
+
 . "$(git --exec-path)/git-sh-setup"
 
 cd_to_toplevel
