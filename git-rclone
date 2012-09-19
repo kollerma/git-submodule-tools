@@ -25,6 +25,13 @@ else
     name=${name%.git}
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 echo "Cloning into $name..."
 git clone --recursive -q "$1" "$name" > /dev/null
 echo "done."

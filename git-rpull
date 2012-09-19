@@ -24,6 +24,13 @@ EOF
     exit 0;
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 ## check for modified content and uncommitted changes
 git check-clean --ignore-submodules=untracked --unstaged --uncommitted --unmerged || exit 1
 ## check for untracked files

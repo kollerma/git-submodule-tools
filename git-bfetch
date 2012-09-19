@@ -31,6 +31,14 @@ EOF
     fi
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
+
 ## get current branch 
 branch=`git name-rev --name-only HEAD`
 

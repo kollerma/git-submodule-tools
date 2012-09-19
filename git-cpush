@@ -19,6 +19,12 @@ EOF
     exit 0;
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
 
 
 ## push submodules first

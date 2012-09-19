@@ -68,6 +68,13 @@ else
     done
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 if [[ "$ignoresub" ]]; then
     status=`git status --porcelain --ignore-submodules=$ignoresub`
 else

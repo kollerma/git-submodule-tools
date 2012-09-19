@@ -18,6 +18,13 @@ EOF
     exit 0;
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 ## ensure we are in the toplevel directory
 cdup=$(git rev-parse --show-toplevel) &&
 cd "$cdup" || {

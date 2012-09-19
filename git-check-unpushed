@@ -32,6 +32,13 @@ while getopts ":p" opt; do
   esac
 done
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 ## cycle all branches
 tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
