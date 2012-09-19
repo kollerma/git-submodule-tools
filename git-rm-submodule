@@ -27,6 +27,13 @@ else
     dir=$1
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 ## check if this is a valid submodule
 if [[ ! "$dir" || $(git ls-files --error-unmatch --stage -- "$dir" | grep -E '^160000') == "" ]]; then
     echo >&2 "Error: \"$dir\" is not a submodule."

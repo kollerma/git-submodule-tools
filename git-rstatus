@@ -14,6 +14,13 @@ EOF
     exit 0;
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 . "$(git --exec-path)/git-sh-setup"
 
 cd_to_toplevel

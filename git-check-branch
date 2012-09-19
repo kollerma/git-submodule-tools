@@ -39,6 +39,13 @@ EOF
     exit 0
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 tmp=`git branch --no-color -vv 2> /dev/null`
 while read line; do
     if [[ "${line:0:1}" != "*" ]]; then

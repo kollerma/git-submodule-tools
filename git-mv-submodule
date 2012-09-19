@@ -31,6 +31,13 @@ else
     to=$2
 fi
 
+## from the git mailinglist:
+function git
+{
+    LC_MESSAGES=C command git "$@"
+} 
+export git
+
 
 ## check if this is a valid submodule
 if [[ ! "$from" || $(git ls-files --error-unmatch --stage -- "$from" | grep -E '^160000') == "" ]]; then
