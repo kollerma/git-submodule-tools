@@ -126,7 +126,7 @@ worktree_index_status ()
 }
 
 do_one_status () {
-	outf=$(mktemp --tmpdir="$tmpdir")
+	outf=$(mktemp --tmpdir="$tmpdir" 2>/dev/null)
 	name="$1"
 	path="$2"
 	toplevel="$3"
