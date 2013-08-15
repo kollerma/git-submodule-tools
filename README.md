@@ -134,6 +134,14 @@ Installation
 
 The scripts can be placed anywhere in `$PATH`, e.g., `/usr/local/bin`.
 
+To make `git rstatus` work on Windows, download the binary of 'mktemp' for
+Windows from the GnuWin32 project [here](http://gnuwin32.sourceforge.net/packages/mktemp.htm). 
+Place it in `C:\Program Files\Git\bin`. 
+(Thanks to @TheKirk for this hint.)
+
+The following steps and dependencies are only required if one likes to use
+the graphical interface gitR.
+
 gitR requires an current R installation (http://www.r-project.org) and
 requires the R-package (contained in gitR-package/) to be installed.
 Before installing the package, make sure to have installed the R-packages
