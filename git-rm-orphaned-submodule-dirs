@@ -32,6 +32,9 @@ cd "$cdup" || {
     exit 1
 }
 
+## ensure we will not remove the toplevel git directory
+rootgitdir=$(cd `git rev-parse --git-dir`; pwd)
+
 ## find submodule urls not in .gitmodules:
 git config --get-regexp submodule.*url |
 while read key url; do
@@ -51,7 +54,10 @@ while read key url; do
 	cd "$tdir"
 	rm -rf "$dir"
         ## remove git dir as well (might git-file, for v.1.7.8 compatibility)
-	rm -rf "$gitdir"
+        ## but only if it's not equal to root dir
+	if [[ "$gitdir" != "$rootgitdir" ]]; then
+	    rm -rf "$gitdir"
+	fi
     fi
 done
 
