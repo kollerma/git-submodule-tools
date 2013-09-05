@@ -17,12 +17,12 @@ EOF
     exit 0;
 fi
 
-if ! git symbolic-ref -q HEAD > /dev/null ; then
+if !(git symbolic-ref -q HEAD > /dev/null) ; then
     ## detached head cannot be remote tracking branch...
     ## ...but: if there are no new commits, we can safely ignore this
     ## FIXME: this test only succeed if the new commit is actually
     ##        checked out
-    if ! git diff origin...  --quiet; then
+    if !(git diff origin... --quiet) ; then
 	cat >&2 <<EOF
 Error in $PWD:
  Detached head and new commits. Attach the HEAD by creating

@@ -71,7 +71,7 @@ if [[ $recursive -eq 1 ]]; then
     fi
 fi
 
-if [ $a -ne 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty; then
+if [ $a -ne 1 ] && ! (git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) ; then
     cat >&2 <<EOF 
 Warning in $PWD:
  Unstaged changes to files under version control.
@@ -80,10 +80,10 @@ EOF
 fi 
     
 ## commit if dirty (or --allow-empty is given)
-if [[ "$args" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) || ! git check-clean --uncommitted --exit-code --ignore-submodules=dirty; 
+if [[ "$args" == *--allow-empty* ]] || ([ $a -eq 1 ] && ! (git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty)) || ! (git check-clean --uncommitted --exit-code --ignore-submodules=dirty) ; 
 then
     ## check for detached head
-    if ! git symbolic-ref -q HEAD > /dev/null ; then
+    if ! (git symbolic-ref -q HEAD > /dev/null) ; then
 	cat >&2 <<EOF 
 Error in $PWD:
  Refused to commit in detached head state. 
