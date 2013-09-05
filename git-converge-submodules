@@ -86,10 +86,10 @@ if [ -f .gitmodules ]; then
     if [[ ! "$nontracking" ]]; then
 	## get submodules
 	sub=`git ls-files --error-unmatch --stage | grep -E '^160000' | sed -e 's/^.*	//' | tr '\n' ' '`
-	if [[ $force -eq 1 ]] || ! git diff "$branch"..."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
+	if [[ $force -eq 1 ]] || ! (git diff "$branch"..."$remote" --no-ext-diff --quiet --exit-code -- $sub) ; then
 	    ## there are differences, do a merge
             ## check for uncommmited changes first
-	    if ! git check-clean --uncommitted --unmerged --exit-code --ignore-submodules; then
+	    if ! (git check-clean --uncommitted --unmerged --exit-code --ignore-submodules) ; then
 		cat >&2 <<EOF 
 Error in $PWD:
  Uncommitted changes, cannot converge submodules.
@@ -202,7 +202,7 @@ EOF
 	    fi
 	    echo "done."
 	else 
-	    if [[ $q -ne 1 ]] && ! git diff "$branch".."$remote" --no-ext-diff --quiet --exit-code -- $sub; then
+	    if [[ $q -ne 1 ]] && ! (git diff "$branch".."$remote" --no-ext-diff --quiet --exit-code -- $sub) ; then
 		cat<<EOF 
 Notice in $PWD:
  Not converging, use "git converge-submodules -f" if necessary

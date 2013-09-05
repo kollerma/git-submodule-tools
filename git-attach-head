@@ -39,7 +39,7 @@ export git
 ## TODO: do some error checking?
 
 ## stop if HEAD is a ref already
-if git symbolic-ref -q HEAD > /dev/null ; then
+if (git symbolic-ref -q HEAD > /dev/null) ; then
     exit 0
 fi
 
@@ -106,7 +106,7 @@ else
 	tbranch=`git branch -vv | grep "\[$rbranch" | sed -e 's/  \([^ ]*\) .*/\1/' -e '2,$ d'`
 	if [[ "$tbranch" ]]; then
 	    ## check if we can fast forward the corresponding local branch
-	    if git branch -vv | grep "  $tbranch" | grep " ahead " -q; then
+	    if (git branch -vv | grep "  $tbranch" | grep " ahead " -q); then
 		## cannot, since local branch is ahead -> exit
 		if [[ "$w" ]]; then
 		    cat >&2 <<EOF 
