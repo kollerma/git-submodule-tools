@@ -63,10 +63,10 @@ cd "$cdup"
 
 ## seems we're safe, so start removing
 ## get submodule url
-url=`git config --get submodule."$dir".url || echo "unknown"`
+url=`(git config --get submodule."$dir".url) || echo "unknown"`
 ## remove config entries
-git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null || echo -n ""
-git config --remove-section submodule."$dir" 2>/dev/null || echo -n ""
+(git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null) || echo -n ""
+(git config --remove-section submodule."$dir" 2>/dev/null) || echo -n ""
 git rm --cached "$dir"
 rm -rf "$dir"
 ## remove git dir as well (might git-file, for v.1.7.8 compatibility)

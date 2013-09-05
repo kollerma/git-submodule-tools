@@ -108,7 +108,7 @@ EOF
 		    cp .gitmodules .gitmodules-old
 		    ## checkout the version from merge base
 		    mergebase=`git merge-base HEAD origin/master`
-		    git checkout "$mergebase" -- .gitmodules || { echo "Mergebase: $mergebase at $PWD"; exit 1 ;}
+		    (git checkout "$mergebase" -- .gitmodules) || { echo "Mergebase: $mergebase at $PWD"; exit 1 ;}
 		    cp .gitmodules .gitmodules-mb
 		    ## checkout remote .gitmodules
 		    git checkout "$remote" -- .gitmodules
@@ -121,12 +121,12 @@ EOF
 			lurl=`git config -f .gitmodules-old --get submodule."$lsub".url`
 			## check if this submodule exists in remote
 			## if the url is different, favor theirs if changed since $mergehead
-			rurl=`git config -f .gitmodules --get submodule."$lsub".url || echo ""`
+			rurl=`(git config -f .gitmodules --get submodule."$lsub".url) || echo ""`
 			##echo "rurl: $rurl"
 			if [[ "$rurl" ]]; then
 			    ## if the urls haven't changed: continue
 			    if [[ "$rurl" != "$lurl" ]]; then
-				mburl=`git config -f .gitmodules-mb --get submodules."$lsub".url || echo ""` 
+				mburl=`(git config -f .gitmodules-mb --get submodules."$lsub".url) || echo ""` 
 				##echo "mburl: $mburl"
 				if [ "$rurl" == "$mburl" ]; then
 				    ## ok, url has changed in local but not remote
@@ -148,7 +148,7 @@ EOF
 Removing submodule "$lsub" dropped in remote.
 Issue "git submodule add $lurl $lsub" to add it again.
 EOF
-				git rm-submodule --no-commit "$lsub" || 
+				(git rm-submodule --no-commit "$lsub") || 
 				echo "Submodule has already been removed."
 				continue
 			    fi
@@ -184,7 +184,7 @@ EOF
 	    else
 		## there are just differences in the submodule pointers
 		## TODO: help to merge this aswell
-		git merge $remote -q || {
+		(git merge $remote -q) || {
 		    ## there was a merge conflict, i.e. both pointers different from mergebase
 		    ## get conflicting pointers
 		    conflicts=`git status --porcelain | grep -E '^UU' | sed -e 's/UU //' | tr '\n' ' '`
