@@ -108,9 +108,9 @@ worktree_index_status ()
 			b="GIT_DIR!"
 		fi
 	elif [ "true" = "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]; then
-		git diff --no-ext-diff --quiet --exit-code --ignore-submodules=dirty || w="*"
+		(git diff --no-ext-diff --quiet --exit-code --ignore-submodules=dirty) || w="*"
 		if (git rev-parse --quiet --verify HEAD >/dev/null) ; then
-			git diff-index --cached --quiet HEAD -- || i="+"
+			(git diff-index --cached --quiet HEAD --) || i="+"
 		else
 			i="#"
 		fi
