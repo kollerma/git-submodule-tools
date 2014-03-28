@@ -66,6 +66,7 @@ cd "$cdup"
 url=`(git config --get submodule."$dir".url) || echo "unknown"`
 ## remove config entries
 (git config -f .gitmodules --remove-section submodule."$dir" 2>/dev/null) || echo -n ""
+(git add .gitmodules 2>/dev/null) || echo -n ""
 (git config --remove-section submodule."$dir" 2>/dev/null) || echo -n ""
 git rm --cached "$dir"
 rm -rf "$dir"
