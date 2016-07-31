@@ -132,7 +132,7 @@ Other Stuff
 Installation
 ------------
 
-The scripts can be placed anywhere in `$PATH`, e.g., `/usr/local/bin`.
+Clone the repository and then add `<path-to-repository>/bin` to your `$PATH`.
 
 To make `git rstatus` work on Windows, download the binary of 'mktemp' for
 Windows from the GnuWin32 project [here](http://gnuwin32.sourceforge.net/packages/mktemp.htm). 
