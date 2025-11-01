@@ -31,37 +31,47 @@ cd "$cdup" || {
     exit 1
 }
 
-## continue silently, if there are unstaged changes
-## we assume that such directories have already been merged.
+## If there are unstaged/unmerged changes show the working tree diff
+## otherwise compare current branch with its remote tracking branch.
 ## TODO: also show difference if fast forward is possible.
 ## TODO: if differences in submodules, show nicer output
-if (git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty) ; then
+if ! git check-clean --unstaged --unmerged --exit-code --ignore-submodules=dirty ; then
+    # There are unstaged/unmerged changes: show the working tree diff
+    output=`git diff --ignore-submodules --stat --no-ext-diff`
+
+    if [[ "$output" != "" ]]; then
+        cat<<EOF
+Unstaged changes in $PWD:
+ $output
+EOF
+    fi
+else
     ## check if its a remote tracking branch and get it
     tmp=`git branch --no-color -vv 2> /dev/null`
     while read line; do
-	if [[ "${line:0:1}" != "*" ]]; then
-	    continue
-	fi
-	##echo "$line"
-	branch=`expr "$line" : '\** *\([^ ]*\)'`
-	remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
-	remote=`expr "$remote" : '\([^:]*\)'`
+        if [[ "${line:0:1}" != "*" ]]; then
+            continue
+        fi
+        ##echo "$line"
+        branch=`expr "$line" : '\** *\([^ ]*\)'`
+        remote=`expr "$line" : '.*\[\(.*\)\]'` || nontracking=0
+        remote=`expr "$remote" : '\([^:]*\)'`
     done <<< "$tmp"
 
     if [[ "$nontracking" ]]; then
-	cat >&2 <<EOF 
+        cat >&2 <<EOF 
 Error in $PWD:
  Not on a remote tracking branch.
 EOF
     else 
-	output=`git diff $branch..$remote --ignore-submodules --stat --no-ext-diff`
+        output=`git diff $branch..$remote --ignore-submodules --stat --no-ext-diff`
 
-	if [[ "$output" != "" ]]; then
-	    cat<<EOF 
+        if [[ "$output" != "" ]]; then
+            cat<<EOF 
 Diff in $PWD:
  $output
 EOF
-	fi
+        fi
     fi
 fi
 
